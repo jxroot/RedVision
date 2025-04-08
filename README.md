@@ -13,7 +13,7 @@
 
 <details>
     <summary>Click to view image 0</summary>
-
+    <br>
 <p align="center">
         <img src="res/c0.png" width="700"/>
 </p>
