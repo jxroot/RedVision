@@ -1,5 +1,17 @@
-# RedVision
-collection of custom-designed HTML user interfaces for Command &amp; Control (C2) systems.
+<h3 align="center"><img src="res/c0.png" alt="logo" height="250px"></h3>
+<p align="center">
+    <b>RedVision</b><br>
+    </p>
+<hr>
+<p align="center">
+  <b>collection of custom-designed HTML user interfaces for Command & Control (C2) systems.</b>
+    </p>
+
+
+   
+
+  
+</p>
 
 <h2 id="next-update">🔱 Next Update</h2>
 <ul>
