@@ -13,18 +13,302 @@
 
 
 
-<details  ><summary>
+  <details>
+            <summary>Click to view image 0</summary>
 
-`c2_0.html` 
-</summary>
+            <p></p>
 
-<p></p>
+            <p align="center">
+                <img src="res/c0.png" alt="find_file" width="700"/>
+            </p>
 
-<p align="center">
-  <img src="res/c0.png" alt="find_file" width="700"/>
-</p>
+        </details>
+        
+        <details>
+            <summary>Click to view image 1</summary>
 
-</details>
+            <p></p>
+
+            <p align="center">
+                <img src="res/c1.png" alt="find_file" width="700"/>
+            </p>
+
+        </details>
+        
+        <details>
+            <summary>Click to view image 2</summary>
+
+            <p></p>
+
+            <p align="center">
+                <img src="res/c2.png" alt="find_file" width="700"/>
+            </p>
+
+        </details>
+        
+        <details>
+            <summary>Click to view image 3</summary>
+
+            <p></p>
+
+            <p align="center">
+                <img src="res/c3.png" alt="find_file" width="700"/>
+            </p>
+
+        </details>
+        
+        <details>
+            <summary>Click to view image 4</summary>
+
+            <p></p>
+
+            <p align="center">
+                <img src="res/c4.png" alt="find_file" width="700"/>
+            </p>
+
+        </details>
+        
+        <details>
+            <summary>Click to view image 5</summary>
+
+            <p></p>
+
+            <p align="center">
+                <img src="res/c5.png" alt="find_file" width="700"/>
+            </p>
+
+        </details>
+        
+        <details>
+            <summary>Click to view image 6</summary>
+
+            <p></p>
+
+            <p align="center">
+                <img src="res/c6.png" alt="find_file" width="700"/>
+            </p>
+
+        </details>
+        
+        <details>
+            <summary>Click to view image 7</summary>
+
+            <p></p>
+
+            <p align="center">
+                <img src="res/c7.png" alt="find_file" width="700"/>
+            </p>
+
+        </details>
+        
+        <details>
+            <summary>Click to view image 8</summary>
+
+            <p></p>
+
+            <p align="center">
+                <img src="res/c8.png" alt="find_file" width="700"/>
+            </p>
+
+        </details>
+        
+        <details>
+            <summary>Click to view image 9</summary>
+
+            <p></p>
+
+            <p align="center">
+                <img src="res/c9.png" alt="find_file" width="700"/>
+            </p>
+
+        </details>
+        
+        <details>
+            <summary>Click to view image 10</summary>
+
+            <p></p>
+
+            <p align="center">
+                <img src="res/c10.png" alt="find_file" width="700"/>
+            </p>
+
+        </details>
+        
+        <details>
+            <summary>Click to view image 11</summary>
+
+            <p></p>
+
+            <p align="center">
+                <img src="res/c11.png" alt="find_file" width="700"/>
+            </p>
+
+        </details>
+        
+        <details>
+            <summary>Click to view image 12</summary>
+
+            <p></p>
+
+            <p align="center">
+                <img src="res/c12.png" alt="find_file" width="700"/>
+            </p>
+
+        </details>
+        
+        <details>
+            <summary>Click to view image 13</summary>
+
+            <p></p>
+
+            <p align="center">
+                <img src="res/c13.png" alt="find_file" width="700"/>
+            </p>
+
+        </details>
+        
+        <details>
+            <summary>Click to view image 14</summary>
+
+            <p></p>
+
+            <p align="center">
+                <img src="res/c14.png" alt="find_file" width="700"/>
+            </p>
+
+        </details>
+        
+        <details>
+            <summary>Click to view image 15</summary>
+
+            <p></p>
+
+            <p align="center">
+                <img src="res/c15.png" alt="find_file" width="700"/>
+            </p>
+
+        </details>
+        
+        <details>
+            <summary>Click to view image 16</summary>
+
+            <p></p>
+
+            <p align="center">
+                <img src="res/c16.png" alt="find_file" width="700"/>
+            </p>
+
+        </details>
+        
+        <details>
+            <summary>Click to view image 17</summary>
+
+            <p></p>
+
+            <p align="center">
+                <img src="res/c17.png" alt="find_file" width="700"/>
+            </p>
+
+        </details>
+        
+        <details>
+            <summary>Click to view image 18</summary>
+
+            <p></p>
+
+            <p align="center">
+                <img src="res/c18.png" alt="find_file" width="700"/>
+            </p>
+
+        </details>
+        
+        <details>
+            <summary>Click to view image 19</summary>
+
+            <p></p>
+
+            <p align="center">
+                <img src="res/c19.png" alt="find_file" width="700"/>
+            </p>
+
+        </details>
+        
+        <details>
+            <summary>Click to view image 20</summary>
+
+            <p></p>
+
+            <p align="center">
+                <img src="res/c20.png" alt="find_file" width="700"/>
+            </p>
+
+        </details>
+        
+        <details>
+            <summary>Click to view image 21</summary>
+
+            <p></p>
+
+            <p align="center">
+                <img src="res/c21.png" alt="find_file" width="700"/>
+            </p>
+
+        </details>
+        
+        <details>
+            <summary>Click to view image 22</summary>
+
+            <p></p>
+
+            <p align="center">
+                <img src="res/c22.png" alt="find_file" width="700"/>
+            </p>
+
+        </details>
+        
+        <details>
+            <summary>Click to view image 23</summary>
+
+            <p></p>
+
+            <p align="center">
+                <img src="res/c23.png" alt="find_file" width="700"/>
+            </p>
+
+        </details>
+        
+        <details>
+            <summary>Click to view image 24</summary>
+
+            <p></p>
+
+            <p align="center">
+                <img src="res/c24.png" alt="find_file" width="700"/>
+            </p>
+
+        </details>
+        
+        <details>
+            <summary>Click to view image 25</summary>
+
+            <p></p>
+
+            <p align="center">
+                <img src="res/c25.png" alt="find_file" width="700"/>
+            </p>
+
+        </details>
+        
+        <details>
+            <summary>Click to view image 26</summary>
+
+            <p></p>
+
+            <p align="center">
+                <img src="res/c26.png" alt="find_file" width="700"/>
+            </p>
+
+        </details>
 
 
    
