@@ -7,6 +7,24 @@
   <b>collection of custom-designed HTML user interfaces for Command & Control (C2) systems.</b>
     </p>
 
+# Templates
+
+
+
+
+<details  ><summary>
+
+`c2_0.html` 
+</summary>
+
+<p></p>
+
+<p align="center">
+  <img src="res/c0.png" alt="find_file" width="700"/>
+</p>
+
+</details>
+
 
    
 
