@@ -279,3 +279,4 @@
 🛡 The author takes no responsibility for any misuse or damage caused by this project.
 
 ---
+> Always hack responsibly. 💻🔐
