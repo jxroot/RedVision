@@ -11,7 +11,6 @@
 
 > All HTML Files In  template Folder
 
-
 <details>
     <summary>Click to view image 0</summary>
 
@@ -257,8 +256,7 @@
 
    
 
-  
-</p>
+
 
 <h2 id="next-update">🔱 Next Update</h2>
 <ul>
