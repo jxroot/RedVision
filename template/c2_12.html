@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TerminalC2 - Windows C2 UI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #f8fafc;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+            border-right: 1px solid #334155;
+        }
+        
+        .terminal-window {
+            background-color: #0f172a;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .terminal-header {
+            background-color: #1e293b;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+        }
+        
+        .terminal-body {
+            background-color: #0f172a;
+            font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+        }
+        
+        .tab-active {
+            background-color: #1e293b;
+            border-left: 3px solid #60a5fa;
+        }
+        
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        
+        .online {
+            background-color: #10b981;
+        }
+        
+        .offline {
+            background-color: #ef4444;
+        }
+        
+        .idle {
+            background-color: #f59e0b;
+        }
+        
+        .blink-cursor {
+            animation: blink 1s step-end infinite;
+        }
+        
+        @keyframes blink {
+            from, to { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        
+        .command-prompt {
+            color: #60a5fa;
+        }
+        
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
+        }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden">
+    <!-- Sidebar -->
+    <div class="sidebar text-white flex flex-col">
+        <div class="p-4 border-b border-slate-700">
+            <div class="flex items-center space-x-3">
+                <div class="gradient-bg w-9 h-9 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-terminal text-white text-sm"></i>
+                </div>
+                <h1 class="font-bold text-lg">TerminalC2</h1>
+            </div>
+        </div>
+        
+        <div class="p-4 border-b border-slate-700">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-sm font-medium text-slate-300">Active Sessions</span>
+                <span class="text-xs bg-slate-700 px-2 py-0.5 rounded-full">24</span>
+            </div>
+            <div class="space-y-2">
+                <div class="flex items-center space-x-2 p-2 rounded hover:bg-slate-700 cursor-pointer">
+                    <span class="status-indicator online"></span>
+                    <span class="text-sm">WIN-ADMIN-01</span>
+                    <span class="text-xs text-slate-400 ml-auto">192.168.1.10</span>
+                </div>
+                <div class="flex items-center space-x-2 p-2 rounded hover:bg-slate-700 cursor-pointer">
+                    <span class="status-indicator online"></span>
+                    <span class="text-sm">WIN-USER-42</span>
+                    <span class="text-xs text-slate-400 ml-auto">192.168.1.42</span>
+                </div>
+                <div class="flex items-center space-x-2 p-2 rounded hover:bg-slate-700 cursor-pointer">
+                    <span class="status-indicator idle"></span>
+                    <span class="text-sm">WIN-SERVER-05</span>
+                    <span class="text-xs text-slate-400 ml-auto">192.168.1.5</span>
+                </div>
+                <div class="flex items-center space-x-2 p-2 rounded hover:bg-slate-700 cursor-pointer">
+                    <span class="status-indicator offline"></span>
+                    <span class="text-sm">WIN-TEST-13</span>
+                    <span class="text-xs text-slate-400 ml-auto">192.168.1.13</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="p-4 border-b border-slate-700">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-sm font-medium text-slate-300">Quick Commands</span>
+            </div>
+            <div class="space-y-2">
+                <button class="w-full flex items-center space-x-2 p-2 rounded hover:bg-slate-700 cursor-pointer text-left">
+                    <i class="fas fa-desktop text-slate-400 text-sm w-5"></i>
+                    <span class="text-sm">Screenshot</span>
+                </button>
+                <button class="w-full flex items-center space-x-2 p-2 rounded hover:bg-slate-700 cursor-pointer text-left">
+                    <i class="fas fa-keyboard text-slate-400 text-sm w-5"></i>
+                    <span class="text-sm">Keylogger</span>
+                </button>
+                <button class="w-full flex items-center space-x-2 p-2 rounded hover:bg-slate-700 cursor-pointer text-left">
+                    <i class="fas fa-file-download text-slate-400 text-sm w-5"></i>
+                    <span class="text-sm">Download File</span>
+                </button>
+                <button class="w-full flex items-center space-x-2 p-2 rounded hover:bg-slate-700 cursor-pointer text-left">
+                    <i class="fas fa-power-off text-slate-400 text-sm w-5"></i>
+                    <span class="text-sm">Execute</span>
+                </button>
+            </div>
+        </div>
+        
+        <div class="p-4 mt-auto">
+            <div class="flex items-center space-x-3 p-2 rounded hover:bg-slate-700 cursor-pointer">
+                <div class="w-8 h-8 rounded-full bg-slate-600 flex items-center justify-center">
+                    <i class="fas fa-user text-slate-300 text-sm"></i>
+                </div>
+                <div>
+                    <div class="text-sm font-medium">admin</div>
+                    <div class="text-xs text-slate-400">Administrator</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+        <!-- Top Navigation -->
+        <div class="bg-white border-b border-slate-200 p-4 flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <h2 class="font-semibold text-slate-800">Active Terminal</h2>
+                <div class="flex items-center space-x-2">
+                    <span class="status-indicator online"></span>
+                    <span class="text-sm text-slate-600">WIN-ADMIN-01 (192.168.1.10)</span>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2">
+                <button class="p-2 rounded hover:bg-slate-100">
+                    <i class="fas fa-ellipsis-v text-slate-500"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Terminal Area -->
+        <div class="flex-1 p-6 overflow-auto bg-slate-50">
+            <div class="terminal-window h-full flex flex-col">
+                <div class="terminal-header p-3 flex items-center">
+                    <div class="flex space-x-2 mr-4">
+                        <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                        <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                        <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                    </div>
+                    <div class="text-sm text-slate-300">WIN-ADMIN-01 - PowerShell</div>
+                </div>
+                
+                <div class="terminal-body p-4 flex-1 overflow-auto text-slate-200 text-sm scrollbar-hide" id="terminalOutput">
+                    <div class="command-prompt">Windows PowerShell</div>
+                    <div class="command-prompt">Copyright (C) Microsoft Corporation. All rights reserved.</div>
+                    <div class="mb-4"></div>
+                    <div class="command-prompt">PS C:\Users\Administrator> <span class="text-white">whoami</span></div>
+                    <div class="text-white mb-4">win-admin-01\administrator</div>
+                    <div class="command-prompt">PS C:\Users\Administrator> <span class="text-white">Get-Process | Where-Object { $_.CPU -gt 100 }</span></div>
+                    <div class="text-white mb-4">
+                        Handles  NPM(K)    PM(K)      WS(K)     CPU(s)     Id  SI ProcessName<br>
+                        -------  ------    -----      -----     ------     --  -- -----------<br>
+                        1023      45    102,348     115,732     143.52   4584   1 chrome<br>
+                        892       32     78,456      89,234     112.75   3245   1 Teams
+                    </div>
+                    <div class="command-prompt">PS C:\Users\Administrator> <span class="text-white">netstat -ano</span></div>
+                    <div class="text-white mb-4">
+                        Active Connections<br>
+                        Proto  Local Address          Foreign Address        State           PID<br>
+                        TCP    192.168.1.10:3389      192.168.1.100:54231   ESTABLISHED     656<br>
+                        TCP    192.168.1.10:5985      192.168.1.5:49876     TIME_WAIT       0<br>
+                        TCP    192.168.1.10:445       192.168.1.42:63921    ESTABLISHED     4
+                    </div>
+                    <div class="command-prompt">PS C:\Users\Administrator><span class="blink-cursor">_</span></div>
+                </div>
+                
+                <div class="border-t border-slate-700 p-3">
+                    <div class="flex items-center">
+                        <div class="flex-1 bg-slate-800 rounded-lg px-4 py-2 mr-3">
+                            <input type="text" class="w-full bg-transparent text-white focus:outline-none text-sm" placeholder="Enter PowerShell command..." id="commandInput">
+                        </div>
+                        <button class="gradient-bg text-white rounded-lg px-4 py-2 text-sm font-medium" id="sendCommand">
+                            <i class="fas fa-paper-plane mr-1"></i> Send
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Bottom Status Bar -->
+        <div class="bg-slate-800 text-slate-300 text-xs p-2 flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <span>TerminalC2 v1.2.4</span>
+                <span class="flex items-center">
+                    <span class="status-indicator online mr-1"></span>
+                    <span>Connected</span>
+                </span>
+                <span>Latency: 28ms</span>
+            </div>
+            <div>
+                <span>Last command: 2s ago</span>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Terminal functionality
+        const terminalOutput = document.getElementById('terminalOutput');
+        const commandInput = document.getElementById('commandInput');
+        const sendCommand = document.getElementById('sendCommand');
+        
+        function addCommand(command, output) {
+            const promptElement = document.createElement('div');
+            promptElement.className = 'command-prompt';
+            promptElement.innerHTML = `PS C:\\Users\\Administrator> <span class="text-white">${command}</span>`;
+            
+            const outputElement = document.createElement('div');
+            outputElement.className = 'text-white mb-4';
+            outputElement.innerHTML = output;
+            
+            const newPromptElement = document.createElement('div');
+            newPromptElement.className = 'command-prompt';
+            newPromptElement.innerHTML = 'PS C:\\Users\\Administrator><span class="blink-cursor">_</span>';
+            
+            terminalOutput.appendChild(promptElement);
+            terminalOutput.appendChild(outputElement);
+            terminalOutput.appendChild(newPromptElement);
+            
+            // Scroll to bottom
+            terminalOutput.scrollTop = terminalOutput.scrollHeight;
+        }
+        
+        // Example commands
+        const exampleCommands = [
+            {
+                command: 'Get-Service | Where-Object { $_.Status -eq "Running" }',
+                output: `Status   Name               DisplayName<br>
+                        ------   ----               -----------<br>
+                        Running  Audiosrv           Windows Audio<br>
+                        Running  EventLog           Windows Event Log<br>
+                        Running  LanmanServer       Server<br>
+                        Running  Schedule           Task Scheduler`
+            },
+            {
+                command: 'ipconfig /all',
+                output: `Windows IP Configuration<br><br>
+                        Ethernet adapter Ethernet:<br>
+                           Connection-specific DNS Suffix  . : localdomain<br>
+                           Description . . . . . . . . . . . : Intel(R) Ethernet Connection<br>
+                           Physical Address. . . . . . . . . : 00-15-5D-01-02-03<br>
+                           DHCP Enabled. . . . . . . . . . . : Yes<br>
+                           IPv4 Address. . . . . . . . . . . : 192.168.1.10<br>
+                           Subnet Mask . . . . . . . . . . . : 255.255.255.0<br>
+                           Default Gateway . . . . . . . . . : 192.168.1.1`
+            }
+        ];
+        
+        // Handle command submission
+        sendCommand.addEventListener('click', function() {
+            if (commandInput.value.trim() !== '') {
+                addCommand(commandInput.value, 'Command executed successfully');
+                commandInput.value = '';
+            }
+        });
+        
+        // Also handle Enter key
+        commandInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendCommand.click();
+            }
+        });
+        
+        // Simulate receiving commands
+        setTimeout(() => {
+            addCommand(exampleCommands[0].command, exampleCommands[0].output);
+        }, 1500);
+        
+        setTimeout(() => {
+            addCommand(exampleCommands[1].command, exampleCommands[1].output);
+        }, 4000);
+    </script>
+</body>
+</html>

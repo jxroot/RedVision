@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MacBook Style C2 UI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600&display=swap');
+        
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f0f2f5;
+            color: #1d1d1f;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .mac-window {
+            width: 90%;
+            max-width: 1200px;
+            height: 85vh;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 
+                0 10px 30px rgba(0,0,0,0.15),
+                0 0 0 1px rgba(0,0,0,0.05);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .mac-titlebar {
+            height: 40px;
+            background: linear-gradient(180deg, #f7f7f7 0%, #eaeaea 100%);
+            border-bottom: 1px solid #d0d0d0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 15px;
+            position: relative;
+        }
+        
+        .mac-buttons {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .mac-btn {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        .mac-btn-close { background: #ff5f56; }
+        .mac-btn-min { background: #ffbd2e; }
+        .mac-btn-max { background: #27c93f; }
+        
+        .mac-title {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 13px;
+            font-weight: 500;
+            color: #3a3a3c;
+        }
+        
+        .sidebar {
+            width: 220px;
+            background: #f5f5f7;
+            border-right: 1px solid #e0e0e0;
+            height: 100%;
+            overflow-y: auto;
+        }
+        
+        .sidebar-item {
+            padding: 8px 15px;
+            font-size: 13px;
+            color: #3a3a3c;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-radius: 5px;
+            margin: 2px 10px;
+            cursor: default;
+        }
+        
+        .sidebar-item.active {
+            background: rgba(0,122,255,0.1);
+            color: #007aff;
+        }
+        
+        .sidebar-item:hover:not(.active) {
+            background: rgba(0,0,0,0.05);
+        }
+        
+        .sidebar-section {
+            padding: 15px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .sidebar-section-title {
+            padding: 0 15px 8px;
+            font-size: 11px;
+            font-weight: 500;
+            color: #86868b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .terminal {
+            flex: 1;
+            background: #ffffff;
+            padding: 15px;
+            overflow-y: auto;
+            font-family: 'SF Mono', monospace;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+        
+        .terminal-line {
+            margin-bottom: 5px;
+        }
+        
+        .terminal-prompt {
+            color: #007aff;
+            font-weight: 500;
+        }
+        
+        .terminal-command {
+            color: #1d1d1f;
+        }
+        
+        .terminal-output {
+            color: #515154;
+            margin-left: 20px;
+        }
+        
+        .input-container {
+            padding: 10px 15px;
+            border-top: 1px solid #e0e0e0;
+            background: #f5f5f7;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .command-input {
+            flex: 1;
+            background: #ffffff;
+            border: 1px solid #d0d0d0;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-family: 'SF Mono', monospace;
+            font-size: 12px;
+            outline: none;
+        }
+        
+        .command-input:focus {
+            border-color: #007aff;
+            box-shadow: 0 0 0 1px #007aff;
+        }
+        
+        .send-btn {
+            background: #007aff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        
+        .send-btn:hover {
+            background: #0062cc;
+        }
+        
+        .status-bar {
+            height: 24px;
+            background: #f5f5f7;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 15px;
+            font-size: 11px;
+            color: #86868b;
+        }
+        
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .badge {
+            background: #007aff;
+            color: white;
+            border-radius: 10px;
+            padding: 2px 8px;
+            font-size: 10px;
+            font-weight: 500;
+        }
+        
+        .agent-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 10px;
+            border-radius: 5px;
+            cursor: default;
+        }
+        
+        .agent-item:hover {
+            background: rgba(0,0,0,0.05);
+        }
+        
+        .agent-status {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+        
+        .agent-status.online { background: #34c759; }
+        .agent-status.offline { background: #ff3b30; }
+        .agent-status.idle { background: #ff9500; }
+        
+        .scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .scrollbar::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.05);
+            border-radius: 10px;
+        }
+        
+        .scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+        }
+        
+        .scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(0,0,0,0.3);
+        }
+        
+        .tab-bar {
+            display: flex;
+            border-bottom: 1px solid #e0e0e0;
+            padding: 0 15px;
+        }
+        
+        .tab {
+            padding: 8px 15px;
+            font-size: 12px;
+            color: #515154;
+            border-bottom: 2px solid transparent;
+            cursor: default;
+        }
+        
+        .tab.active {
+            color: #007aff;
+            border-bottom-color: #007aff;
+        }
+        
+        .tab:hover:not(.active) {
+            color: #1d1d1f;
+        }
+        
+        .grid-container {
+            display: grid;
+            grid-template-columns: 220px 1fr 280px;
+            height: calc(100% - 40px);
+        }
+        
+        .right-sidebar {
+            width: 280px;
+            background: #f5f5f7;
+            border-left: 1px solid #e0e0e0;
+            padding: 15px;
+            overflow-y: auto;
+        }
+        
+        .info-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 15px;
+        }
+        
+        .info-card-title {
+            font-size: 12px;
+            font-weight: 500;
+            color: #515154;
+            margin-bottom: 8px;
+        }
+        
+        .progress-bar {
+            height: 4px;
+            background: #e0e0e0;
+            border-radius: 2px;
+            margin: 8px 0;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: #007aff;
+            border-radius: 2px;
+        }
+        
+        .alert {
+            background: #ff3b30;
+            color: white;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 11px;
+            margin-bottom: 8px;
+        }
+        
+        .warning {
+            background: #ff9500;
+            color: white;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 11px;
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="mac-window">
+        <div class="mac-titlebar">
+            <div class="mac-buttons">
+                <div class="mac-btn mac-btn-close"></div>
+                <div class="mac-btn mac-btn-min"></div>
+                <div class="mac-btn mac-btn-max"></div>
+            </div>
+            <div class="mac-title">C2 Commander v2.1</div>
+            <div style="width: 60px;"></div>
+        </div>
+        
+        <div class="grid-container">
+            <div class="sidebar scrollbar">
+                <div class="sidebar-section">
+                    <div class="sidebar-section-title">Agents</div>
+                    <div class="agent-item">
+                        <div class="agent-status online"></div>
+                        <span>192.168.1.45</span>
+                        <span style="flex: 1;"></span>
+                        <span class="badge">#001</span>
+                    </div>
+                    <div class="agent-item">
+                        <div class="agent-status online"></div>
+                        <span>10.0.0.12</span>
+                        <span style="flex: 1;"></span>
+                        <span class="badge">#002</span>
+                    </div>
+                    <div class="agent-item">
+                        <div class="agent-status idle"></div>
+                        <span>172.16.0.3</span>
+                        <span style="flex: 1;"></span>
+                        <span class="badge">#003</span>
+                    </div>
+                    <div class="agent-item">
+                        <div class="agent-status offline"></div>
+                        <span>10.0.0.15</span>
+                        <span style="flex: 1;"></span>
+                        <span class="badge">#004</span>
+                    </div>
+                </div>
+                
+                <div class="sidebar-section">
+                    <div class="sidebar-section-title">Modules</div>
+                    <div class="sidebar-item active">
+                        <i class="fas fa-terminal"></i>
+                        <span>Terminal</span>
+                    </div>
+                    <div class="sidebar-item">
+                        <i class="fas fa-desktop"></i>
+                        <span>Screen Capture</span>
+                    </div>
+                    <div class="sidebar-item">
+                        <i class="fas fa-keyboard"></i>
+                        <span>Keylogger</span>
+                    </div>
+                    <div class="sidebar-item">
+                        <i class="fas fa-folder"></i>
+                        <span>File Explorer</span>
+                    </div>
+                    <div class="sidebar-item">
+                        <i class="fas fa-network-wired"></i>
+                        <span>Network Tools</span>
+                    </div>
+                </div>
+                
+                <div class="sidebar-section">
+                    <div class="sidebar-section-title">Quick Actions</div>
+                    <div class="sidebar-item">
+                        <i class="fas fa-play"></i>
+                        <span>Execute Script</span>
+                    </div>
+                    <div class="sidebar-item">
+                        <i class="fas fa-upload"></i>
+                        <span>Upload File</span>
+                    </div>
+                    <div class="sidebar-item">
+                        <i class="fas fa-download"></i>
+                        <span>Download File</span>
+                    </div>
+                    <div class="sidebar-item">
+                        <i class="fas fa-power-off"></i>
+                        <span>Terminate</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="terminal-container">
+                <div class="tab-bar">
+                    <div class="tab active">Terminal</div>
+                    <div class="tab">Logs</div>
+                    <div class="tab">Scripts</div>
+                </div>
+                
+                <div class="terminal scrollbar">
+                    <div class="terminal-line">
+                        <span class="terminal-prompt">$</span> 
+                        <span class="terminal-command">connect 192.168.1.45</span>
+                    </div>
+                    <div class="terminal-output">
+                        Connected to agent #001 (192.168.1.45)<br>
+                        System: Windows 10 Pro (Build 19044.1586)<br>
+                        User: Administrator<br>
+                        Privilege: Elevated<br>
+                        Last active: 2 minutes ago
+                    </div>
+                    
+                    <div class="terminal-line">
+                        <span class="terminal-prompt">$</span> 
+                        <span class="terminal-command">systeminfo</span>
+                    </div>
+                    <div class="terminal-output">
+                        Host Name:                 WIN-ADMIN<br>
+                        OS Name:                   Microsoft Windows 10 Pro<br>
+                        OS Version:                10.0.19044 N/A Build 19044<br>
+                        OS Manufacturer:           Microsoft Corporation<br>
+                        System Boot Time:          5/15/2023, 8:23:17 AM
+                    </div>
+                    
+                    <div class="terminal-line">
+                        <span class="terminal-prompt">$</span> 
+                        <span class="terminal-command">whoami</span>
+                    </div>
+                    <div class="terminal-output">
+                        win-admin\administrator
+                    </div>
+                    
+                    <div class="terminal-line">
+                        <span class="terminal-prompt">$</span> 
+                        <span class="terminal-command">netstat -ano</span>
+                    </div>
+                    <div class="terminal-output">
+                        TCP    0.0.0.0:80           0.0.0.0:0              LISTENING       4<br>
+                        TCP    0.0.0.0:135          0.0.0.0:0              LISTENING       1084<br>
+                        TCP    0.0.0.0:443          0.0.0.0:0              LISTENING       4<br>
+                        TCP    0.0.0.0:445          0.0.0.0:0              LISTENING       4
+                    </div>
+                </div>
+                
+                <div class="input-container">
+                    <span class="terminal-prompt">$</span>
+                    <input type="text" class="command-input" placeholder="Enter command...">
+                    <button class="send-btn">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="right-sidebar scrollbar">
+                <div class="info-card">
+                    <div class="info-card-title">System Information</div>
+                    <div style="font-size: 11px; margin-bottom: 5px;">192.168.1.45</div>
+                    
+                    <div style="font-size: 11px; margin-bottom: 8px;">CPU Usage</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 65%"></div>
+                    </div>
+                    <div style="font-size: 11px; text-align: right;">65%</div>
+                    
+                    <div style="font-size: 11px; margin: 12px 0 8px;">Memory Usage</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 42%"></div>
+                    </div>
+                    <div style="font-size: 11px; text-align: right;">12.3/32GB (42%)</div>
+                    
+                    <div style="font-size: 11px; margin: 12px 0 8px;">Network</div>
+                    <div style="display: flex; justify-content: space-between; font-size: 11px;">
+                        <span>↑ 1.2 MB/s</span>
+                        <span>↓ 3.7 MB/s</span>
+                    </div>
+                </div>
+                
+                <div class="info-card">
+                    <div class="info-card-title">Active Processes</div>
+                    <div style="font-size: 11px; margin-bottom: 5px; display: flex; justify-content: space-between;">
+                        <span>Process</span>
+                        <span>Memory</span>
+                    </div>
+                    <div style="font-size: 11px; margin-bottom: 5px; display: flex; justify-content: space-between;">
+                        <span>explorer.exe</span>
+                        <span>12.4MB</span>
+                    </div>
+                    <div style="font-size: 11px; margin-bottom: 5px; display: flex; justify-content: space-between;">
+                        <span>chrome.exe</span>
+                        <span>324.7MB</span>
+                    </div>
+                    <div style="font-size: 11px; margin-bottom: 5px; display: flex; justify-content: space-between;">
+                        <span>svchost.exe</span>
+                        <span>8.2MB</span>
+                    </div>
+                    <div style="font-size: 11px; margin-bottom: 5px; display: flex; justify-content: space-between;">
+                        <span>powershell.exe</span>
+                        <span>15.8MB</span>
+                    </div>
+                    <div style="font-size: 11px; margin-bottom: 5px; display: flex; justify-content: space-between;">
+                        <span>spotify.exe</span>
+                        <span>112.3MB</span>
+                    </div>
+                </div>
+                
+                <div class="info-card">
+                    <div class="info-card-title">Alerts</div>
+                    <div class="alert">
+                        <div style="font-weight: 500;">AV Detection</div>
+                        <div>Windows Defender detected payload.exe</div>
+                    </div>
+                    <div class="warning">
+                        <div style="font-weight: 500;">Connection Lost</div>
+                        <div>Agent #004 (10.0.0.15) disconnected</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="status-bar">
+            <div style="display: flex; gap: 15px;">
+                <div class="status-item">
+                    <i class="fas fa-shield-alt" style="font-size: 10px;"></i>
+                    <span>Encrypted: AES-256</span>
+                </div>
+                <div class="status-item">
+                    <i class="fas fa-bolt" style="font-size: 10px;"></i>
+                    <span>Latency: 47ms</span>
+                </div>
+            </div>
+            <div class="status-item">
+                <i class="fas fa-clock" style="font-size: 10px;"></i>
+                <span>Last sync: 05/15/2023 14:23:45 UTC</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Terminal functionality
+        const commandInput = document.querySelector('.command-input');
+        const terminal = document.querySelector('.terminal');
+        const sendBtn = document.querySelector('.send-btn');
+        
+        function addCommand(command) {
+            // Add command line
+            const commandLine = document.createElement('div');
+            commandLine.className = 'terminal-line';
+            commandLine.innerHTML = `<span class="terminal-prompt">$</span> <span class="terminal-command">${command}</span>`;
+            terminal.appendChild(commandLine);
+            
+            // Add response (simulated)
+            const response = document.createElement('div');
+            response.className = 'terminal-output';
+            
+            if (command === 'help') {
+                response.innerHTML = `
+                    Available commands:<br>
+                    - systeminfo: Get system information<br>
+                    - whoami: Get current user<br>
+                    - netstat: List network connections<br>
+                    - download [file]: Download file from agent<br>
+                    - screenshot: Capture screen<br>
+                    - exit: End session
+                `;
+            } else if (command === 'clear') {
+                terminal.innerHTML = '';
+                return;
+            } else {
+                response.textContent = `Command "${command}" executed successfully`;
+            }
+            
+            terminal.appendChild(response);
+            commandInput.value = '';
+            
+            // Scroll to bottom
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+        
+        commandInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const command = commandInput.value.trim();
+                if (command) {
+                    addCommand(command);
+                }
+            }
+        });
+        
+        sendBtn.addEventListener('click', function() {
+            const command = commandInput.value.trim();
+            if (command) {
+                addCommand(command);
+            }
+        });
+        
+        // Tab switching
+        const tabs = document.querySelectorAll('.tab');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                tabs.forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+        
+        // Sidebar item selection
+        const sidebarItems = document.querySelectorAll('.sidebar-item');
+        sidebarItems.forEach(item => {
+            item.addEventListener('click', function() {
+                sidebarItems.forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+        
+        // Agent item selection
+        const agentItems = document.querySelectorAll('.agent-item');
+        agentItems.forEach(item => {
+            item.addEventListener('click', function() {
+                agentItems.forEach(i => i.classList.remove('selected'));
+                this.classList.add('selected');
+            });
+        });
+    </script>
+</body>
+</html>

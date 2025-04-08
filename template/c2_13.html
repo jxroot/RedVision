@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Materio C2 Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1e1e2d;
+            color: #a1a5b7;
+        }
+        
+        .sidebar-item:hover {
+            background-color: rgba(108, 93, 211, 0.1);
+        }
+        
+        .sidebar-item.active {
+            background-color: rgba(108, 93, 211, 0.2);
+            border-left: 3px solid #6c5dd3;
+        }
+        
+        .card {
+            background-color: #2b2b40;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .console-line {
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        
+        .status-online {
+            background-color: #4caf50;
+            box-shadow: 0 0 10px #4caf50;
+        }
+        
+        .status-offline {
+            background-color: #f44336;
+        }
+        
+        .status-idle {
+            background-color: #ff9800;
+        }
+        
+        .command-input:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(108, 93, 211, 0.5);
+        }
+        
+        .scrollbar-thin::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .scrollbar-thin::-webkit-scrollbar-track {
+            background: #2b2b40;
+        }
+        
+        .scrollbar-thin::-webkit-scrollbar-thumb {
+            background-color: #6c5dd3;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body class="h-screen overflow-hidden">
+    <div class="flex h-full">
+        <!-- Sidebar -->
+        <div class="w-64 bg-[#1e1e2d] border-r border-gray-800 flex flex-col">
+            <div class="p-4 flex items-center space-x-3 border-b border-gray-800">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-600 to-blue-500 flex items-center justify-center">
+                    <i class="fas fa-terminal text-white text-lg"></i>
+                </div>
+                <div>
+                    <h2 class="text-white font-semibold">Materio C2</h2>
+                    <p class="text-xs text-gray-500">v2.4.1</p>
+                </div>
+            </div>
+            
+            <div class="p-4 space-y-1 flex-1 overflow-y-auto scrollbar-thin">
+                <div class="sidebar-item active flex items-center space-x-3 p-3 rounded-lg cursor-pointer">
+                    <i class="fas fa-tachometer-alt text-purple-400"></i>
+                    <span>Dashboard</span>
+                </div>
+                <div class="sidebar-item flex items-center space-x-3 p-3 rounded-lg cursor-pointer">
+                    <i class="fas fa-laptop-code text-blue-400"></i>
+                    <span>Agents</span>
+                </div>
+                <div class="sidebar-item flex items-center space-x-3 p-3 rounded-lg cursor-pointer">
+                    <i class="fas fa-tasks text-green-400"></i>
+                    <span>Tasks</span>
+                </div>
+                <div class="sidebar-item flex items-center space-x-3 p-3 rounded-lg cursor-pointer">
+                    <i class="fas fa-keyboard text-yellow-400"></i>
+                    <span>Modules</span>
+                </div>
+                <div class="sidebar-item flex items-center space-x-3 p-3 rounded-lg cursor-pointer">
+                    <i class="fas fa-chart-line text-red-400"></i>
+                    <span>Analytics</span>
+                </div>
+                <div class="sidebar-item flex items-center space-x-3 p-3 rounded-lg cursor-pointer">
+                    <i class="fas fa-cog text-gray-400"></i>
+                    <span>Settings</span>
+                </div>
+            </div>
+            
+            <div class="p-4 border-t border-gray-800">
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center">
+                        <i class="fas fa-user text-gray-400"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-white">admin</p>
+                        <p class="text-xs text-gray-500">Administrator</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- Top Bar -->
+            <div class="bg-[#2b2b40] border-b border-gray-800 p-4 flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <h1 class="text-xl font-semibold text-white">Dashboard</h1>
+                    <div class="flex items-center space-x-2 text-sm">
+                        <span class="text-gray-500">Connected:</span>
+                        <span class="text-green-400 font-medium">12</span>
+                        <span class="text-gray-500">Total:</span>
+                        <span class="font-medium">24</span>
+                    </div>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500"></i>
+                        <input type="text" placeholder="Search agents..." class="bg-gray-800 rounded-lg pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent" style="width: 200px;">
+                    </div>
+                    <button class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                        <i class="fas fa-plus mr-2"></i> New Agent
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Content Area -->
+            <div class="flex-1 overflow-auto p-6 space-y-6 scrollbar-thin">
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="card p-5">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-500 text-sm">Online Agents</p>
+                                <h3 class="text-2xl font-bold text-white mt-1">12</h3>
+                                <p class="text-green-400 text-xs mt-1 flex items-center">
+                                    <span class="status-indicator status-online mr-2"></span>
+                                    +2 since yesterday
+                                </p>
+                            </div>
+                            <div class="w-12 h-12 rounded-full bg-purple-500 bg-opacity-20 flex items-center justify-center">
+                                <i class="fas fa-laptop-code text-purple-400"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card p-5">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-500 text-sm">Active Tasks</p>
+                                <h3 class="text-2xl font-bold text-white mt-1">8</h3>
+                                <p class="text-yellow-400 text-xs mt-1 flex items-center">
+                                    <span class="status-indicator status-idle mr-2"></span>
+                                    3 pending execution
+                                </p>
+                            </div>
+                            <div class="w-12 h-12 rounded-full bg-blue-500 bg-opacity-20 flex items-center justify-center">
+                                <i class="fas fa-tasks text-blue-400"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card p-5">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-500 text-sm">Data Collected</p>
+                                <h3 class="text-2xl font-bold text-white mt-1">1.2GB</h3>
+                                <p class="text-red-400 text-xs mt-1 flex items-center">
+                                    <i class="fas fa-arrow-up mr-2"></i>
+                                    15% from last week
+                                </p>
+                            </div>
+                            <div class="w-12 h-12 rounded-full bg-green-500 bg-opacity-20 flex items-center justify-center">
+                                <i class="fas fa-database text-green-400"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card p-5">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-500 text-sm">Uptime</p>
+                                <h3 class="text-2xl font-bold text-white mt-1">99.8%</h3>
+                                <p class="text-gray-400 text-xs mt-1 flex items-center">
+                                    <i class="fas fa-clock mr-2"></i>
+                                    Last restart: 14d ago
+                                </p>
+                            </div>
+                            <div class="w-12 h-12 rounded-full bg-yellow-500 bg-opacity-20 flex items-center justify-center">
+                                <i class="fas fa-server text-yellow-400"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Recent Activity and Agent List -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Recent Activity -->
+                    <div class="card lg:col-span-2 p-5">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-semibold text-white">Recent Activity</h3>
+                            <button class="text-xs text-purple-400 hover:text-purple-300">View All</button>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <div class="flex items-start space-x-3">
+                                <div class="w-8 h-8 rounded-full bg-purple-500 bg-opacity-20 flex items-center justify-center mt-1">
+                                    <i class="fas fa-terminal text-purple-400 text-xs"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-white">New agent connected from <span class="text-purple-400">192.168.1.45</span></p>
+                                    <p class="text-xs text-gray-500 mt-1">Windows 10 Pro • 2 minutes ago</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start space-x-3">
+                                <div class="w-8 h-8 rounded-full bg-blue-500 bg-opacity-20 flex items-center justify-center mt-1">
+                                    <i class="fas fa-tasks text-blue-400 text-xs"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-white">Task <span class="text-blue-400">#T-7842</span> completed on <span class="text-blue-400">DESKTOP-J9F8S2</span></p>
+                                    <p class="text-xs text-gray-500 mt-1">Keylogger module • 12 minutes ago</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start space-x-3">
+                                <div class="w-8 h-8 rounded-full bg-green-500 bg-opacity-20 flex items-center justify-center mt-1">
+                                    <i class="fas fa-download text-green-400 text-xs"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-white">Downloaded <span class="text-green-400">credentials.txt</span> from <span class="text-green-400">LAPTOP-3K9D7F</span></p>
+                                    <p class="text-xs text-gray-500 mt-1">1.4MB • 27 minutes ago</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start space-x-3">
+                                <div class="w-8 h-8 rounded-full bg-red-500 bg-opacity-20 flex items-center justify-center mt-1">
+                                    <i class="fas fa-exclamation-triangle text-red-400 text-xs"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-white">Agent <span class="text-red-400">DESKTOP-5T3H9M</span> disconnected unexpectedly</p>
+                                    <p class="text-xs text-gray-500 mt-1">Windows 7 • 1 hour ago</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Quick Actions -->
+                    <div class="card p-5">
+                        <h3 class="text-lg font-semibold text-white mb-4">Quick Actions</h3>
+                        
+                        <div class="space-y-3">
+                            <button class="w-full flex items-center space-x-3 p-3 rounded-lg bg-gray-800 hover:bg-gray-700 transition-colors">
+                                <div class="w-8 h-8 rounded-full bg-purple-500 bg-opacity-20 flex items-center justify-center">
+                                    <i class="fas fa-terminal text-purple-400 text-sm"></i>
+                                </div>
+                                <span>Execute Command</span>
+                            </button>
+                            
+                            <button class="w-full flex items-center space-x-3 p-3 rounded-lg bg-gray-800 hover:bg-gray-700 transition-colors">
+                                <div class="w-8 h-8 rounded-full bg-blue-500 bg-opacity-20 flex items-center justify-center">
+                                    <i class="fas fa-file-upload text-blue-400 text-sm"></i>
+                                </div>
+                                <span>Upload Module</span>
+                            </button>
+                            
+                            <button class="w-full flex items-center space-x-3 p-3 rounded-lg bg-gray-800 hover:bg-gray-700 transition-colors">
+                                <div class="w-8 h-8 rounded-full bg-green-500 bg-opacity-20 flex items-center justify-center">
+                                    <i class="fas fa-file-download text-green-400 text-sm"></i>
+                                </div>
+                                <span>Download Data</span>
+                            </button>
+                            
+                            <button class="w-full flex items-center space-x-3 p-3 rounded-lg bg-gray-800 hover:bg-gray-700 transition-colors">
+                                <div class="w-8 h-8 rounded-full bg-yellow-500 bg-opacity-20 flex items-center justify-center">
+                                    <i class="fas fa-sync-alt text-yellow-400 text-sm"></i>
+                                </div>
+                                <span>Update Agents</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Console and Agent List -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Console -->
+                    <div class="card lg:col-span-2 p-0 overflow-hidden">
+                        <div class="p-4 border-b border-gray-800 flex items-center justify-between">
+                            <h3 class="text-lg font-semibold text-white">Command Console</h3>
+                            <div class="flex space-x-2">
+                                <button class="w-8 h-8 rounded-full bg-gray-800 hover:bg-gray-700 flex items-center justify-center">
+                                    <i class="fas fa-terminal text-gray-400 text-sm"></i>
+                                </button>
+                                <button class="w-8 h-8 rounded-full bg-gray-800 hover:bg-gray-700 flex items-center justify-center">
+                                    <i class="fas fa-trash-alt text-gray-400 text-sm"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="p-4 bg-black bg-opacity-50 h-64 overflow-y-auto font-mono text-sm console-output scrollbar-thin">
+                            <div class="console-line text-green-400">[+] Agent DESKTOP-J9F8S2 connected</div>
+                            <div class="console-line text-gray-400">> systeminfo</div>
+                            <div class="console-line text-gray-300 ml-4">Host Name: DESKTOP-J9F8S2</div>
+                            <div class="console-line text-gray-300 ml-4">OS Name: Microsoft Windows 10 Pro</div>
+                            <div class="console-line text-gray-300 ml-4">OS Version: 10.0.19044 N/A Build 19044</div>
+                            <div class="console-line text-gray-300 ml-4">System Type: x64-based PC</div>
+                            <div class="console-line text-purple-400">[+] Task completed successfully</div>
+                            <div class="console-line text-gray-400">> whoami</div>
+                            <div class="console-line text-gray-300 ml-4">desktop-j9f8s2\admin</div>
+                            <div class="console-line text-blue-400">[i] New agent check-in from 192.168.1.67</div>
+                        </div>
+                        
+                        <div class="p-4 border-t border-gray-800 flex">
+                            <input type="text" class="command-input flex-1 bg-gray-800 rounded-l-lg px-4 py-2 text-white focus:outline-none" placeholder="Enter command...">
+                            <button class="bg-purple-600 hover:bg-purple-700 text-white px-4 rounded-r-lg">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Recent Agents -->
+                    <div class="card p-0 overflow-hidden">
+                        <div class="p-4 border-b border-gray-800">
+                            <h3 class="text-lg font-semibold text-white">Recent Agents</h3>
+                        </div>
+                        
+                        <div class="divide-y divide-gray-800 max-h-96 overflow-y-auto scrollbar-thin">
+                            <div class="p-4 hover:bg-gray-800 cursor-pointer transition-colors">
+                                <div class="flex items-center space-x-3">
+                                    <div class="relative">
+                                        <div class="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center">
+                                            <i class="fas fa-laptop text-gray-400"></i>
+                                        </div>
+                                        <span class="status-indicator status-online absolute bottom-0 right-0 border-2 border-gray-800"></span>
+                                    </div>
+                                    <div>
+                                        <p class="text-white font-medium">DESKTOP-J9F8S2</p>
+                                        <p class="text-xs text-gray-500">Windows 10 Pro • 192.168.1.45</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="p-4 hover:bg-gray-800 cursor-pointer transition-colors">
+                                <div class="flex items-center space-x-3">
+                                    <div class="relative">
+                                        <div class="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center">
+                                            <i class="fas fa-laptop text-gray-400"></i>
+                                        </div>
+                                        <span class="status-indicator status-online absolute bottom-0 right-0 border-2 border-gray-800"></span>
+                                    </div>
+                                    <div>
+                                        <p class="text-white font-medium">LAPTOP-3K9D7F</p>
+                                        <p class="text-xs text-gray-500">Windows 11 Home • 192.168.1.32</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="p-4 hover:bg-gray-800 cursor-pointer transition-colors">
+                                <div class="flex items-center space-x-3">
+                                    <div class="relative">
+                                        <div class="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center">
+                                            <i class="fas fa-laptop text-gray-400"></i>
+                                        </div>
+                                        <span class="status-indicator status-idle absolute bottom-0 right-0 border-2 border-gray-800"></span>
+                                    </div>
+                                    <div>
+                                        <p class="text-white font-medium">DESKTOP-5T3H9M</p>
+                                        <p class="text-xs text-gray-500">Windows 7 Ultimate • 192.168.1.28</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="p-4 hover:bg-gray-800 cursor-pointer transition-colors">
+                                <div class="flex items-center space-x-3">
+                                    <div class="relative">
+                                        <div class="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center">
+                                            <i class="fas fa-laptop text-gray-400"></i>
+                                        </div>
+                                        <span class="status-indicator status-offline absolute bottom-0 right-0 border-2 border-gray-800"></span>
+                                    </div>
+                                    <div>
+                                        <p class="text-white font-medium">SERVER-AD02</p>
+                                        <p class="text-xs text-gray-500">Windows Server 2019 • 192.168.1.100</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="p-4 hover:bg-gray-800 cursor-pointer transition-colors">
+                                <div class="flex items-center space-x-3">
+                                    <div class="relative">
+                                        <div class="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center">
+                                            <i class="fas fa-laptop text-gray-400"></i>
+                                        </div>
+                                        <span class="status-indicator status-online absolute bottom-0 right-0 border-2 border-gray-800"></span>
+                                    </div>
+                                    <div>
+                                        <p class="text-white font-medium">WORKSTATION-04</p>
+                                        <p class="text-xs text-gray-500">Windows 10 Enterprise • 192.168.1.67</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simple console interaction
+        document.addEventListener('DOMContentLoaded', function() {
+            const consoleOutput = document.querySelector('.console-output');
+            const commandInput = document.querySelector('.command-input');
+            const sendButton = document.querySelector('.command-input + button');
+            
+            function addConsoleLine(text, colorClass = 'text-gray-300') {
+                const line = document.createElement('div');
+                line.className = `console-line ${colorClass} mb-1`;
+                line.textContent = text;
+                consoleOutput.appendChild(line);
+                consoleOutput.scrollTop = consoleOutput.scrollHeight;
+            }
+            
+            function simulateResponse(command) {
+                setTimeout(() => {
+                    if (command === 'help') {
+                        addConsoleLine('Available commands: systeminfo, whoami, screenshot, keylogger, download, upload', 'text-blue-400');
+                    } else if (command === 'systeminfo') {
+                        addConsoleLine('Host Name: DESKTOP-J9F8S2', 'text-gray-300 ml-4');
+                        addConsoleLine('OS Name: Microsoft Windows 10 Pro', 'text-gray-300 ml-4');
+                        addConsoleLine('OS Version: 10.0.19044 N/A Build 19044', 'text-gray-300 ml-4');
+                    } else if (command === 'whoami') {
+                        addConsoleLine('desktop-j9f8s2\\admin', 'text-gray-300 ml-4');
+                    } else {
+                        addConsoleLine(`Command "${command}" executed successfully`, 'text-green-400');
+                    }
+                }, 500);
+            }
+            
+            function executeCommand() {
+                const command = commandInput.value.trim();
+                if (command) {
+                    addConsoleLine(`> ${command}`, 'text-gray-400');
+                    commandInput.value = '';
+                    simulateResponse(command);
+                }
+            }
+            
+            sendButton.addEventListener('click', executeCommand);
+            
+            commandInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    executeCommand();
+                }
+            });
+            
+            // Simulate some initial activity
+            setTimeout(() => {
+                addConsoleLine('[+] Agent WORKSTATION-04 connected', 'text-green-400');
+            }, 1000);
+            
+            setTimeout(() => {
+                addConsoleLine('[i] New data available from LAPTOP-3K9D7F', 'text-blue-400');
+            }, 3000);
+        });
+    </script>
+</body>
+</html>

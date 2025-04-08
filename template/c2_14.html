@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neon C2 Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --primary: #6c5dd3;
+            --primary-dark: #5a4ec0;
+            --secondary: #ff7b72;
+            --bg-dark: #0d1117;
+            --bg-darker: #010409;
+            --text-primary: #e6edf3;
+            --text-secondary: #7d8590;
+        }
+        
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background-color: var(--bg-darker);
+            color: var(--text-primary);
+            overflow-x: hidden;
+        }
+        
+        .sidebar-item {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .sidebar-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 3px;
+            height: 100%;
+            background: var(--primary);
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+        
+        .sidebar-item:hover {
+            background-color: rgba(108, 93, 211, 0.1);
+        }
+        
+        .sidebar-item:hover::before {
+            transform: translateX(0);
+        }
+        
+        .sidebar-item.active {
+            background-color: rgba(108, 93, 211, 0.2);
+        }
+        
+        .sidebar-item.active::before {
+            transform: translateX(0);
+        }
+        
+        .card {
+            background-color: var(--bg-dark);
+            border: 1px solid #30363d;
+            border-radius: 0.5rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 1px 0 rgba(27, 31, 35, 0.04);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            border-color: var(--primary);
+        }
+        
+        .card:hover::after {
+            opacity: 1;
+        }
+        
+        .console-line {
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 8px currentColor;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .status-online {
+            background-color: #3fb950;
+            color: #3fb950;
+        }
+        
+        .status-offline {
+            background-color: #f85149;
+            color: #f85149;
+            animation: none;
+        }
+        
+        .status-idle {
+            background-color: #d29922;
+            color: #d29922;
+            animation: pulse 4s infinite;
+        }
+        
+        .command-input:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px var(--primary);
+            border-color: var(--primary);
+        }
+        
+        .scrollbar-thin::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .scrollbar-thin::-webkit-scrollbar-track {
+            background: var(--bg-dark);
+        }
+        
+        .scrollbar-thin::-webkit-scrollbar-thumb {
+            background-color: var(--primary);
+            border-radius: 3px;
+        }
+        
+        .glow-text {
+            text-shadow: 0 0 8px currentColor;
+        }
+        
+        .neon-border {
+            position: relative;
+        }
+        
+        .neon-border::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 0.5rem;
+            padding: 1px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .neon-border:hover::after {
+            opacity: 1;
+        }
+        
+        .agent-avatar {
+            transition: all 0.3s ease;
+            filter: grayscale(30%);
+        }
+        
+        .agent-card:hover .agent-avatar {
+            filter: grayscale(0%);
+            transform: scale(1.05);
+        }
+        
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+        
+        @keyframes floating {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        .terminal-cursor {
+            display: inline-block;
+            width: 8px;
+            height: 16px;
+            background: var(--text-primary);
+            animation: blink 1s step-end infinite;
+        }
+        
+        @keyframes blink {
+            from, to { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        
+        .loading-bar {
+            position: relative;
+            height: 3px;
+            background: rgba(108, 93, 211, 0.2);
+            overflow: hidden;
+        }
+        
+        .loading-bar::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 50%;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+            animation: loading 2s linear infinite;
+        }
+        
+        @keyframes loading {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(200%); }
+        }
+        
+        .ripple {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .ripple-effect {
+            position: absolute;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.3);
+            transform: scale(0);
+            animation: ripple 0.6s linear;
+            pointer-events: none;
+        }
+        
+        @keyframes ripple {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body class="h-screen overflow-hidden">
+    <div class="flex h-full">
+        <!-- Sidebar -->
+        <div class="w-64 bg-[#0d1117] border-r border-[#30363d] flex flex-col z-10">
+            <div class="p-4 flex items-center space-x-3 border-b border-[#30363d]">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-600 to-blue-500 flex items-center justify-center floating">
+                    <i class="fas fa-shield-alt text-white text-lg"></i>
+                </div>
+                <div>
+                    <h2 class="text-white font-semibold glow-text" style="color: var(--primary)">NOVA C2</h2>
+                    <p class="text-xs text-[#7d8590]">v3.1.0</p>
+                </div>
+            </div>
+            
+            <div class="p-4 space-y-1 flex-1 overflow-y-auto scrollbar-thin">
+                <div class="sidebar-item active flex items-center space-x-3 p-3 rounded-lg cursor-pointer">
+                    <i class="fas fa-tachometer-alt text-[#6e40c9]"></i>
+                    <span>Dashboard</span>
+                </div>
+                <div class="sidebar-item flex items-center space-x-3 p-3 rounded-lg cursor-pointer">
+                    <i class="fas fa-laptop-code text-[#2ea043]"></i>
+                    <span>Agents</span>
+                </div>
+                <div class="sidebar-item flex items-center space-x-3 p-3 rounded-lg cursor-pointer">
+                    <i class="fas fa-tasks text-[#d29922]"></i>
+                    <span>Tasks</span>
+                </div>
+                <div class="sidebar-item flex items-center space-x-3 p-3 rounded-lg cursor-pointer">
+                    <i class="fas fa-cubes text-[#ff7b72]"></i>
+                    <span>Modules</span>
+                </div>
+                <div class="sidebar-item flex items-center space-x-3 p-3 rounded-lg cursor-pointer">
+                    <i class="fas fa-chart-network text-[#58a6ff]"></i>
+                    <span>Network</span>
+                </div>
+                <div class="sidebar-item flex items-center space-x-3 p-3 rounded-lg cursor-pointer">
+                    <i class="fas fa-cog text-[#8b949e]"></i>
+                    <span>Settings</span>
+                </div>
+            </div>
+            
+            <div class="p-4 border-t border-[#30363d]">
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 rounded-full bg-[#21262d] flex items-center justify-center">
+                        <i class="fas fa-user-secret text-[#c9d1d9]"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-white">phantom</p>
+                        <p class="text-xs text-[#7d8590]">Operator</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col overflow-hidden relative">
+            <!-- Animated background elements -->
+            <div class="absolute inset-0 overflow-hidden pointer-events-none">
+                <div class="absolute top-1/4 left-1/4 w-32 h-32 rounded-full bg-[#6e40c9] opacity-10 blur-3xl"></div>
+                <div class="absolute top-1/3 right-1/3 w-40 h-40 rounded-full bg-[#2ea043] opacity-10 blur-3xl"></div>
+                <div class="absolute bottom-1/4 right-1/4 w-28 h-28 rounded-full bg-[#ff7b72] opacity-10 blur-3xl"></div>
+            </div>
+            
+            <!-- Top Bar -->
+            <div class="bg-[#0d1117] border-b border-[#30363d] p-4 flex items-center justify-between z-10">
+                <div class="flex items-center space-x-4">
+                    <h1 class="text-xl font-semibold text-white flex items-center">
+                        <span>Dashboard</span>
+                        <span class="ml-2 text-xs px-2 py-1 bg-[#6e40c9] rounded-full">Live</span>
+                    </h1>
+                    <div class="flex items-center space-x-2 text-sm">
+                        <span class="text-[#7d8590]">Connected:</span>
+                        <span class="text-[#3fb950] font-medium">14</span>
+                        <span class="text-[#7d8590]">Total:</span>
+                        <span class="font-medium">27</span>
+                    </div>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-[#7d8590]"></i>
+                        <input type="text" placeholder="Search agents..." class="bg-[#21262d] border border-[#30363d] rounded-lg pl-10 pr-4 py-2 text-sm focus:outline-none focus:border-[#6e40c9] transition-colors" style="width: 200px;">
+                    </div>
+                    <button class="ripple bg-gradient-to-r from-[#6e40c9] to-[#ff7b72] hover:from-[#5d36b5] hover:to-[#e56960] text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 hover:shadow-lg hover:shadow-[#6e40c9]/30 relative overflow-hidden">
+                        <i class="fas fa-plus mr-2"></i> Deploy Agent
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Loading bar -->
+            <div class="loading-bar"></div>
+            
+            <!-- Content Area -->
+            <div class="flex-1 overflow-auto p-6 space-y-6 scrollbar-thin z-10">
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="card neon-border p-5">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-[#7d8590] text-sm">Online Agents</p>
+                                <h3 class="text-2xl font-bold text-white mt-1">14</h3>
+                                <p class="text-[#3fb950] text-xs mt-1 flex items-center">
+                                    <span class="status-indicator status-online mr-2"></span>
+                                    +3 since last hour
+                                </p>
+                            </div>
+                            <div class="w-12 h-12 rounded-full bg-[#238636] bg-opacity-20 flex items-center justify-center">
+                                <i class="fas fa-laptop-code text-[#3fb950]"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card neon-border p-5">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-[#7d8590] text-sm">Active Tasks</p>
+                                <h3 class="text-2xl font-bold text-white mt-1">11</h3>
+                                <p class="text-[#d29922] text-xs mt-1 flex items-center">
+                                    <span class="status-indicator status-idle mr-2"></span>
+                                    4 pending execution
+                                </p>
+                            </div>
+                            <div class="w-12 h-12 rounded-full bg-[#9e6a03] bg-opacity-20 flex items-center justify-center">
+                                <i class="fas fa-tasks text-[#d29922]"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card neon-border p-5">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-[#7d8590] text-sm">Data Collected</p>
+                                <h3 class="text-2xl font-bold text-white mt-1">2.7GB</h3>
+                                <p class="text-[#ff7b72] text-xs mt-1 flex items-center">
+                                    <i class="fas fa-arrow-up mr-2"></i>
+                                    22% from last day
+                                </p>
+                            </div>
+                            <div class="w-12 h-12 rounded-full bg-[#da3633] bg-opacity-20 flex items-center justify-center">
+                                <i class="fas fa-database text-[#ff7b72]"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card neon-border p-5">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-[#7d8590] text-sm">Uptime</p>
+                                <h3 class="text-2xl font-bold text-white mt-1">99.9%</h3>
+                                <p class="text-[#58a6ff] text-xs mt-1 flex items-center">
+                                    <i class="fas fa-clock mr-2"></i>
+                                    Last restart: 21d ago
+                                </p>
+                            </div>
+                            <div class="w-12 h-12 rounded-full bg-[#1f6feb] bg-opacity-20 flex items-center justify-center">
+                                <i class="fas fa-server text-[#58a6ff]"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Recent Activity and Agent List -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Recent Activity -->
+                    <div class="card neon-border lg:col-span-2 p-5">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-semibold text-white">Recent Activity</h3>
+                            <button class="text-xs text-[#6e40c9] hover:text-[#8b65d9] transition-colors">View All</button>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <div class="flex items-start space-x-3 group">
+                                <div class="w-8 h-8 rounded-full bg-[#6e40c9] bg-opacity-20 flex items-center justify-center mt-1 group-hover:bg-opacity-30 transition-all">
+                                    <i class="fas fa-terminal text-[#6e40c9] text-xs"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-white">New agent connected from <span class="text-[#6e40c9]">192.168.1.67</span></p>
+                                    <p class="text-xs text-[#7d8590] mt-1">Windows 11 Pro • 1 minute ago</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start space-x-3 group">
+                                <div class="w-8 h-8 rounded-full bg-[#2ea043] bg-opacity-20 flex items-center justify-center mt-1 group-hover:bg-opacity-30 transition-all">
+                                    <i class="fas fa-tasks text-[#2ea043] text-xs"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-white">Task <span class="text-[#2ea043]">#T-8921</span> completed on <span class="text-[#2ea043]">LAPTOP-9F3S2D</span></p>
+                                    <p class="text-xs text-[#7d8590] mt-1">Screen capture • 8 minutes ago</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start space-x-3 group">
+                                <div class="w-8 h-8 rounded-full bg-[#ff7b72] bg-opacity-20 flex items-center justify-center mt-1 group-hover:bg-opacity-30 transition-all">
+                                    <i class="fas fa-download text-[#ff7b72] text-xs"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-white">Downloaded <span class="text-[#ff7b72]">browser_data.db</span> from <span class="text-[#ff7b72]">WORKSTATION-04</span></p>
+                                    <p class="text-xs text-[#7d8590] mt-1">3.7MB • 15 minutes ago</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start space-x-3 group">
+                                <div class="w-8 h-8 rounded-full bg-[#f85149] bg-opacity-20 flex items-center justify-center mt-1 group-hover:bg-opacity-30 transition-all">
+                                    <i class="fas fa-exclamation-triangle text-[#f85149] text-xs"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-white">Agent <span class="text-[#f85149]">DESKTOP-5T3H9M</span> detected AV</p>
+                                    <p class="text-xs text-[#7d8590] mt-1">Windows Defender • 23 minutes ago</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Quick Actions -->
+                    <div class="card neon-border p-5">
+                        <h3 class="text-lg font-semibold text-white mb-4">Quick Actions</h3>
+                        
+                        <div class="space-y-3">
+                            <button class="ripple w-full flex items-center space-x-3 p-3 rounded-lg bg-[#21262d] hover:bg-[#30363d] transition-all group">
+                                <div class="w-8 h-8 rounded-full bg-[#6e40c9] bg-opacity-20 flex items-center justify-center group-hover:bg-opacity-30 transition-all">
+                                    <i class="fas fa-terminal text-[#6e40c9] text-sm"></i>
+                                </div>
+                                <span>Execute Command</span>
+                            </button>
+                            
+                            <button class="ripple w-full flex items-center space-x-3 p-3 rounded-lg bg-[#21262d] hover:bg-[#30363d] transition-all group">
+                                <div class="w-8 h-8 rounded-full bg-[#2ea043] bg-opacity-20 flex items-center justify-center group-hover:bg-opacity-30 transition-all">
+                                    <i class="fas fa-file-upload text-[#2ea043] text-sm"></i>
+                                </div>
+                                <span>Upload Module</span>
+                            </button>
+                            
+                            <button class="ripple w-full flex items-center space-x-3 p-3 rounded-lg bg-[#21262d] hover:bg-[#30363d] transition-all group">
+                                <div class="w-8 h-8 rounded-full bg-[#58a6ff] bg-opacity-20 flex items-center justify-center group-hover:bg-opacity-30 transition-all">
+                                    <i class="fas fa-file-download text-[#58a6ff] text-sm"></i>
+                                </div>
+                                <span>Download Data</span>
+                            </button>
+                            
+                            <button class="ripple w-full flex items-center space-x-3 p-3 rounded-lg bg-[#21262d] hover:bg-[#30363d] transition-all group">
+                                <div class="w-8 h-8 rounded-full bg-[#d29922] bg-opacity-20 flex items-center justify-center group-hover:bg-opacity-30 transition-all">
+                                    <i class="fas fa-sync-alt text-[#d29922] text-sm"></i>
+                                </div>
+                                <span>Update Agents</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Console and Agent List -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Console -->
+                    <div class="card neon-border lg:col-span-2 p-0 overflow-hidden">
+                        <div class="p-4 border-b border-[#30363d] flex items-center justify-between">
+                            <h3 class="text-lg font-semibold text-white">Command Console</h3>
+                            <div class="flex space-x-2">
+                                <button class="w-8 h-8 rounded-full bg-[#21262d] hover:bg-[#30363d] flex items-center justify-center transition-colors">
+                                    <i class="fas fa-terminal text-[#7d8590] text-sm"></i>
+                                </button>
+                                <button class="w-8 h-8 rounded-full bg-[#21262d] hover:bg-[#30363d] flex items-center justify-center transition-colors">
+                                    <i class="fas fa-trash-alt text-[#7d8590] text-sm"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="p-4 bg-[#010409] h-64 overflow-y-auto font-mono text-sm console-output scrollbar-thin">
+                            <div class="console-line text-[#3fb950]">[+] Agent WORKSTATION-04 connected</div>
+                            <div class="console-line text-[#7d8590]">> systeminfo</div>
+                            <div class="console-line text-[#c9d1d9] ml-4">Host Name: WORKSTATION-04</div>
+                            <div class="console-line text-[#c9d1d9] ml-4">OS Name: Microsoft Windows 11 Enterprise</div>
+                            <div class="console-line text-[#c9d1d9] ml-4">OS Version: 10.0.22621 N/A Build 22621</div>
+                            <div class="console-line text-[#6e40c9]">[+] Task #T-8921 completed successfully</div>
+                            <div class="console-line text-[#7d8590]">> whoami</div>
+                            <div class="console-line text-[#c9d1d9] ml-4">workstation-04\admin</div>
+                            <div class="console-line text-[#58a6ff]">[i] New agent check-in from 192.168.1.78</div>
+                            <div class="console-line text-[#7d8590]">> <span class="terminal-cursor"></span></div>
+                        </div>
+                        
+                        <div class="p-4 border-t border-[#30363d] flex">
+                            <input type="text" class="command-input flex-1 bg-[#21262d] border border-[#30363d] rounded-l-lg px-4 py-2 text-[#c9d1d9] focus:outline-none focus:border-[#6e40c9] transition-colors" placeholder="Enter command...">
+                            <button class="ripple bg-gradient-to-r from-[#6e40c9] to-[#6e40c9] hover:from-[#5d36b5] hover:to-[#5d36b5] text-white px-4 rounded-r-lg transition-all">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Recent Agents -->
+                    <div class="card neon-border p-0 overflow-hidden">
+                        <div class="p-4 border-b border-[#30363d] flex justify-between items-center">
+                            <h3 class="text-lg font-semibold text-white">Active Agents</h3>
+                            <div class="flex items-center space-x-2">
+                                <span class="status-indicator status-online"></span>
+                                <span class="text-xs">14 Online</span>
+                            </div>
+                        </div>
+                        
+                        <div class="divide-y divide-[#30363d] max-h-96 overflow-y-auto scrollbar-thin">
+                            <div class="agent-card p-4 hover:bg-[#21262d] cursor-pointer transition-colors group">
+                                <div class="flex items-center space-x-3">
+                                    <div class="relative">
+                                        <div class="agent-avatar w-10 h-10 rounded-full bg-[#21262d] flex items-center justify-center">
+                                            <i class="fas fa-laptop text-[#6e40c9]"></i>
+                                        </div>
+                                        <span class="status-indicator status-online absolute bottom-0 right-0 border-2 border-[#0d1117]"></span>
+                                    </div>
+                                    <div>
+                                        <p class="text-white font-medium">WORKSTATION-04</p>
+                                        <p class="text-xs text-[#7d8590]">Windows 11 • 192.168.1.67</p>
+                                    </div>
+                                    <div class="ml-auto text-[#6e40c9] opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="agent-card p-4 hover:bg-[#21262d] cursor-pointer transition-colors group">
+                                <div class="flex items-center space-x-3">
+                                    <div class="relative">
+                                        <div class="agent-avatar w-10 h-10 rounded-full bg-[#21262d] flex items-center justify-center">
+                                            <i class="fas fa-laptop text-[#2ea043]"></i>
+                                        </div>
+                                        <span class="status-indicator status-online absolute bottom-0 right-0 border-2 border-[#0d1117]"></span>
+                                    </div>
+                                    <div>
+                                        <p class="text-white font-medium">LAPTOP-9F3S2D</p>
+                                        <p class="text-xs text-[#7d8590]">Windows 10 • 192.168.1.32</p>
+                                    </div>
+                                    <div class="ml-auto text-[#2ea043] opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="agent-card p-4 hover:bg-[#21262d] cursor-pointer transition-colors group">
+                                <div class="flex items-center space-x-3">
+                                    <div class="relative">
+                                        <div class="agent-avatar w-10 h-10 rounded-full bg-[#21262d] flex items-center justify-center">
+                                            <i class="fas fa-laptop text-[#d29922]"></i>
+                                        </div>
+                                        <span class="status-indicator status-idle absolute bottom-0 right-0 border-2 border-[#0d1117]"></span>
+                                    </div>
+                                    <div>
+                                        <p class="text-white font-medium">DESKTOP-5T3H9M</p>
+                                        <p class="text-xs text-[#7d8590]">Windows 7 • 192.168.1.28</p>
+                                    </div>
+                                    <div class="ml-auto text-[#d29922] opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="agent-card p-4 hover:bg-[#21262d] cursor-pointer transition-colors group">
+                                <div class="flex items-center space-x-3">
+                                    <div class="relative">
+                                        <div class="agent-avatar w-10 h-10 rounded-full bg-[#21262d] flex items-center justify-center">
+                                            <i class="fas fa-server text-[#58a6ff]"></i>
+                                        </div>
+                                        <span class="status-indicator status-online absolute bottom-0 right-0 border-2 border-[#0d1117]"></span>
+                                    </div>
+                                    <div>
+                                        <p class="text-white font-medium">SERVER-AD02</p>
+                                        <p class="text-xs text-[#7d8590]">Windows Server • 192.168.1.100</p>
+                                    </div>
+                                    <div class="ml-auto text-[#58a6ff] opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="agent-card p-4 hover:bg-[#21262d] cursor-pointer transition-colors group">
+                                <div class="flex items-center space-x-3">
+                                    <div class="relative">
+                                        <div class="agent-avatar w-10 h-10 rounded-full bg-[#21262d] flex items-center justify-center">
+                                            <i class="fas fa-laptop text-[#ff7b72]"></i>
+                                        </div>
+                                        <span class="status-indicator status-offline absolute bottom-0 right-0 border-2 border-[#0d1117]"></span>
+                                    </div>
+                                    <div>
+                                        <p class="text-white font-medium">DESKTOP-AE4R9P</p>
+                                        <p class="text-xs text-[#7d8590]">Windows 10 • 192.168.1.55</p>
+                                    </div>
+                                    <div class="ml-auto text-[#ff7b72] opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Enhanced console interaction with ripple effects
+        document.addEventListener('DOMContentLoaded', function() {
+            const consoleOutput = document.querySelector('.console-output');
+            const commandInput = document.querySelector('.command-input');
+            const sendButton = document.querySelector('.command-input + button');
+            
+            // Create ripple effect on buttons
+            document.querySelectorAll('.ripple').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    const x = e.clientX - e.target.getBoundingClientRect().left;
+                    const y = e.clientY - e.target.getBoundingClientRect().top;
+                    
+                    const ripple = document.createElement('span');
+                    ripple.classList.add('ripple-effect');
+                    ripple.style.left = `${x}px`;
+                    ripple.style.top = `${y}px`;
+                    
+                    this.appendChild(ripple);
+                    
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 600);
+                });
+            });
+            
+            // Add console line with animation
+            function addConsoleLine(text, colorClass = 'text-[#c9d1d9]') {
+                const line = document.createElement('div');
+                line.className = `console-line ${colorClass} mb-1`;
+                line.innerHTML = text;
+                consoleOutput.appendChild(line);
+                consoleOutput.scrollTop = consoleOutput.scrollHeight;
+            }
+            
+            // Simulate command responses
+            function simulateResponse(command) {
+                setTimeout(() => {
+                    if (command === 'help') {
+                        addConsoleLine('Available commands: systeminfo, whoami, screenshot, keylogger, download, upload, persistence, exit', 'text-[#58a6ff]');
+                    } else if (command === 'systeminfo') {
+                        addConsoleLine('Host Name: WORKSTATION-04', 'text-[#c9d1d9] ml-4');
+                        addConsoleLine('OS Name: Microsoft Windows 11 Enterprise', 'text-[#c9d1d9] ml-4');
+                        addConsoleLine('OS Version: 10.0.22621 N/A Build 22621', 'text-[#c9d1d9] ml-4');
+                        addConsoleLine('System Type: x64-based PC', 'text-[#c9d1d9] ml-4');
+                        addConsoleLine('Total Physical Memory: 32,000 MB', 'text-[#c9d1d9] ml-4');
+                    } else if (command === 'whoami') {
+                        addConsoleLine('workstation-04\\admin', 'text-[#c9d1d9] ml-4');
+                    } else if (command === 'screenshot') {
+                        addConsoleLine('[+] Capturing screen...', 'text-[#6e40c9]');
+                        setTimeout(() => {
+                            addConsoleLine('[+] Screen captured: screenshot_20230615_1423.png', 'text-[#3fb950]');
+                        }, 800);
+                    } else if (command === '') {
+                        // Do nothing for empty command
+                    } else {
+                        addConsoleLine(`[!] Unknown command: "${command}"`, 'text-[#ff7b72]');
+                        addConsoleLine('Type "help" for available commands', 'text-[#58a6ff]');
+                    }
+                    
+                    // Add new prompt
+                    addConsoleLine('> <span class="terminal-cursor"></span>', 'text-[#7d8590]');
+                }, 500);
+            }
+            
+            // Execute command from input
+            function executeCommand() {
+                const command = commandInput.value.trim();
+                if (command) {
+                    addConsoleLine(`> ${command}`, 'text-[#7d8590]');
+                    commandInput.value = '';
+                    simulateResponse(command.toLowerCase());
+                }
+            }
+            
+            // Button click handler
+            sendButton.addEventListener('click', executeCommand);
+            
+            // Enter key handler
+            commandInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    executeCommand();
+                }
+            });
+            
+            // Focus the command input
+            commandInput.focus();
+            
+            // Simulate some initial activity
+            setTimeout(() => {
+                addConsoleLine('[+] Agent LAPTOP-9F3S2D connected', 'text-[#3fb950]');
+            }, 1500);
+            
+            setTimeout(() => {
+                addConsoleLine('[i] New data available from SERVER-AD02', 'text-[#58a6ff]');
+            }, 3500);
+            
+            setTimeout(() => {
+                addConsoleLine('[!] Warning: Agent DESKTOP-AE4R9P disconnected', 'text-[#ff7b72]');
+            }, 5500);
+            
+            // Add blinking cursor to last line
+            addConsoleLine('> <span class="terminal-cursor"></span>', 'text-[#7d8590]');
+            
+            // Animate sidebar items on hover
+            document.querySelectorAll('.sidebar-item').forEach(item => {
+                item.addEventListener('mouseenter', function() {
+                    if (!this.classList.contains('active')) {
+                        this.style.transform = 'translateX(5px)';
+                    }
+                });
+                
+                item.addEventListener('mouseleave', function() {
+                    this.style.transform = '';
+                });
+            });
+        });
+    </script>
+</body>
+</html>

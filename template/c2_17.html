@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RoyalUI C2 Console</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --royal-purple: #4a1d96;
+            --gold-accent: #d4af37;
+            --dark-bg: #0f172a;
+            --light-bg: #1e293b;
+        }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--dark-bg);
+            color: white;
+            overflow: hidden;
+        }
+        
+        .royal-gradient {
+            background: linear-gradient(135deg, var(--royal-purple) 0%, var(--dark-bg) 100%);
+        }
+        
+        .gold-border {
+            border: 1px solid var(--gold-accent);
+        }
+        
+        .gold-text {
+            color: var(--gold-accent);
+        }
+        
+        .command-input:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px var(--gold-accent);
+        }
+        
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        .glow {
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+        }
+        
+        .terminal-cursor {
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        
+        .tab-active {
+            border-bottom: 3px solid var(--gold-accent);
+        }
+    </style>
+</head>
+<body class="h-screen flex flex-col">
+    <!-- Top Navigation -->
+    <header class="royal-gradient text-white p-4 flex items-center justify-between border-b border-gray-700">
+        <div class="flex items-center space-x-4">
+            <div class="flex items-center">
+                <i class="fas fa-crown gold-text text-2xl mr-2"></i>
+                <h1 class="text-xl font-bold">RoyalUI <span class="text-sm font-normal gold-text">Command & Control</span></h1>
+            </div>
+            
+            <nav class="hidden md:flex space-x-6 ml-8">
+                <a href="#" class="hover:text-gray-300 transition">Dashboard</a>
+                <a href="#" class="hover:text-gray-300 transition">Agents</a>
+                <a href="#" class="hover:text-gray-300 transition">Modules</a>
+                <a href="#" class="hover:text-gray-300 transition">Settings</a>
+            </nav>
+        </div>
+        
+        <div class="flex items-center space-x-4">
+            <div class="relative">
+                <i class="fas fa-bell text-gray-400 hover:text-white cursor-pointer"></i>
+                <span class="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500"></span>
+            </div>
+            <div class="flex items-center space-x-2">
+                <div class="h-8 w-8 rounded-full bg-gray-600 flex items-center justify-center">
+                    <i class="fas fa-user text-sm"></i>
+                </div>
+                <span class="hidden md:inline">Admin</span>
+                <i class="fas fa-chevron-down text-xs"></i>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Main Content -->
+    <div class="flex flex-1 overflow-hidden">
+        <!-- Sidebar -->
+        <aside class="w-16 md:w-56 bg-gray-900 border-r border-gray-800 flex flex-col">
+            <div class="p-4 border-b border-gray-800 flex items-center justify-center md:justify-start">
+                <i class="fas fa-shield-alt gold-text mr-2"></i>
+                <span class="hidden md:inline font-medium">Operations</span>
+            </div>
+            
+            <nav class="flex-1 overflow-y-auto scrollbar-hide py-2">
+                <div class="px-2 space-y-1">
+                    <a href="#" class="flex items-center p-2 rounded hover:bg-gray-800 text-gray-400 hover:text-white transition">
+                        <i class="fas fa-tachometer-alt w-6 text-center"></i>
+                        <span class="ml-3 hidden md:inline">Overview</span>
+                    </a>
+                    <a href="#" class="flex items-center p-2 rounded bg-gray-800 text-white">
+                        <i class="fas fa-terminal w-6 text-center gold-text"></i>
+                        <span class="ml-3 hidden md:inline">Terminal</span>
+                    </a>
+                    <a href="#" class="flex items-center p-2 rounded hover:bg-gray-800 text-gray-400 hover:text-white transition">
+                        <i class="fas fa-network-wired w-6 text-center"></i>
+                        <span class="ml-3 hidden md:inline">Network</span>
+                    </a>
+                    <a href="#" class="flex items-center p-2 rounded hover:bg-gray-800 text-gray-400 hover:text-white transition">
+                        <i class="fas fa-file-code w-6 text-center"></i>
+                        <span class="ml-3 hidden md:inline">Scripts</span>
+                    </a>
+                    <a href="#" class="flex items-center p-2 rounded hover:bg-gray-800 text-gray-400 hover:text-white transition">
+                        <i class="fas fa-database w-6 text-center"></i>
+                        <span class="ml-3 hidden md:inline">Data</span>
+                    </a>
+                    <a href="#" class="flex items-center p-2 rounded hover:bg-gray-800 text-gray-400 hover:text-white transition">
+                        <i class="fas fa-cog w-6 text-center"></i>
+                        <span class="ml-3 hidden md:inline">Configuration</span>
+                    </a>
+                </div>
+                
+                <div class="px-2 mt-6 border-t border-gray-800 pt-4">
+                    <h3 class="px-2 text-xs font-semibold text-gray-500 uppercase hidden md:inline">Quick Access</h3>
+                    <div class="mt-2 space-y-1">
+                        <a href="#" class="flex items-center p-2 rounded hover:bg-gray-800 text-gray-400 hover:text-white transition">
+                            <i class="fas fa-star w-6 text-center"></i>
+                            <span class="ml-3 hidden md:inline">Favorites</span>
+                        </a>
+                        <a href="#" class="flex items-center p-2 rounded hover:bg-gray-800 text-gray-400 hover:text-white transition">
+                            <i class="fas fa-history w-6 text-center"></i>
+                            <span class="ml-3 hidden md:inline">History</span>
+                        </a>
+                    </div>
+                </div>
+            </nav>
+            
+            <div class="p-4 border-t border-gray-800 flex items-center justify-center md:justify-start">
+                <i class="fas fa-power-off text-red-500 w-6 text-center"></i>
+                <span class="ml-3 hidden md:inline text-red-500">Logout</span>
+            </div>
+        </aside>
+        
+        <!-- Main Panel -->
+        <main class="flex-1 flex flex-col overflow-hidden">
+            <!-- Agent Selection Tabs -->
+            <div class="bg-gray-800 border-b border-gray-700 flex overflow-x-auto scrollbar-hide">
+                <div class="flex space-x-1 px-2">
+                    <button class="px-4 py-2 text-sm font-medium text-white bg-gray-700 relative tab-active">
+                        <span>WIN-7X86</span>
+                        <span class="absolute top-0 right-0 h-2 w-2 rounded-full bg-green-500"></span>
+                    </button>
+                    <button class="px-4 py-2 text-sm font-medium text-gray-400 hover:text-white">
+                        WIN-10X64
+                    </button>
+                    <button class="px-4 py-2 text-sm font-medium text-gray-400 hover:text-white">
+                        SRV-2019
+                    </button>
+                    <button class="px-4 py-2 text-sm font-medium text-gray-400 hover:text-white">
+                        <i class="fas fa-plus mr-1"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Terminal Area -->
+            <div class="flex-1 flex flex-col bg-gray-900 p-4 overflow-hidden">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center space-x-4">
+                        <h2 class="text-lg font-semibold">Terminal Session</h2>
+                        <div class="flex space-x-2">
+                            <button class="px-3 py-1 bg-gray-700 rounded text-sm hover:bg-gray-600 transition flex items-center">
+                                <i class="fas fa-play mr-1 text-xs"></i> Execute
+                            </button>
+                            <button class="px-3 py-1 bg-gray-700 rounded text-sm hover:bg-gray-600 transition flex items-center">
+                                <i class="fas fa-save mr-1 text-xs"></i> Save
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-xs text-gray-400">Last active: 2 min ago</span>
+                        <div class="h-2 w-2 rounded-full bg-green-500"></div>
+                    </div>
+                </div>
+                
+                <!-- Terminal Output -->
+                <div class="flex-1 bg-black rounded-lg p-4 overflow-y-auto scrollbar-hide font-mono text-sm text-gray-300 mb-4 glow">
+                    <div class="mb-2">
+                        <span class="text-green-400">admin@WIN-7X86</span>
+                        <span class="text-gray-500">:</span>
+                        <span class="text-blue-400">~</span>
+                        <span class="text-gray-500">$</span>
+                        <span> whoami</span>
+                    </div>
+                    <div class="mb-4">
+                        win-7x86\administrator
+                    </div>
+                    
+                    <div class="mb-2">
+                        <span class="text-green-400">admin@WIN-7X86</span>
+                        <span class="text-gray-500">:</span>
+                        <span class="text-blue-400">~</span>
+                        <span class="text-gray-500">$</span>
+                        <span> systeminfo</span>
+                    </div>
+                    <div class="mb-4 text-gray-400">
+                        <div>Host Name:                 WIN-7X86</div>
+                        <div>OS Name:                   Microsoft Windows 7 Enterprise</div>
+                        <div>OS Version:                6.1.7601 Service Pack 1 Build 7601</div>
+                        <div>OS Manufacturer:           Microsoft Corporation</div>
+                        <div>System Boot Time:          5/15/2023, 2:37:23 PM</div>
+                    </div>
+                    
+                    <div class="mb-2">
+                        <span class="text-green-400">admin@WIN-7X86</span>
+                        <span class="text-gray-500">:</span>
+                        <span class="text-blue-400">~</span>
+                        <span class="text-gray-500">$</span>
+                        <span> net user</span>
+                    </div>
+                    <div class="mb-4 text-gray-400">
+                        <div>User accounts for \\WIN-7X86</div>
+                        <div class="ml-4">-------------------------------------------------------------------------------</div>
+                        <div class="ml-4">Administrator            Guest                    JohnDoe</div>
+                        <div class="ml-4">ServiceAccount           TestUser</div>
+                    </div>
+                    
+                    <div class="mb-2">
+                        <span class="text-green-400">admin@WIN-7X86</span>
+                        <span class="text-gray-500">:</span>
+                        <span class="text-blue-400">~</span>
+                        <span class="text-gray-500">$</span>
+                        <span class="terminal-cursor">_</span>
+                    </div>
+                </div>
+                
+                <!-- Command Input -->
+                <div class="flex items-center bg-gray-800 rounded-lg overflow-hidden">
+                    <div class="px-4 py-3 bg-gray-700 text-gray-400">
+                        <i class="fas fa-terminal"></i>
+                    </div>
+                    <input type="text" class="flex-1 bg-gray-800 text-white px-4 py-3 command-input" placeholder="Enter command...">
+                    <button class="px-4 py-3 bg-blue-600 text-white hover:bg-blue-700 transition">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </main>
+        
+        <!-- Right Sidebar -->
+        <aside class="hidden lg:block w-64 bg-gray-900 border-l border-gray-800 overflow-y-auto scrollbar-hide">
+            <div class="p-4 border-b border-gray-800">
+                <h2 class="text-lg font-semibold flex items-center">
+                    <i class="fas fa-info-circle gold-text mr-2"></i>
+                    Agent Details
+                </h2>
+            </div>
+            
+            <div class="p-4 space-y-6">
+                <div>
+                    <h3 class="text-sm font-medium text-gray-400 mb-2">SYSTEM INFORMATION</h3>
+                    <div class="bg-gray-800 rounded-lg p-3 space-y-2">
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Hostname:</span>
+                            <span>WIN-7X86</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">OS:</span>
+                            <span>Windows 7 Enterprise</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Arch:</span>
+                            <span>x86</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">IP:</span>
+                            <span>192.168.1.45</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Last Seen:</span>
+                            <span>2 min ago</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="text-sm font-medium text-gray-400 mb-2">ACTIVE MODULES</h3>
+                    <div class="bg-gray-800 rounded-lg p-3 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="h-2 w-2 rounded-full bg-green-500 mr-2"></div>
+                                <span>Keylogger</span>
+                            </div>
+                            <button class="text-xs bg-gray-700 px-2 py-1 rounded hover:bg-gray-600">Stop</button>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="h-2 w-2 rounded-full bg-green-500 mr-2"></div>
+                                <span>Screenshot</span>
+                            </div>
+                            <button class="text-xs bg-gray-700 px-2 py-1 rounded hover:bg-gray-600">Stop</button>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="h-2 w-2 rounded-full bg-yellow-500 mr-2"></div>
+                                <span>Persistance</span>
+                            </div>
+                            <button class="text-xs bg-gray-700 px-2 py-1 rounded hover:bg-gray-600">Stop</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="text-sm font-medium text-gray-400 mb-2">QUICK COMMANDS</h3>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button class="bg-gray-800 hover:bg-gray-700 rounded p-2 text-xs transition">whoami</button>
+                        <button class="bg-gray-800 hover:bg-gray-700 rounded p-2 text-xs transition">ipconfig</button>
+                        <button class="bg-gray-800 hover:bg-gray-700 rounded p-2 text-xs transition">netstat</button>
+                        <button class="bg-gray-800 hover:bg-gray-700 rounded p-2 text-xs transition">tasklist</button>
+                        <button class="bg-gray-800 hover:bg-gray-700 rounded p-2 text-xs transition">dir</button>
+                        <button class="bg-gray-800 hover:bg-gray-700 rounded p-2 text-xs transition">ps</button>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="text-sm font-medium text-gray-400 mb-2">FILE EXPLORER</h3>
+                    <div class="bg-gray-800 rounded-lg p-3">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm">C:\Users\Admin\</span>
+                            <button class="text-xs bg-blue-600 px-2 py-1 rounded hover:bg-blue-700">Upload</button>
+                        </div>
+                        <div class="space-y-1 max-h-40 overflow-y-auto scrollbar-hide">
+                            <div class="flex items-center p-1 hover:bg-gray-700 rounded cursor-pointer">
+                                <i class="fas fa-folder text-yellow-400 mr-2 text-sm"></i>
+                                <span class="text-sm">Documents</span>
+                            </div>
+                            <div class="flex items-center p-1 hover:bg-gray-700 rounded cursor-pointer">
+                                <i class="fas fa-folder text-yellow-400 mr-2 text-sm"></i>
+                                <span class="text-sm">Downloads</span>
+                            </div>
+                            <div class="flex items-center p-1 hover:bg-gray-700 rounded cursor-pointer">
+                                <i class="fas fa-file text-gray-400 mr-2 text-sm"></i>
+                                <span class="text-sm">notes.txt</span>
+                            </div>
+                            <div class="flex items-center p-1 hover:bg-gray-700 rounded cursor-pointer">
+                                <i class="fas fa-file text-gray-400 mr-2 text-sm"></i>
+                                <span class="text-sm">passwords.db</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+    
+    <!-- Status Bar -->
+    <footer class="bg-gray-900 border-t border-gray-800 px-4 py-2 flex items-center justify-between text-xs text-gray-400">
+        <div class="flex items-center space-x-4">
+            <div class="flex items-center">
+                <div class="h-2 w-2 rounded-full bg-green-500 mr-2"></div>
+                <span>Connected</span>
+            </div>
+            <span>Session: 1h 24m</span>
+            <span>Agent: WIN-7X86</span>
+        </div>
+        <div class="flex items-center space-x-4">
+            <span>CPU: 24%</span>
+            <span>RAM: 1.2/4GB</span>
+            <span>Network: 12KB/s ↓ 8KB/s ↑</span>
+        </div>
+    </footer>
+
+    <script>
+        // Simple terminal input handling
+        document.addEventListener('DOMContentLoaded', function() {
+            const commandInput = document.querySelector('.command-input');
+            const terminalOutput = document.querySelector('.font-mono');
+            
+            commandInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    const command = commandInput.value.trim();
+                    if (command) {
+                        // Add command to terminal
+                        const commandElement = document.createElement('div');
+                        commandElement.className = 'mb-2';
+                        commandElement.innerHTML = `
+                            <span class="text-green-400">admin@WIN-7X86</span>
+                            <span class="text-gray-500">:</span>
+                            <span class="text-blue-400">~</span>
+                            <span class="text-gray-500">$</span>
+                            <span> ${command}</span>
+                        `;
+                        
+                        // Add fake response
+                        const responseElement = document.createElement('div');
+                        responseElement.className = 'mb-4';
+                        responseElement.textContent = `Command "${command}" executed successfully.`;
+                        
+                        terminalOutput.appendChild(commandElement);
+                        terminalOutput.appendChild(responseElement);
+                        
+                        // Clear input
+                        commandInput.value = '';
+                        
+                        // Scroll to bottom
+                        terminalOutput.scrollTop = terminalOutput.scrollHeight;
+                    }
+                }
+            });
+            
+            // Add blinking cursor animation
+            setInterval(() => {
+                const cursor = document.querySelector('.terminal-cursor');
+                if (cursor) {
+                    cursor.style.visibility = cursor.style.visibility === 'hidden' ? 'visible' : 'hidden';
+                }
+            }, 500);
+        });
+    </script>
+</body>
+</html>

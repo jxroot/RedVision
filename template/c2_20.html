@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Windows C2 UI - Splunk Style</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0c0d0e;
+            color: #e6e6e6;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .splunk-green {
+            color: #4ECDC4;
+        }
+        
+        .bg-splunk-dark {
+            background-color: #1a1d21;
+        }
+        
+        .bg-splunk-darker {
+            background-color: #0c0d0e;
+        }
+        
+        .border-splunk {
+            border-color: #2d2f33;
+        }
+        
+        .command-input {
+            caret-color: #4ECDC4;
+        }
+        
+        .terminal-scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .terminal-scrollbar::-webkit-scrollbar-track {
+            background: #1a1d21;
+        }
+        
+        .terminal-scrollbar::-webkit-scrollbar-thumb {
+            background: #2d2f33;
+            border-radius: 4px;
+        }
+        
+        .gradient-border {
+            position: relative;
+            border-radius: 0.375rem;
+        }
+        
+        .gradient-border::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: -1px;
+            right: -1px;
+            bottom: -1px;
+            border-radius: 0.375rem;
+            background: linear-gradient(45deg, #4ECDC4, #5568FE);
+            z-index: -1;
+        }
+        
+        .blink {
+            animation: blink 1s step-end infinite;
+        }
+        
+        @keyframes blink {
+            from, to { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        
+        .node {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #4ECDC4;
+            box-shadow: 0 0 10px #4ECDC4;
+        }
+        
+        .connection {
+            position: absolute;
+            height: 2px;
+            background-color: rgba(78, 205, 196, 0.3);
+            transform-origin: left center;
+        }
+        
+        .full-height {
+            height: calc(100% - 1rem);
+        }
+        
+        .expanded-grid {
+            grid-template-columns: 1fr 1.5fr 1fr;
+        }
+        
+        .command-history {
+            height: calc(100% - 3rem);
+        }
+        
+        .network-graph {
+            height: calc(100% - 7rem);
+        }
+    </style>
+</head>
+<body class="flex flex-col">
+    <!-- Top Navigation Bar -->
+    <header class="bg-splunk-dark border-b border-splunk flex items-center justify-between px-4 py-2">
+        <div class="flex items-center space-x-4">
+            <div class="flex items-center">
+                <i class="fas fa-shield-alt splunk-green text-xl"></i>
+                <span class="ml-2 font-semibold">WIN-C2</span>
+            </div>
+            <nav class="hidden md:flex space-x-6">
+                <a href="#" class="text-gray-300 hover:text-white">Dashboard</a>
+                <a href="#" class="text-gray-300 hover:text-white">Sessions</a>
+                <a href="#" class="text-gray-300 hover:text-white">Modules</a>
+                <a href="#" class="text-gray-300 hover:text-white">Logs</a>
+                <a href="#" class="text-gray-300 hover:text-white">Settings</a>
+            </nav>
+        </div>
+        <div class="flex items-center space-x-3">
+            <div class="relative">
+                <input type="text" placeholder="Search..." class="bg-splunk-darker border border-splunk rounded px-3 py-1 text-sm w-64 focus:outline-none focus:ring-1 focus:ring-splunk-green">
+                <i class="fas fa-search absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+            </div>
+            <div class="flex items-center space-x-2">
+                <div class="w-8 h-8 rounded-full bg-splunk-green flex items-center justify-center">
+                    <span class="text-xs font-bold text-splunk-dark">AD</span>
+                </div>
+                <span class="text-sm">Admin</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="flex flex-1 overflow-hidden">
+        <!-- Sidebar -->
+        <aside class="bg-splunk-dark border-r border-splunk w-16 md:w-56 flex flex-col">
+            <div class="p-4 border-b border-splunk">
+                <h2 class="text-sm uppercase font-semibold text-gray-400 hidden md:block">Active Sessions</h2>
+            </div>
+            <div class="overflow-y-auto flex-1">
+                <div class="p-2">
+                    <div class="flex items-center p-2 rounded hover:bg-splunk-darker cursor-pointer">
+                        <div class="relative">
+                            <div class="w-3 h-3 rounded-full bg-green-500 absolute -right-1 -top-1 border border-splunk-dark"></div>
+                            <i class="fas fa-laptop text-gray-300"></i>
+                        </div>
+                        <div class="ml-3 hidden md:block">
+                            <div class="text-sm">WIN-7X86-001</div>
+                            <div class="text-xs text-gray-400">192.168.1.15</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center p-2 rounded hover:bg-splunk-darker cursor-pointer">
+                        <div class="relative">
+                            <div class="w-3 h-3 rounded-full bg-green-500 absolute -right-1 -top-1 border border-splunk-dark"></div>
+                            <i class="fas fa-server text-gray-300"></i>
+                        </div>
+                        <div class="ml-3 hidden md:block">
+                            <div class="text-sm">SRV-2019-002</div>
+                            <div class="text-xs text-gray-400">10.0.0.42</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center p-2 rounded hover:bg-splunk-darker cursor-pointer">
+                        <div class="relative">
+                            <div class="w-3 h-3 rounded-full bg-yellow-500 absolute -right-1 -top-1 border border-splunk-dark"></div>
+                            <i class="fas fa-desktop text-gray-300"></i>
+                        </div>
+                        <div class="ml-3 hidden md:block">
+                            <div class="text-sm">WIN10-PRO-003</div>
+                            <div class="text-xs text-gray-400">172.16.5.21</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center p-2 rounded hover:bg-splunk-darker cursor-pointer">
+                        <div class="relative">
+                            <div class="w-3 h-3 rounded-full bg-red-500 absolute -right-1 -top-1 border border-splunk-dark"></div>
+                            <i class="fas fa-laptop text-gray-300"></i>
+                        </div>
+                        <div class="ml-3 hidden md:block">
+                            <div class="text-sm">WIN11-HOME-004</div>
+                            <div class="text-xs text-gray-400">192.168.2.37</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="p-4 border-t border-splunk">
+                <div class="flex items-center">
+                    <div class="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
+                    <span class="text-xs text-gray-300 hidden md:block">4 Active / 1 Inactive</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Panel -->
+        <main class="flex-1 flex flex-col overflow-hidden bg-splunk-darker">
+            <!-- Status Bar -->
+            <div class="bg-splunk-dark border-b border-splunk px-4 py-2 flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2">
+                        <span class="text-sm text-gray-300">Current Session:</span>
+                        <span class="text-sm font-medium">SRV-2019-002</span>
+                        <span class="text-xs px-2 py-0.5 rounded bg-green-900 text-green-300">Active</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-sm text-gray-300">Privilege:</span>
+                        <span class="text-sm font-medium text-red-400">SYSTEM</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <div class="flex items-center space-x-1">
+                        <i class="fas fa-microchip text-gray-400 text-sm"></i>
+                        <span class="text-xs">2.4 GHz</span>
+                    </div>
+                    <div class="flex items-center space-x-1">
+                        <i class="fas fa-memory text-gray-400 text-sm"></i>
+                        <span class="text-xs">4.2 GB</span>
+                    </div>
+                    <div class="flex items-center space-x-1">
+                        <i class="fas fa-network-wired text-gray-400 text-sm"></i>
+                        <span class="text-xs">12.7 Mbps</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Content -->
+            <div class="flex-1 overflow-hidden expanded-grid grid-cols-1 lg:grid-cols-3 gap-4 p-4 grid">
+                <!-- Left Column - Command History -->
+                <div class="flex flex-col full-height">
+                    <div class="gradient-border h-full">
+                        <div class="bg-splunk-dark rounded p-4 h-full flex flex-col">
+                            <div class="flex items-center justify-between mb-3">
+                                <h3 class="font-medium flex items-center">
+                                    <i class="fas fa-history mr-2 splunk-green"></i>
+                                    Command History
+                                </h3>
+                                <button class="text-xs text-gray-400 hover:text-white">
+                                    <i class="fas fa-ellipsis-h"></i>
+                                </button>
+                            </div>
+                            <div class="terminal-scrollbar overflow-y-auto command-history bg-black rounded p-3 font-mono text-sm flex-grow">
+                                <div class="text-green-400">> whoami</div>
+                                <div class="text-gray-300 ml-4">nt authority\system</div>
+                                <div class="text-green-400 mt-2">> netstat -ano</div>
+                                <div class="text-gray-300 ml-4">
+                                    Proto  Local Address          Foreign Address        State           PID<br>
+                                    TCP    0.0.0.0:80             0.0.0.0:0              LISTENING       4<br>
+                                    TCP    0.0.0.0:135            0.0.0.0:0              LISTENING       928<br>
+                                    TCP    0.0.0.0:445            0.0.0.0:0              LISTENING       4<br>
+                                    TCP    0.0.0.0:3389           0.0.0.0:0              LISTENING       328<br>
+                                </div>
+                                <div class="text-green-400 mt-2">> ps</div>
+                                <div class="text-gray-300 ml-4">
+                                    PID   PPID  Name                         Session<br>
+                                    0     0     [System Process]             N/A<br>
+                                    4     0     System                       N/A<br>
+                                    328   516   svchost.exe                  0<br>
+                                    516   508   wininit.exe                  0<br>
+                                </div>
+                                <div class="text-green-400 mt-2">> download c:\users\admin\documents\secret.txt</div>
+                                <div class="text-gray-300 ml-4">[+] File downloaded successfully (1.2 MB)</div>
+                                <div class="text-green-400 mt-2">> screenshot</div>
+                                <div class="text-gray-300 ml-4">[+] Screenshot captured and saved (1920x1080)</div>
+                                <div class="text-green-400 mt-2">> keylogger --start</div>
+                                <div class="text-gray-300 ml-4">[+] Keylogger started (PID: 1428)</div>
+                                <div class="text-green-400 mt-2">> persistence --install</div>
+                                <div class="text-gray-300 ml-4">[+] Persistence mechanism installed via registry</div>
+                                <div class="text-green-400 mt-2">> creds dump</div>
+                                <div class="text-gray-300 ml-4">
+                                    Username: CORP\admin<br>
+                                    Password: P@ssw0rd123<br>
+                                    Hash: aad3b435b51404eeaad3b435b51404ee
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Middle Column - Network Graph -->
+                <div class="flex flex-col full-height">
+                    <div class="gradient-border h-full">
+                        <div class="bg-splunk-dark rounded p-4 h-full flex flex-col">
+                            <div class="flex items-center justify-between mb-3">
+                                <h3 class="font-medium flex items-center">
+                                    <i class="fas fa-project-diagram mr-2 splunk-green"></i>
+                                    Network Topology
+                                </h3>
+                                <div class="flex space-x-2">
+                                    <button class="text-xs text-gray-400 hover:text-white">
+                                        <i class="fas fa-sync-alt"></i>
+                                    </button>
+                                    <button class="text-xs text-gray-400 hover:text-white">
+                                        <i class="fas fa-ellipsis-h"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="network-graph" class="network-graph relative overflow-hidden rounded bg-splunk-darker flex-grow">
+                                <!-- Nodes and connections will be added by JavaScript -->
+                            </div>
+                            <div class="mt-3 grid grid-cols-3 gap-2">
+                                <div class="bg-splunk-darker rounded p-2 text-center">
+                                    <div class="text-xs text-gray-400">Nodes</div>
+                                    <div class="text-lg splunk-green">8</div>
+                                </div>
+                                <div class="bg-splunk-darker rounded p-2 text-center">
+                                    <div class="text-xs text-gray-400">Active</div>
+                                    <div class="text-lg splunk-green">5</div>
+                                </div>
+                                <div class="bg-splunk-darker rounded p-2 text-center">
+                                    <div class="text-xs text-gray-400">Latency</div>
+                                    <div class="text-lg splunk-green">47ms</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column - System Info and Quick Actions -->
+                <div class="flex flex-col full-height space-y-4">
+                    <!-- System Info -->
+                    <div class="gradient-border flex-1">
+                        <div class="bg-splunk-dark rounded p-4 h-full">
+                            <div class="flex items-center justify-between mb-3">
+                                <h3 class="font-medium flex items-center">
+                                    <i class="fas fa-info-circle mr-2 splunk-green"></i>
+                                    System Information
+                                </h3>
+                                <button class="text-xs text-gray-400 hover:text-white">
+                                    <i class="fas fa-ellipsis-h"></i>
+                                </button>
+                            </div>
+                            <div class="grid grid-cols-2 gap-3 text-sm">
+                                <div>
+                                    <div class="text-gray-400">Hostname</div>
+                                    <div>SRV-2019-002</div>
+                                </div>
+                                <div>
+                                    <div class="text-gray-400">OS</div>
+                                    <div>Windows Server 2019 Standard</div>
+                                </div>
+                                <div>
+                                    <div class="text-gray-400">Architecture</div>
+                                    <div>x64</div>
+                                </div>
+                                <div>
+                                    <div class="text-gray-400">Domain</div>
+                                    <div>CORP.LOCAL</div>
+                                </div>
+                                <div>
+                                    <div class="text-gray-400">Uptime</div>
+                                    <div>3d 7h 22m</div>
+                                </div>
+                                <div>
+                                    <div class="text-gray-400">Last Check-in</div>
+                                    <div>2 minutes ago</div>
+                                </div>
+                                <div>
+                                    <div class="text-gray-400">CPU Usage</div>
+                                    <div class="flex items-center">
+                                        <div class="w-full bg-splunk-darker rounded h-2 mr-2">
+                                            <div class="bg-splunk-green h-2 rounded" style="width: 42%"></div>
+                                        </div>
+                                        <span>42%</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="text-gray-400">Memory</div>
+                                    <div class="flex items-center">
+                                        <div class="w-full bg-splunk-darker rounded h-2 mr-2">
+                                            <div class="bg-splunk-green h-2 rounded" style="width: 68%"></div>
+                                        </div>
+                                        <span>68%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="gradient-border">
+                        <div class="bg-splunk-dark rounded p-4">
+                            <div class="flex items-center justify-between mb-3">
+                                <h3 class="font-medium flex items-center">
+                                    <i class="fas fa-bolt mr-2 splunk-green"></i>
+                                    Quick Actions
+                                </h3>
+                                <button class="text-xs text-gray-400 hover:text-white">
+                                    <i class="fas fa-ellipsis-h"></i>
+                                </button>
+                            </div>
+                            <div class="grid grid-cols-3 gap-2">
+                                <button class="bg-splunk-darker hover:bg-splunk-green hover:text-splunk-dark rounded p-2 flex flex-col items-center justify-center">
+                                    <i class="fas fa-keyboard mb-1"></i>
+                                    <span class="text-xs">Shell</span>
+                                </button>
+                                <button class="bg-splunk-darker hover:bg-splunk-green hover:text-splunk-dark rounded p-2 flex flex-col items-center justify-center">
+                                    <i class="fas fa-camera mb-1"></i>
+                                    <span class="text-xs">Screenshot</span>
+                                </button>
+                                <button class="bg-splunk-darker hover:bg-splunk-green hover:text-splunk-dark rounded p-2 flex flex-col items-center justify-center">
+                                    <i class="fas fa-file-download mb-1"></i>
+                                    <span class="text-xs">Download</span>
+                                </button>
+                                <button class="bg-splunk-darker hover:bg-splunk-green hover:text-splunk-dark rounded p-2 flex flex-col items-center justify-center">
+                                    <i class="fas fa-file-upload mb-1"></i>
+                                    <span class="text-xs">Upload</span>
+                                </button>
+                                <button class="bg-splunk-darker hover:bg-splunk-green hover:text-splunk-dark rounded p-2 flex flex-col items-center justify-center">
+                                    <i class="fas fa-terminal mb-1"></i>
+                                    <span class="text-xs">Mimikatz</span>
+                                </button>
+                                <button class="bg-splunk-darker hover:bg-splunk-green hover:text-splunk-dark rounded p-2 flex flex-col items-center justify-center">
+                                    <i class="fas fa-network-wired mb-1"></i>
+                                    <span class="text-xs">Lateral</span>
+                                </button>
+                                <button class="bg-splunk-darker hover:bg-splunk-green hover:text-splunk-dark rounded p-2 flex flex-col items-center justify-center">
+                                    <i class="fas fa-key mb-1"></i>
+                                    <span class="text-xs">Creds</span>
+                                </button>
+                                <button class="bg-splunk-darker hover:bg-splunk-green hover:text-splunk-dark rounded p-2 flex flex-col items-center justify-center">
+                                    <i class="fas fa-eye mb-1"></i>
+                                    <span class="text-xs">Monitor</span>
+                                </button>
+                                <button class="bg-splunk-darker hover:bg-splunk-green hover:text-splunk-dark rounded p-2 flex flex-col items-center justify-center">
+                                    <i class="fas fa-power-off mb-1"></i>
+                                    <span class="text-xs">Kill</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Command Input -->
+            <div class="bg-splunk-dark border-t border-splunk px-4 py-3">
+                <div class="flex items-center">
+                    <span class="text-green-400 font-mono mr-2">></span>
+                    <input type="text" id="commandInput" class="command-input bg-transparent flex-1 font-mono focus:outline-none" placeholder="Type a command..." autocomplete="off">
+                    <button class="ml-2 px-3 py-1 bg-splunk-green text-splunk-dark rounded text-sm font-medium hover:bg-opacity-90">Execute</button>
+                </div>
+                <div class="mt-2 flex space-x-2 text-xs text-gray-400">
+                    <div>Press <kbd class="bg-splunk-darker px-1 rounded">Tab</kbd> to autocomplete</div>
+                    <div>Press <kbd class="bg-splunk-darker px-1 rounded">↑</kbd> <kbd class="bg-splunk-darker px-1 rounded">↓</kbd> for history</div>
+                    <div>Press <kbd class="bg-splunk-darker px-1 rounded">Ctrl+Space</kbd> for suggestions</div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Create network graph visualization
+        document.addEventListener('DOMContentLoaded', function() {
+            const graphContainer = document.getElementById('network-graph');
+            const width = graphContainer.clientWidth;
+            const height = graphContainer.clientHeight;
+            
+            // Create nodes
+            const nodes = [
+                { id: 1, x: width * 0.2, y: height * 0.3, active: true, name: "SRV-2019-002", ip: "10.0.0.42" },
+                { id: 2, x: width * 0.4, y: height * 0.2, active: true, name: "DC-2019-001", ip: "10.0.0.1" },
+                { id: 3, x: width * 0.6, y: height * 0.3, active: true, name: "SQL-2019-003", ip: "10.0.0.15" },
+                { id: 4, x: width * 0.5, y: height * 0.5, active: true, name: "GW-2019-004", ip: "10.0.0.254" },
+                { id: 5, x: width * 0.3, y: height * 0.6, active: true, name: "WIN10-PRO-005", ip: "10.0.1.12" },
+                { id: 6, x: width * 0.7, y: height * 0.6, active: false, name: "WIN11-HOME-006", ip: "10.0.1.25" },
+                { id: 7, x: width * 0.8, y: height * 0.4, active: false, name: "WIN7-ENT-007", ip: "10.0.1.33" },
+                { id: 8, x: width * 0.2, y: height * 0.8, active: true, name: "SRV-2016-008", ip: "10.0.2.10" }
+            ];
+            
+            // Create connections
+            const connections = [
+                { from: 1, to: 2, latency: 12 },
+                { from: 2, to: 3, latency: 8 },
+                { from: 3, to: 4, latency: 5 },
+                { from: 4, to: 5, latency: 22 },
+                { from: 5, to: 1, latency: 18 },
+                { from: 4, to: 6, latency: 42 },
+                { from: 3, to: 7, latency: 37 },
+                { from: 5, to: 8, latency: 28 }
+            ];
+            
+            // Draw connections
+            connections.forEach(conn => {
+                const fromNode = nodes.find(n => n.id === conn.from);
+                const toNode = nodes.find(n => n.id === conn.to);
+                
+                if (fromNode && toNode) {
+                    const line = document.createElement('div');
+                    line.className = 'connection';
+                    
+                    // Calculate line position and length
+                    const length = Math.sqrt(
+                        Math.pow(toNode.x - fromNode.x, 2) + 
+                        Math.pow(toNode.y - fromNode.y, 2)
+                    );
+                    
+                    const angle = Math.atan2(
+                        toNode.y - fromNode.y, 
+                        toNode.x - fromNode.x
+                    ) * 180 / Math.PI;
+                    
+                    line.style.width = `${length}px`;
+                    line.style.left = `${fromNode.x}px`;
+                    line.style.top = `${fromNode.y}px`;
+                    line.style.transform = `rotate(${angle}deg)`;
+                    
+                    // Make active connections brighter
+                    if (fromNode.active && toNode.active) {
+                        line.style.backgroundColor = 'rgba(78, 205, 196, 0.6)';
+                    }
+                    
+                    // Add latency tooltip
+                    line.setAttribute('title', `${conn.latency}ms latency`);
+                    
+                    graphContainer.appendChild(line);
+                }
+            });
+            
+            // Draw nodes
+            nodes.forEach(node => {
+                const nodeEl = document.createElement('div');
+                nodeEl.className = 'node';
+                nodeEl.style.left = `${node.x - 6}px`;
+                nodeEl.style.top = `${node.y - 6}px`;
+                nodeEl.setAttribute('title', `${node.name}\n${node.ip}`);
+                
+                if (!node.active) {
+                    nodeEl.style.backgroundColor = '#555';
+                    nodeEl.style.boxShadow = 'none';
+                }
+                
+                // Make node clickable
+                nodeEl.style.cursor = 'pointer';
+                nodeEl.addEventListener('click', () => {
+                    alert(`Selected node: ${node.name}\nIP: ${node.ip}\nStatus: ${node.active ? 'Active' : 'Inactive'}`);
+                });
+                
+                graphContainer.appendChild(nodeEl);
+                
+                // Add pulse animation to active nodes
+                if (node.active) {
+                    setInterval(() => {
+                        const pulse = document.createElement('div');
+                        pulse.className = 'node';
+                        pulse.style.left = `${node.x - 6}px`;
+                        pulse.style.top = `${node.y - 6}px`;
+                        pulse.style.opacity = '1';
+                        pulse.style.transform = 'scale(1)';
+                        pulse.style.transition = 'all 1s ease-out';
+                        
+                        graphContainer.appendChild(pulse);
+                        
+                        setTimeout(() => {
+                            pulse.style.opacity = '0';
+                            pulse.style.transform = 'scale(3)';
+                        }, 50);
+                        
+                        setTimeout(() => {
+                            pulse.remove();
+                        }, 1050);
+                    }, 2000 + Math.random() * 3000);
+                }
+            });
+            
+            // Command input functionality
+            const commandInput = document.getElementById('commandInput');
+            const commandHistory = [
+                'whoami',
+                'netstat -ano',
+                'ps',
+                'download c:\\users\\admin\\documents\\secret.txt',
+                'screenshot',
+                'keylogger --start',
+                'persistence --install',
+                'creds dump',
+                'lateral psexec 192.168.1.15',
+                'portscan 10.0.0.0/24',
+                'hashdump',
+                'shell powershell -c "Get-Process"'
+            ];
+            let historyIndex = -1;
+            
+            commandInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    // Execute command
+                    const command = commandInput.value.trim();
+                    if (command) {
+                        // Add to history if not duplicate
+                        if (commandHistory[commandHistory.length - 1] !== command) {
+                            commandHistory.push(command);
+                        }
+                        commandInput.value = '';
+                        historyIndex = -1;
+                        
+                        // In a real app, you would send the command to the server here
+                        console.log('Executing command:', command);
+                    }
+                } else if (e.key === 'ArrowUp') {
+                    // Navigate command history up
+                    if (historyIndex < commandHistory.length - 1) {
+                        historyIndex++;
+                        commandInput.value = commandHistory[commandHistory.length - 1 - historyIndex];
+                    }
+                    e.preventDefault();
+                } else if (e.key === 'ArrowDown') {
+                    // Navigate command history down
+                    if (historyIndex > 0) {
+                        historyIndex--;
+                        commandInput.value = commandHistory[commandHistory.length - 1 - historyIndex];
+                    } else if (historyIndex === 0) {
+                        historyIndex--;
+                        commandInput.value = '';
+                    }
+                    e.preventDefault();
+                } else if (e.key === 'Tab') {
+                    // Simple autocomplete
+                    e.preventDefault();
+                    const input = commandInput.value.toLowerCase();
+                    const matching = commandHistory.find(cmd => 
+                        cmd.toLowerCase().startsWith(input) && cmd !== input
+                    );
+                    if (matching) {
+                        commandInput.value = matching;
+                    }
+                }
+            });
+            
+            // Add blinking cursor effect to command input
+            setInterval(() => {
+                commandInput.classList.toggle('placeholder-gray-500');
+            }, 500);
+            
+            // Make network graph responsive
+            window.addEventListener('resize', function() {
+                // In a real app, you would recalculate node positions here
+                console.log('Window resized - should recalculate network graph');
+            });
+        });
+    </script>
+</body>
+</html>

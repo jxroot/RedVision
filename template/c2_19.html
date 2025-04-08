@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nebula C2 | Command & Control</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&display=swap');
+        
+        body {
+            font-family: 'Fira Code', monospace;
+            background-color: #0a0a0a;
+            color: #e2e2e2;
+            overflow: hidden;
+        }
+        
+        .window {
+            border: 1px solid #2d3748;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        
+        .title-bar {
+            background: linear-gradient(90deg, #1a202c, #2d3748);
+            border-bottom: 1px solid #4a5568;
+        }
+        
+        .terminal {
+            background-color: rgba(15, 15, 20, 0.95);
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        
+        .blink {
+            animation: blink 1s step-end infinite;
+        }
+        
+        @keyframes blink {
+            from, to { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        
+        .glow-text {
+            text-shadow: 0 0 8px rgba(0, 255, 255, 0.7);
+        }
+        
+        .hacker-card {
+            background: rgba(26, 32, 44, 0.7);
+            border: 1px solid #4a5568;
+            transition: all 0.3s ease;
+        }
+        
+        .hacker-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 255, 0.2);
+            border-color: #38b2ac;
+        }
+        
+        .progress-bar {
+            background: linear-gradient(90deg, #38b2ac, #319795);
+            box-shadow: 0 0 5px rgba(56, 178, 172, 0.5);
+        }
+        
+        .scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .scrollbar::-webkit-scrollbar-track {
+            background: #1a202c;
+        }
+        
+        .scrollbar::-webkit-scrollbar-thumb {
+            background: #4a5568;
+            border-radius: 3px;
+        }
+        
+        .tab-active {
+            border-bottom: 2px solid #38b2ac;
+            color: #38b2ac;
+        }
+        
+        .hexagon {
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+        }
+    </style>
+</head>
+<body class="h-screen flex flex-col">
+    <!-- Top Navigation Bar -->
+    <div class="bg-gray-900 text-gray-300 px-4 py-2 flex items-center justify-between border-b border-gray-800">
+        <div class="flex items-center space-x-4">
+            <div class="flex items-center">
+                <div class="hexagon w-8 h-8 bg-teal-500 flex items-center justify-center mr-2">
+                    <i class="fas fa-bug text-gray-900"></i>
+                </div>
+                <span class="font-bold text-teal-400 glow-text">NEBULA C2</span>
+            </div>
+            <nav class="hidden md:flex space-x-6">
+                <a href="#" class="hover:text-teal-400 transition">Dashboard</a>
+                <a href="#" class="hover:text-teal-400 transition">Implants</a>
+                <a href="#" class="hover:text-teal-400 transition">Tasks</a>
+                <a href="#" class="hover:text-teal-400 transition">Modules</a>
+                <a href="#" class="hover:text-teal-400 transition">Logs</a>
+            </nav>
+        </div>
+        <div class="flex items-center space-x-3">
+            <div class="relative">
+                <input type="text" placeholder="Search..." class="bg-gray-800 text-gray-300 px-3 py-1 rounded text-sm focus:outline-none focus:ring-1 focus:ring-teal-500 w-40 md:w-64">
+                <i class="fas fa-search absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"></i>
+            </div>
+            <div class="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center cursor-pointer hover:bg-gray-600">
+                <i class="fas fa-user text-sm"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex flex-1 overflow-hidden">
+        <!-- Sidebar -->
+        <div class="w-16 md:w-56 bg-gray-900 border-r border-gray-800 flex flex-col">
+            <div class="p-4 border-b border-gray-800 hidden md:block">
+                <h3 class="text-xs uppercase text-gray-500 font-bold mb-2">Active Sessions</h3>
+                <div class="flex items-center space-x-2">
+                    <div class="w-3 h-3 rounded-full bg-green-500 animate-pulse"></div>
+                    <span class="text-sm">12 connected</span>
+                </div>
+            </div>
+            <div class="flex-1 overflow-y-auto scrollbar py-2">
+                <div class="px-2 space-y-1">
+                    <div class="flex items-center p-2 rounded hover:bg-gray-800 cursor-pointer">
+                        <div class="w-2 h-2 rounded-full bg-green-500 mr-3"></div>
+                        <span class="text-sm truncate hidden md:block">admin@corp-server-01</span>
+                    </div>
+                    <div class="flex items-center p-2 rounded hover:bg-gray-800 cursor-pointer">
+                        <div class="w-2 h-2 rounded-full bg-green-500 mr-3"></div>
+                        <span class="text-sm truncate hidden md:block">user@workstation-42</span>
+                    </div>
+                    <div class="flex items-center p-2 rounded hover:bg-gray-800 cursor-pointer">
+                        <div class="w-2 h-2 rounded-full bg-yellow-500 mr-3"></div>
+                        <span class="text-sm truncate hidden md:block">svc_account@db-03</span>
+                    </div>
+                    <div class="flex items-center p-2 rounded hover:bg-gray-800 cursor-pointer">
+                        <div class="w-2 h-2 rounded-full bg-green-500 mr-3"></div>
+                        <span class="text-sm truncate hidden md:block">backup@fileserver-07</span>
+                    </div>
+                    <div class="flex items-center p-2 rounded hover:bg-gray-800 cursor-pointer">
+                        <div class="w-2 h-2 rounded-full bg-red-500 mr-3"></div>
+                        <span class="text-sm truncate hidden md:block">root@web-prod-12</span>
+                    </div>
+                </div>
+            </div>
+            <div class="p-3 border-t border-gray-800 hidden md:block">
+                <div class="flex items-center justify-between text-xs text-gray-500">
+                    <span>Version 2.4.7</span>
+                    <span>Dark Mode</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Panel -->
+        <div class="flex-1 overflow-auto scrollbar p-4">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
+                <!-- Status Card -->
+                <div class="window hacker-card p-4">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="font-medium text-teal-400">System Status</h3>
+                        <div class="flex space-x-1">
+                            <div class="w-2 h-2 rounded-full bg-green-500"></div>
+                            <div class="w-2 h-2 rounded-full bg-green-500"></div>
+                            <div class="w-2 h-2 rounded-full bg-green-500"></div>
+                        </div>
+                    </div>
+                    <div class="space-y-3">
+                        <div>
+                            <div class="flex justify-between text-xs mb-1">
+                                <span>Network Throughput</span>
+                                <span>1.4 MB/s</span>
+                            </div>
+                            <div class="w-full bg-gray-800 rounded h-2">
+                                <div class="progress-bar h-2 rounded" style="width: 65%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs mb-1">
+                                <span>Active Sessions</span>
+                                <span>12/50</span>
+                            </div>
+                            <div class="w-full bg-gray-800 rounded h-2">
+                                <div class="progress-bar h-2 rounded" style="width: 24%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs mb-1">
+                                <span>CPU Load</span>
+                                <span>34%</span>
+                            </div>
+                            <div class="w-full bg-gray-800 rounded h-2">
+                                <div class="progress-bar h-2 rounded" style="width: 34%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="window hacker-card p-4">
+                    <h3 class="font-medium text-teal-400 mb-3">Quick Actions</h3>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button class="bg-gray-800 hover:bg-gray-700 p-2 rounded flex flex-col items-center justify-center text-xs transition">
+                            <i class="fas fa-terminal mb-1 text-teal-400"></i>
+                            <span>Shell</span>
+                        </button>
+                        <button class="bg-gray-800 hover:bg-gray-700 p-2 rounded flex flex-col items-center justify-center text-xs transition">
+                            <i class="fas fa-keyboard mb-1 text-teal-400"></i>
+                            <span>Keylogger</span>
+                        </button>
+                        <button class="bg-gray-800 hover:bg-gray-700 p-2 rounded flex flex-col items-center justify-center text-xs transition">
+                            <i class="fas fa-desktop mb-1 text-teal-400"></i>
+                            <span>Screenshot</span>
+                        </button>
+                        <button class="bg-gray-800 hover:bg-gray-700 p-2 rounded flex flex-col items-center justify-center text-xs transition">
+                            <i class="fas fa-file-upload mb-1 text-teal-400"></i>
+                            <span>Upload</span>
+                        </button>
+                        <button class="bg-gray-800 hover:bg-gray-700 p-2 rounded flex flex-col items-center justify-center text-xs transition">
+                            <i class="fas fa-file-download mb-1 text-teal-400"></i>
+                            <span>Download</span>
+                        </button>
+                        <button class="bg-gray-800 hover:bg-gray-700 p-2 rounded flex flex-col items-center justify-center text-xs transition">
+                            <i class="fas fa-power-off mb-1 text-teal-400"></i>
+                            <span>Execute</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="window hacker-card p-4">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="font-medium text-teal-400">Recent Activity</h3>
+                        <span class="text-xs text-gray-500">Last 15 min</span>
+                    </div>
+                    <div class="space-y-3 max-h-40 overflow-y-auto scrollbar">
+                        <div class="flex items-start">
+                            <div class="w-2 h-2 rounded-full bg-green-500 mt-1 mr-2"></div>
+                            <div>
+                                <p class="text-xs">New session from <span class="text-teal-400">192.168.1.45</span></p>
+                                <p class="text-xs text-gray-500">2 minutes ago</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="w-2 h-2 rounded-full bg-yellow-500 mt-1 mr-2"></div>
+                            <div>
+                                <p class="text-xs">Task completed with warnings</p>
+                                <p class="text-xs text-gray-500">7 minutes ago</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="w-2 h-2 rounded-full bg-red-500 mt-1 mr-2"></div>
+                            <div>
+                                <p class="text-xs">Session terminated <span class="text-teal-400">10.0.0.12</span></p>
+                                <p class="text-xs text-gray-500">12 minutes ago</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="w-2 h-2 rounded-full bg-green-500 mt-1 mr-2"></div>
+                            <div>
+                                <p class="text-xs">File downloaded from <span class="text-teal-400">db-03</span></p>
+                                <p class="text-xs text-gray-500">14 minutes ago</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Terminal Window -->
+            <div class="window mb-4">
+                <div class="title-bar flex items-center justify-between px-3 py-2">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-3 h-3 rounded-full bg-red-500 cursor-pointer"></div>
+                        <div class="w-3 h-3 rounded-full bg-yellow-500 cursor-pointer"></div>
+                        <div class="w-3 h-3 rounded-full bg-green-500 cursor-pointer"></div>
+                        <span class="text-xs ml-2">Terminal</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-xs text-gray-400">admin@nebula-c2:~</span>
+                    </div>
+                </div>
+                <div class="terminal p-3 h-64 overflow-y-auto scrollbar font-mono text-sm">
+                    <div class="mb-1"><span class="text-green-400">$</span> <span class="text-teal-400">nebula</span> --status</div>
+                    <div class="mb-1 text-gray-400">
+                        [*] C2 Server Status<br>
+                        &nbsp;&nbsp;Version: 2.4.7 (Stable)<br>
+                        &nbsp;&nbsp;Uptime: 3d 7h 22m<br>
+                        &nbsp;&nbsp;Active Sessions: 12<br>
+                        &nbsp;&nbsp;Network: 1.4MB/s ↓ / 0.8MB/s ↑<br>
+                        &nbsp;&nbsp;CPU: 34% | Memory: 1.2/4.0GB
+                    </div>
+                    <div class="mb-1"><span class="text-green-400">$</span> <span class="text-teal-400">session</span> --list</div>
+                    <div class="mb-1 text-gray-400">
+                        ID&nbsp;&nbsp;IP&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;USER&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LAST SEEN<br>
+                        --&nbsp;&nbsp;---------&nbsp;&nbsp;--------&nbsp;&nbsp;------&nbsp;&nbsp;---------<br>
+                        1&nbsp;&nbsp;192.168.1.45&nbsp;admin&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Win10&nbsp;&nbsp;2m ago<br>
+                        2&nbsp;&nbsp;10.0.0.34&nbsp;&nbsp;&nbsp;user&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Win11&nbsp;&nbsp;5m ago<br>
+                        3&nbsp;&nbsp;172.16.0.12&nbsp;svc_acc&nbsp;&nbsp;Linux&nbsp;&nbsp;8m ago
+                    </div>
+                    <div class="flex">
+                        <span class="text-green-400">$</span>
+                        <input type="text" class="bg-transparent border-none outline-none flex-1 ml-1 text-gray-300" autofocus>
+                        <span class="blink">|</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Task Management -->
+            <div class="window">
+                <div class="title-bar flex items-center justify-between px-3 py-2">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-3 h-3 rounded-full bg-red-500 cursor-pointer"></div>
+                        <div class="w-3 h-3 rounded-full bg-yellow-500 cursor-pointer"></div>
+                        <div class="w-3 h-3 rounded-full bg-green-500 cursor-pointer"></div>
+                        <span class="text-xs ml-2">Task Management</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button class="text-xs bg-teal-600 hover:bg-teal-700 px-2 py-0.5 rounded">New Task</button>
+                    </div>
+                </div>
+                <div class="p-3">
+                    <div class="flex border-b border-gray-800 mb-3">
+                        <button class="px-3 py-1 text-sm tab-active">Active</button>
+                        <button class="px-3 py-1 text-sm text-gray-500 hover:text-gray-300">Pending</button>
+                        <button class="px-3 py-1 text-sm text-gray-500 hover:text-gray-300">Completed</button>
+                        <button class="px-3 py-1 text-sm text-gray-500 hover:text-gray-300">Failed</button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full text-xs">
+                            <thead>
+                                <tr class="text-left text-gray-500 border-b border-gray-800">
+                                    <th class="pb-2">ID</th>
+                                    <th class="pb-2">Session</th>
+                                    <th class="pb-2">Module</th>
+                                    <th class="pb-2">Status</th>
+                                    <th class="pb-2">Started</th>
+                                    <th class="pb-2">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-800">
+                                <tr class="hover:bg-gray-800">
+                                    <td class="py-2">#142</td>
+                                    <td class="py-2 text-teal-400">admin@corp-01</td>
+                                    <td class="py-2">keylogger</td>
+                                    <td class="py-2"><span class="px-2 py-0.5 bg-green-900 text-green-400 rounded-full text-xs">Running</span></td>
+                                    <td class="py-2">3m ago</td>
+                                    <td class="py-2">
+                                        <button class="text-gray-400 hover:text-teal-400 mr-2"><i class="fas fa-stop"></i></button>
+                                        <button class="text-gray-400 hover:text-teal-400"><i class="fas fa-ellipsis-h"></i></button>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-800">
+                                    <td class="py-2">#141</td>
+                                    <td class="py-2 text-teal-400">user@wkst-42</td>
+                                    <td class="py-2">screenshot</td>
+                                    <td class="py-2"><span class="px-2 py-0.5 bg-yellow-900 text-yellow-400 rounded-full text-xs">Pending</span></td>
+                                    <td class="py-2">5m ago</td>
+                                    <td class="py-2">
+                                        <button class="text-gray-400 hover:text-teal-400 mr-2"><i class="fas fa-play"></i></button>
+                                        <button class="text-gray-400 hover:text-teal-400"><i class="fas fa-ellipsis-h"></i></button>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-800">
+                                    <td class="py-2">#140</td>
+                                    <td class="py-2 text-teal-400">svc@db-03</td>
+                                    <td class="py-2">download</td>
+                                    <td class="py-2"><span class="px-2 py-0.5 bg-blue-900 text-blue-400 rounded-full text-xs">Uploading</span></td>
+                                    <td class="py-2">12m ago</td>
+                                    <td class="py-2">
+                                        <button class="text-gray-400 hover:text-teal-400 mr-2"><i class="fas fa-pause"></i></button>
+                                        <button class="text-gray-400 hover:text-teal-400"><i class="fas fa-ellipsis-h"></i></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Status Bar -->
+    <div class="bg-gray-900 text-gray-400 text-xs px-4 py-1 flex justify-between items-center border-t border-gray-800">
+        <div class="flex items-center space-x-4">
+            <span>Nebula C2 v2.4.7</span>
+            <span class="hidden md:inline">12 active sessions</span>
+            <span class="hidden md:inline">Last update: <span id="current-time"></span></span>
+        </div>
+        <div class="flex items-center space-x-2">
+            <span><i class="fas fa-shield-alt mr-1"></i> Secure</span>
+            <span class="hidden md:inline"><i class="fas fa-network-wired mr-1"></i> 1.4MB/s</span>
+            <span><i class="fas fa-circle text-green-500 mr-1"></i> Operational</span>
+        </div>
+    </div>
+
+    <script>
+        // Update current time
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString();
+            document.getElementById('current-time').textContent = timeString;
+        }
+        
+        setInterval(updateTime, 1000);
+        updateTime();
+        
+        // Simulate terminal input
+        document.querySelector('.terminal input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const command = this.value;
+                this.value = '';
+                
+                const terminal = document.querySelector('.terminal');
+                const newLine = document.createElement('div');
+                newLine.className = 'mb-1';
+                
+                if (command.trim() === 'clear') {
+                    terminal.innerHTML = '<div class="flex"><span class="text-green-400">$</span><input type="text" class="bg-transparent border-none outline-none flex-1 ml-1 text-gray-300" autofocus><span class="blink">|</span></div>';
+                    terminal.querySelector('input').focus();
+                } else {
+                    newLine.innerHTML = `<span class="text-green-400">$</span> ${command}`;
+                    terminal.insertBefore(newLine, this.parentNode);
+                    
+                    // Add command response
+                    const response = document.createElement('div');
+                    response.className = 'mb-1 text-gray-400';
+                    
+                    if (command.startsWith('help')) {
+                        response.innerHTML = `Available commands: status, sessions, clear, help`;
+                    } else if (command.startsWith('sessions')) {
+                        response.innerHTML = `ID&nbsp;&nbsp;IP&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;USER&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LAST SEEN<br>
+                        --&nbsp;&nbsp;---------&nbsp;&nbsp;--------&nbsp;&nbsp;------&nbsp;&nbsp;---------<br>
+                        1&nbsp;&nbsp;192.168.1.45&nbsp;admin&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Win10&nbsp;&nbsp;now<br>
+                        2&nbsp;&nbsp;10.0.0.34&nbsp;&nbsp;&nbsp;user&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Win11&nbsp;&nbsp;1m ago<br>
+                        3&nbsp;&nbsp;172.16.0.12&nbsp;svc_acc&nbsp;&nbsp;Linux&nbsp;&nbsp;3m ago`;
+                    } else if (command) {
+                        response.textContent = `Command '${command}' not recognized. Type 'help' for available commands.`;
+                    }
+                    
+                    terminal.insertBefore(response, this.parentNode);
+                }
+                
+                terminal.scrollTop = terminal.scrollHeight;
+            }
+        });
+        
+        // Tab switching
+        const tabs = document.querySelectorAll('.flex.border-b button');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('tab-active', 'text-gray-300'));
+                tab.classList.add('tab-active');
+            });
+        });
+    </script>
+</body>
+</html>

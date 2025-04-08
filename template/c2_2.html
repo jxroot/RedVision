@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Windows C2 UI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1a202c;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #4a5568;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #718096;
+        }
+        
+        /* Custom glow effect for active tab */
+        .glow-effect {
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+        }
+        
+        /* Terminal-like font */
+        @font-face {
+            font-family: 'Consolas';
+            src: local('Consolas'), local('Courier New');
+        }
+        
+        body {
+            font-family: 'Consolas', monospace;
+            background-color: #1a202c;
+        }
+        
+        /* Custom resize handle */
+        .resize-handle {
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            width: 12px;
+            height: 12px;
+            cursor: nwse-resize;
+            background: linear-gradient(135deg, #4a5568 50%, transparent 50%);
+        }
+        
+        /* Custom selection style */
+        ::selection {
+            background: rgba(59, 130, 246, 0.5);
+            color: white;
+        }
+    </style>
+</head>
+<body class="text-gray-200 bg-gray-900 h-screen overflow-hidden">
+    <div class="flex flex-col h-full">
+        <!-- Title Bar -->
+        <div class="bg-gray-800 border-b border-gray-700 flex items-center justify-between px-4 py-2">
+            <div class="flex items-center">
+                <i class="fas fa-terminal text-blue-400 mr-2"></i>
+                <span class="font-bold">Windows C2 Console</span>
+            </div>
+            <div class="flex items-center space-x-2">
+                <button class="w-6 h-6 flex items-center justify-center hover:bg-gray-700 rounded">
+                    <i class="fas fa-window-minimize text-xs"></i>
+                </button>
+                <button class="w-6 h-6 flex items-center justify-center hover:bg-gray-700 rounded">
+                    <i class="fas fa-window-maximize text-xs"></i>
+                </button>
+                <button class="w-6 h-6 flex items-center justify-center hover:bg-red-500 rounded">
+                    <i class="fas fa-times text-xs"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Menu Bar -->
+        <div class="bg-gray-800 border-b border-gray-700 flex items-center px-2 py-1 text-sm">
+            <div class="px-2 py-1 hover:bg-gray-700 cursor-pointer">File</div>
+            <div class="px-2 py-1 hover:bg-gray-700 cursor-pointer">Edit</div>
+            <div class="px-2 py-1 hover:bg-gray-700 cursor-pointer">View</div>
+            <div class="px-2 py-1 hover:bg-gray-700 cursor-pointer">Tools</div>
+            <div class="px-2 py-1 hover:bg-gray-700 cursor-pointer">Help</div>
+        </div>
+        
+        <!-- Toolbar -->
+        <div class="bg-gray-800 border-b border-gray-700 flex items-center px-2 py-1 space-x-2">
+            <button class="px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded text-sm flex items-center">
+                <i class="fas fa-plus mr-1"></i> New Session
+            </button>
+            <button class="px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded text-sm flex items-center">
+                <i class="fas fa-trash-alt mr-1"></i> Kill
+            </button>
+            <button class="px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded text-sm flex items-center">
+                <i class="fas fa-sync-alt mr-1"></i> Refresh
+            </button>
+            <div class="flex-grow"></div>
+            <div class="relative">
+                <input type="text" placeholder="Search sessions..." class="bg-gray-700 px-3 py-1 rounded text-sm w-64 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                <i class="fas fa-search absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="flex flex-1 overflow-hidden">
+            <!-- Sidebar -->
+            <div class="w-48 bg-gray-800 border-r border-gray-700 flex flex-col">
+                <div class="p-2 border-b border-gray-700 font-medium">Sessions</div>
+                <div class="overflow-y-auto flex-1">
+                    <div class="p-2 hover:bg-gray-700 cursor-pointer flex items-center">
+                        <div class="w-2 h-2 rounded-full bg-green-500 mr-2"></div>
+                        <span>WIN-7X86 (192.168.1.15)</span>
+                    </div>
+                    <div class="p-2 hover:bg-gray-700 cursor-pointer flex items-center bg-gray-700">
+                        <div class="w-2 h-2 rounded-full bg-green-500 mr-2"></div>
+                        <span>WIN10-PRO (10.0.0.5)</span>
+                    </div>
+                    <div class="p-2 hover:bg-gray-700 cursor-pointer flex items-center">
+                        <div class="w-2 h-2 rounded-full bg-yellow-500 mr-2"></div>
+                        <span>DC-01 (172.16.0.10)</span>
+                    </div>
+                    <div class="p-2 hover:bg-gray-700 cursor-pointer flex items-center">
+                        <div class="w-2 h-2 rounded-full bg-red-500 mr-2"></div>
+                        <span>WIN-SRV-01 (192.168.2.20)</span>
+                    </div>
+                    <div class="p-2 hover:bg-gray-700 cursor-pointer flex items-center">
+                        <div class="w-2 h-2 rounded-full bg-green-500 mr-2"></div>
+                        <span>WORKSTATION-3 (10.1.1.7)</span>
+                    </div>
+                </div>
+                <div class="p-2 border-t border-gray-700 text-xs text-gray-400">
+                    <div>Total: 5 sessions</div>
+                    <div>Online: 3</div>
+                </div>
+            </div>
+            
+            <!-- Main Panel -->
+            <div class="flex-1 flex flex-col overflow-hidden">
+                <!-- Tabs -->
+                <div class="bg-gray-800 border-b border-gray-700 flex">
+                    <div class="tab active px-4 py-2 border-r border-gray-700 flex items-center bg-gray-900 glow-effect">
+                        <i class="fas fa-desktop mr-2 text-blue-400"></i>
+                        <span>WIN10-PRO</span>
+                        <i class="fas fa-times ml-2 text-gray-400 hover:text-gray-200 cursor-pointer"></i>
+                    </div>
+                    <div class="tab px-4 py-2 border-r border-gray-700 flex items-center hover:bg-gray-700 cursor-pointer">
+                        <i class="fas fa-desktop mr-2 text-blue-400"></i>
+                        <span>WIN-7X86</span>
+                        <i class="fas fa-times ml-2 text-gray-400 hover:text-gray-200 cursor-pointer"></i>
+                    </div>
+                    <div class="tab px-4 py-2 border-r border-gray-700 flex items-center hover:bg-gray-700 cursor-pointer">
+                        <i class="fas fa-plus mr-2 text-gray-400"></i>
+                        <span>New Tab</span>
+                    </div>
+                </div>
+                
+                <!-- Tab Content -->
+                <div class="flex-1 overflow-auto bg-gray-900 p-4">
+                    <!-- Session Info -->
+                    <div class="grid grid-cols-4 gap-4 mb-4">
+                        <div class="bg-gray-800 p-3 rounded border border-gray-700">
+                            <div class="text-xs text-gray-400 mb-1">Hostname</div>
+                            <div class="font-mono">WIN10-PRO</div>
+                        </div>
+                        <div class="bg-gray-800 p-3 rounded border border-gray-700">
+                            <div class="text-xs text-gray-400 mb-1">IP Address</div>
+                            <div class="font-mono">10.0.0.5</div>
+                        </div>
+                        <div class="bg-gray-800 p-3 rounded border border-gray-700">
+                            <div class="text-xs text-gray-400 mb-1">User</div>
+                            <div class="font-mono">Administrator</div>
+                        </div>
+                        <div class="bg-gray-800 p-3 rounded border border-gray-700">
+                            <div class="text-xs text-gray-400 mb-1">Process</div>
+                            <div class="font-mono">explorer.exe (PID: 1234)</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Command Input -->
+                    <div class="mb-4">
+                        <div class="flex items-center mb-2">
+                            <span class="text-green-400 mr-2">$</span>
+                            <input type="text" id="commandInput" class="flex-1 bg-gray-800 border border-gray-700 rounded px-3 py-2 font-mono focus:outline-none focus:ring-1 focus:ring-blue-500" placeholder="Enter command..." autocomplete="off" spellcheck="false">
+                            <button id="executeBtn" class="ml-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded font-mono">Execute</button>
+                        </div>
+                        <div class="text-xs text-gray-500">Available commands: shell, download, upload, screenshot, keylog, exit</div>
+                    </div>
+                    
+                    <!-- Output Table -->
+                    <div class="bg-gray-800 rounded border border-gray-700 overflow-hidden">
+                        <table class="min-w-full divide-y divide-gray-700 font-mono text-sm">
+                            <thead class="bg-gray-700">
+                                <tr>
+                                    <th class="px-4 py-2 text-left">ID</th>
+                                    <th class="px-4 py-2 text-left">Command</th>
+                                    <th class="px-4 py-2 text-left">Status</th>
+                                    <th class="px-4 py-2 text-left">Time</th>
+                                    <th class="px-4 py-2 text-left">Result</th>
+                                    <th class="px-4 py-2 text-left">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-700">
+                                <tr class="hover:bg-gray-700">
+                                    <td class="px-4 py-2">1</td>
+                                    <td class="px-4 py-2">whoami</td>
+                                    <td class="px-4 py-2"><span class="px-2 py-1 bg-green-600 rounded text-xs">Completed</span></td>
+                                    <td class="px-4 py-2">2023-06-15 14:32:45</td>
+                                    <td class="px-4 py-2">win10-pro\administrator</td>
+                                    <td class="px-4 py-2">
+                                        <button class="text-blue-400 hover:text-blue-300 mr-2"><i class="fas fa-redo"></i></button>
+                                        <button class="text-red-400 hover:text-red-300"><i class="fas fa-trash"></i></button>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-700">
+                                    <td class="px-4 py-2">2</td>
+                                    <td class="px-4 py-2">ipconfig</td>
+                                    <td class="px-4 py-2"><span class="px-2 py-1 bg-green-600 rounded text-xs">Completed</span></td>
+                                    <td class="px-4 py-2">2023-06-15 14:33:12</td>
+                                    <td class="px-4 py-2">
+                                        <button class="text-blue-400 hover:text-blue-300" onclick="showOutput(2)">View Output (12 lines)</button>
+                                    </td>
+                                    <td class="px-4 py-2">
+                                        <button class="text-blue-400 hover:text-blue-300 mr-2"><i class="fas fa-redo"></i></button>
+                                        <button class="text-red-400 hover:text-red-300"><i class="fas fa-trash"></i></button>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-700">
+                                    <td class="px-4 py-2">3</td>
+                                    <td class="px-4 py-2">screenshot</td>
+                                    <td class="px-4 py-2"><span class="px-2 py-1 bg-yellow-500 rounded text-xs">Pending</span></td>
+                                    <td class="px-4 py-2">2023-06-15 14:34:01</td>
+                                    <td class="px-4 py-2">Waiting for response...</td>
+                                    <td class="px-4 py-2">
+                                        <button class="text-blue-400 hover:text-blue-300 mr-2"><i class="fas fa-redo"></i></button>
+                                        <button class="text-red-400 hover:text-red-300"><i class="fas fa-trash"></i></button>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-700">
+                                    <td class="px-4 py-2">4</td>
+                                    <td class="px-4 py-2">download C:\secret.txt</td>
+                                    <td class="px-4 py-2"><span class="px-2 py-1 bg-red-600 rounded text-xs">Failed</span></td>
+                                    <td class="px-4 py-2">2023-06-15 14:34:45</td>
+                                    <td class="px-4 py-2">File not found</td>
+                                    <td class="px-4 py-2">
+                                        <button class="text-blue-400 hover:text-blue-300 mr-2"><i class="fas fa-redo"></i></button>
+                                        <button class="text-red-400 hover:text-red-300"><i class="fas fa-trash"></i></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Command Output Modal -->
+                    <div id="outputModal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center hidden">
+                        <div class="bg-gray-800 rounded-lg border border-gray-700 w-3/4 h-3/4 flex flex-col">
+                            <div class="p-4 border-b border-gray-700 flex justify-between items-center">
+                                <h3 class="text-lg font-bold">Command Output</h3>
+                                <button onclick="hideOutput()" class="text-gray-400 hover:text-white">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            <div id="outputContent" class="p-4 overflow-auto flex-1 bg-black font-mono text-green-400 whitespace-pre-wrap">
+                                <!-- Output content will be inserted here -->
+                            </div>
+                            <div class="p-4 border-t border-gray-700 flex justify-end">
+                                <button onclick="hideOutput()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Status Bar -->
+                <div class="bg-gray-800 border-t border-gray-700 px-3 py-1 flex justify-between text-xs">
+                    <div class="flex items-center">
+                        <div class="w-2 h-2 rounded-full bg-green-500 mr-2"></div>
+                        <span>Connected to WIN10-PRO (10.0.0.5)</span>
+                    </div>
+                    <div>
+                        <span class="mr-4">Latency: 42ms</span>
+                        <span>Last update: 2023-06-15 14:35:22</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching functionality
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active', 'bg-gray-900', 'glow-effect'));
+                this.classList.add('active', 'bg-gray-900', 'glow-effect');
+            });
+        });
+
+        // Command execution
+        document.getElementById('executeBtn').addEventListener('click', executeCommand);
+        document.getElementById('commandInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                executeCommand();
+            }
+        });
+
+        function executeCommand() {
+            const commandInput = document.getElementById('commandInput');
+            const command = commandInput.value.trim();
+            
+            if (command) {
+                // In a real app, this would send the command to the server
+                console.log(`Executing command: ${command}`);
+                
+                // Add to table (simulated)
+                const tableBody = document.querySelector('tbody');
+                const newRow = document.createElement('tr');
+                newRow.className = 'hover:bg-gray-700';
+                newRow.innerHTML = `
+                    <td class="px-4 py-2">5</td>
+                    <td class="px-4 py-2">${command}</td>
+                    <td class="px-4 py-2"><span class="px-2 py-1 bg-yellow-500 rounded text-xs">Pending</span></td>
+                    <td class="px-4 py-2">${new Date().toLocaleString()}</td>
+                    <td class="px-4 py-2">Command sent...</td>
+                    <td class="px-4 py-2">
+                        <button class="text-blue-400 hover:text-blue-300 mr-2"><i class="fas fa-redo"></i></button>
+                        <button class="text-red-400 hover:text-red-300"><i class="fas fa-trash"></i></button>
+                    </td>
+                `;
+                tableBody.appendChild(newRow);
+                
+                // Clear input
+                commandInput.value = '';
+                
+                // Scroll to bottom
+                document.querySelector('.overflow-auto').scrollTop = document.querySelector('.overflow-auto').scrollHeight;
+            }
+        }
+
+        // Output modal functions
+        function showOutput(commandId) {
+            // In a real app, this would fetch the actual output for the command
+            const output = `C:\\Windows\\system32>ipconfig\n\nWindows IP Configuration\n\nEthernet adapter Ethernet0:\n\n   Connection-specific DNS Suffix  . : localdomain\n   Link-local IPv6 Address . . . . . : fe80::1234:5678:90ab:cdef%12\n   IPv4 Address. . . . . . . . . . . : 10.0.0.5\n   Subnet Mask . . . . . . . . . . . : 255.255.255.0\n   Default Gateway . . . . . . . . . : 10.0.0.1\n\nWireless LAN adapter Wi-Fi:\n\n   Media State . . . . . . . . . . . : Media disconnected\n   Connection-specific DNS Suffix  . : \n\nTunnel adapter isatap.localdomain:\n\n   Media State . . . . . . . . . . . : Media disconnected\n   Connection-specific DNS Suffix  . : `;
+            
+            document.getElementById('outputContent').textContent = output;
+            document.getElementById('outputModal').classList.remove('hidden');
+        }
+
+        function hideOutput() {
+            document.getElementById('outputModal').classList.add('hidden');
+        }
+
+        // Close tab functionality
+        document.querySelectorAll('.tab .fa-times').forEach(closeBtn => {
+            closeBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const tab = this.closest('.tab');
+                if (tab.classList.contains('active')) {
+                    // Find another tab to activate
+                    const tabs = document.querySelectorAll('.tab');
+                    for (let i = 0; i < tabs.length; i++) {
+                        if (!tabs[i].contains(this) && !tabs[i].querySelector('.fa-plus')) {
+                            tabs[i].click();
+                            break;
+                        }
+                    }
+                }
+                tab.remove();
+            });
+        });
+    </script>
+</body>
+</html>

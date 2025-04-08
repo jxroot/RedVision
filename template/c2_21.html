@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus C2 - Steam Style</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #1b2838;
+            color: #e6e6e6;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .steam-blue {
+            color: #66c0f4;
+        }
+        
+        .bg-steam-dark {
+            background-color: #171a21;
+        }
+        
+        .bg-steam-darker {
+            background-color: #0e141b;
+        }
+        
+        .border-steam {
+            border-color: #2a3f5a;
+        }
+        
+        .command-input {
+            caret-color: #66c0f4;
+        }
+        
+        .scrollbar-steam::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .scrollbar-steam::-webkit-scrollbar-track {
+            background: #171a21;
+        }
+        
+        .scrollbar-steam::-webkit-scrollbar-thumb {
+            background: #2a3f5a;
+            border-radius: 4px;
+        }
+        
+        .game-card {
+            background: linear-gradient(135deg, #1b2838 0%, #171a21 100%);
+            transition: all 0.2s ease;
+        }
+        
+        .game-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        .node {
+            position: absolute;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background-color: #66c0f4;
+            box-shadow: 0 0 12px #66c0f4;
+            transition: all 0.3s ease;
+        }
+        
+        .node:hover {
+            transform: scale(1.4);
+            box-shadow: 0 0 16px #66c0f4;
+        }
+        
+        .connection {
+            position: absolute;
+            height: 2px;
+            background-color: rgba(102, 192, 244, 0.4);
+            transform-origin: left center;
+        }
+        
+        .progress-bar {
+            background: linear-gradient(90deg, #66c0f4 0%, #4b9cd3 100%);
+        }
+        
+        .blink {
+            animation: blink 1s step-end infinite;
+        }
+        
+        @keyframes blink {
+            from, to { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        
+        .achievement {
+            background: linear-gradient(135deg, rgba(23, 26, 33, 0.8) 0%, rgba(27, 40, 56, 0.8) 100%);
+            border-left: 4px solid #66c0f4;
+        }
+        
+        .glow-effect {
+            box-shadow: 0 0 15px rgba(102, 192, 244, 0.5);
+        }
+        
+        .tab-active {
+            border-bottom: 2px solid #66c0f4;
+            color: #66c0f4;
+        }
+    </style>
+</head>
+<body class="flex flex-col">
+    <!-- Top Navigation Bar -->
+    <header class="bg-steam-dark border-b border-steam flex items-center justify-between px-6 py-3">
+        <div class="flex items-center space-x-6">
+            <div class="flex items-center">
+                <i class="fas fa-gamepad steam-blue text-2xl"></i>
+                <span class="ml-2 font-bold text-xl">Nexus<span class="steam-blue">C2</span></span>
+            </div>
+            <nav class="hidden md:flex space-x-8">
+                <a href="#" class="text-gray-300 hover:text-white hover:font-medium transition">Dashboard</a>
+                <a href="#" class="text-gray-300 hover:text-white hover:font-medium transition">Sessions</a>
+                <a href="#" class="text-gray-300 hover:text-white hover:font-medium transition">Modules</a>
+                <a href="#" class="text-gray-300 hover:text-white hover:font-medium transition">Intel</a>
+                <a href="#" class="text-gray-300 hover:text-white hover:font-medium transition">Settings</a>
+            </nav>
+        </div>
+        <div class="flex items-center space-x-4">
+            <div class="relative">
+                <input type="text" placeholder="Search implants..." class="bg-steam-darker border border-steam rounded-full px-4 py-1.5 text-sm w-64 focus:outline-none focus:ring-1 focus:ring-steam-blue placeholder-gray-500">
+                <i class="fas fa-search absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+            </div>
+            <div class="flex items-center space-x-3 bg-steam-darker rounded-full px-3 py-1.5 cursor-pointer hover:bg-opacity-80 transition">
+                <div class="w-8 h-8 rounded-full bg-steam-blue flex items-center justify-center">
+                    <span class="text-xs font-bold text-steam-dark">OP</span>
+                </div>
+                <span class="text-sm font-medium">Operator</span>
+                <i class="fas fa-chevron-down text-xs text-gray-400"></i>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="flex flex-1 overflow-hidden">
+        <!-- Sidebar -->
+        <aside class="bg-steam-dark border-r border-steam w-16 md:w-60 flex flex-col">
+            <div class="p-4 border-b border-steam">
+                <h2 class="text-xs uppercase font-semibold text-gray-400 hidden md:block tracking-wider">Active Sessions</h2>
+            </div>
+            <div class="overflow-y-auto flex-1 scrollbar-steam">
+                <div class="p-2 space-y-1">
+                    <div class="flex items-center p-2 rounded hover:bg-steam-darker cursor-pointer transition">
+                        <div class="relative">
+                            <div class="w-3 h-3 rounded-full bg-green-500 absolute -right-1 -top-1 border-2 border-steam-dark"></div>
+                            <i class="fas fa-laptop text-gray-300"></i>
+                        </div>
+                        <div class="ml-3 hidden md:block">
+                            <div class="text-sm font-medium">WIN10-GAMING</div>
+                            <div class="text-xs text-gray-400">192.168.1.15</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center p-2 rounded hover:bg-steam-darker cursor-pointer transition">
+                        <div class="relative">
+                            <div class="w-3 h-3 rounded-full bg-green-500 absolute -right-1 -top-1 border-2 border-steam-dark"></div>
+                            <i class="fas fa-server text-gray-300"></i>
+                        </div>
+                        <div class="ml-3 hidden md:block">
+                            <div class="text-sm font-medium">SRV-STEAM-01</div>
+                            <div class="text-xs text-gray-400">10.0.0.42</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center p-2 rounded hover:bg-steam-darker cursor-pointer transition">
+                        <div class="relative">
+                            <div class="w-3 h-3 rounded-full bg-yellow-500 absolute -right-1 -top-1 border-2 border-steam-dark"></div>
+                            <i class="fas fa-desktop text-gray-300"></i>
+                        </div>
+                        <div class="ml-3 hidden md:block">
+                            <div class="text-sm font-medium">WIN11-DEV</div>
+                            <div class="text-xs text-gray-400">172.16.5.21</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center p-2 rounded hover:bg-steam-darker cursor-pointer transition">
+                        <div class="relative">
+                            <div class="w-3 h-3 rounded-full bg-red-500 absolute -right-1 -top-1 border-2 border-steam-dark"></div>
+                            <i class="fas fa-laptop text-gray-300"></i>
+                        </div>
+                        <div class="ml-3 hidden md:block">
+                            <div class="text-sm font-medium">MACBOOK-PRO</div>
+                            <div class="text-xs text-gray-400">192.168.2.37</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="p-4 border-t border-steam">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <div class="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
+                        <span class="text-xs text-gray-300 hidden md:block">3 Active / 1 Inactive</span>
+                    </div>
+                    <button class="text-steam-blue hover:text-white transition">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Panel -->
+        <main class="flex-1 flex flex-col overflow-hidden bg-steam-darker">
+            <!-- Status Bar -->
+            <div class="bg-steam-dark border-b border-steam px-6 py-3 flex items-center justify-between">
+                <div class="flex items-center space-x-6">
+                    <div class="flex items-center space-x-3">
+                        <span class="text-sm text-gray-300">Current Session:</span>
+                        <span class="text-sm font-medium">WIN10-GAMING</span>
+                        <span class="text-xs px-2 py-0.5 rounded bg-green-900 text-green-300 font-medium">Active</span>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <span class="text-sm text-gray-300">Privilege:</span>
+                        <span class="text-sm font-medium text-red-400">Administrator</span>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <span class="text-sm text-gray-300">Uptime:</span>
+                        <span class="text-sm font-medium">2d 14h 37m</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2">
+                        <i class="fas fa-microchip text-gray-400 text-sm"></i>
+                        <div class="w-24 bg-steam-dark rounded-full h-2">
+                            <div class="progress-bar h-2 rounded-full" style="width: 65%"></div>
+                        </div>
+                        <span class="text-xs">65%</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <i class="fas fa-memory text-gray-400 text-sm"></i>
+                        <div class="w-24 bg-steam-dark rounded-full h-2">
+                            <div class="progress-bar h-2 rounded-full" style="width: 42%"></div>
+                        </div>
+                        <span class="text-xs">42%</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <i class="fas fa-network-wired text-gray-400 text-sm"></i>
+                        <div class="w-24 bg-steam-dark rounded-full h-2">
+                            <div class="progress-bar h-2 rounded-full" style="width: 18%"></div>
+                        </div>
+                        <span class="text-xs">18%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Content -->
+            <div class="flex-1 overflow-auto p-6 scrollbar-steam">
+                <!-- Tabs -->
+                <div class="flex border-b border-steam mb-6">
+                    <button class="tab-active px-4 py-2 font-medium text-sm mr-4">Overview</button>
+                    <button class="text-gray-400 hover:text-white px-4 py-2 font-medium text-sm mr-4">Modules</button>
+                    <button class="text-gray-400 hover:text-white px-4 py-2 font-medium text-sm mr-4">Files</button>
+                    <button class="text-gray-400 hover:text-white px-4 py-2 font-medium text-sm mr-4">Screens</button>
+                    <button class="text-gray-400 hover:text-white px-4 py-2 font-medium text-sm">Logs</button>
+                </div>
+                
+                <!-- Main Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Left Column -->
+                    <div class="space-y-6">
+                        <!-- System Info Card -->
+                        <div class="game-card rounded-lg p-4 border border-steam">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="font-medium flex items-center">
+                                    <i class="fas fa-info-circle mr-2 steam-blue"></i>
+                                    System Information
+                                </h3>
+                                <button class="text-gray-400 hover:text-white">
+                                    <i class="fas fa-ellipsis-h"></i>
+                                </button>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4 text-sm">
+                                <div>
+                                    <div class="text-gray-400 text-xs">Hostname</div>
+                                    <div class="font-medium">WIN10-GAMING</div>
+                                </div>
+                                <div>
+                                    <div class="text-gray-400 text-xs">OS</div>
+                                    <div class="font-medium">Windows 10 Pro</div>
+                                </div>
+                                <div>
+                                    <div class="text-gray-400 text-xs">Architecture</div>
+                                    <div class="font-medium">x64</div>
+                                </div>
+                                <div>
+                                    <div class="text-gray-400 text-xs">Domain</div>
+                                    <div class="font-medium">WORKGROUP</div>
+                                </div>
+                                <div>
+                                    <div class="text-gray-400 text-xs">CPU</div>
+                                    <div class="font-medium">Intel i7-10700K</div>
+                                </div>
+                                <div>
+                                    <div class="text-gray-400 text-xs">GPU</div>
+                                    <div class="font-medium">RTX 3080</div>
+                                </div>
+                                <div>
+                                    <div class="text-gray-400 text-xs">RAM</div>
+                                    <div class="font-medium">32 GB</div>
+                                </div>
+                                <div>
+                                    <div class="text-gray-400 text-xs">Last Check-in</div>
+                                    <div class="font-medium">32 seconds ago</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Quick Actions Card -->
+                        <div class="game-card rounded-lg p-4 border border-steam">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="font-medium flex items-center">
+                                    <i class="fas fa-bolt mr-2 steam-blue"></i>
+                                    Quick Actions
+                                </h3>
+                                <button class="text-gray-400 hover:text-white">
+                                    <i class="fas fa-ellipsis-h"></i>
+                                </button>
+                            </div>
+                            <div class="grid grid-cols-3 gap-3">
+                                <button class="bg-steam-dark hover:glow-effect rounded p-3 flex flex-col items-center justify-center transition">
+                                    <i class="fas fa-terminal mb-2 steam-blue"></i>
+                                    <span class="text-xs font-medium">Shell</span>
+                                </button>
+                                <button class="bg-steam-dark hover:glow-effect rounded p-3 flex flex-col items-center justify-center transition">
+                                    <i class="fas fa-camera mb-2 steam-blue"></i>
+                                    <span class="text-xs font-medium">Screenshot</span>
+                                </button>
+                                <button class="bg-steam-dark hover:glow-effect rounded p-3 flex flex-col items-center justify-center transition">
+                                    <i class="fas fa-key mb-2 steam-blue"></i>
+                                    <span class="text-xs font-medium">Creds</span>
+                                </button>
+                                <button class="bg-steam-dark hover:glow-effect rounded p-3 flex flex-col items-center justify-center transition">
+                                    <i class="fas fa-download mb-2 steam-blue"></i>
+                                    <span class="text-xs font-medium">Download</span>
+                                </button>
+                                <button class="bg-steam-dark hover:glow-effect rounded p-3 flex flex-col items-center justify-center transition">
+                                    <i class="fas fa-upload mb-2 steam-blue"></i>
+                                    <span class="text-xs font-medium">Upload</span>
+                                </button>
+                                <button class="bg-steam-dark hover:glow-effect rounded p-3 flex flex-col items-center justify-center transition">
+                                    <i class="fas fa-network-wired mb-2 steam-blue"></i>
+                                    <span class="text-xs font-medium">Lateral</span>
+                                </button>
+                                <button class="bg-steam-dark hover:glow-effect rounded p-3 flex flex-col items-center justify-center transition">
+                                    <i class="fas fa-keyboard mb-2 steam-blue"></i>
+                                    <span class="text-xs font-medium">Keylogger</span>
+                                </button>
+                                <button class="bg-steam-dark hover:glow-effect rounded p-3 flex flex-col items-center justify-center transition">
+                                    <i class="fas fa-eye mb-2 steam-blue"></i>
+                                    <span class="text-xs font-medium">Monitor</span>
+                                </button>
+                                <button class="bg-steam-dark hover:glow-effect rounded p-3 flex flex-col items-center justify-center transition">
+                                    <i class="fas fa-power-off mb-2 steam-blue"></i>
+                                    <span class="text-xs font-medium">Kill</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Middle Column -->
+                    <div class="space-y-6">
+                        <!-- Network Graph Card -->
+                        <div class="game-card rounded-lg p-4 border border-steam">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="font-medium flex items-center">
+                                    <i class="fas fa-project-diagram mr-2 steam-blue"></i>
+                                    Network Topology
+                                </h3>
+                                <div class="flex space-x-3">
+                                    <button class="text-gray-400 hover:text-white">
+                                        <i class="fas fa-sync-alt"></i>
+                                    </button>
+                                    <button class="text-gray-400 hover:text-white">
+                                        <i class="fas fa-ellipsis-h"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="network-graph" class="relative h-64 bg-steam-dark rounded overflow-hidden">
+                                <!-- Nodes and connections will be added by JavaScript -->
+                            </div>
+                            <div class="mt-4 grid grid-cols-3 gap-3">
+                                <div class="bg-steam-dark rounded p-2 text-center">
+                                    <div class="text-xs text-gray-400">Nodes</div>
+                                    <div class="text-lg font-medium steam-blue">7</div>
+                                </div>
+                                <div class="bg-steam-dark rounded p-2 text-center">
+                                    <div class="text-xs text-gray-400">Active</div>
+                                    <div class="text-lg font-medium steam-blue">5</div>
+                                </div>
+                                <div class="bg-steam-dark rounded p-2 text-center">
+                                    <div class="text-xs text-gray-400">Latency</div>
+                                    <div class="text-lg font-medium steam-blue">28ms</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Recent Activity Card -->
+                        <div class="game-card rounded-lg p-4 border border-steam">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="font-medium flex items-center">
+                                    <i class="fas fa-history mr-2 steam-blue"></i>
+                                    Recent Activity
+                                </h3>
+                                <button class="text-gray-400 hover:text-white">
+                                    <i class="fas fa-ellipsis-h"></i>
+                                </button>
+                            </div>
+                            <div class="space-y-3">
+                                <div class="flex items-start">
+                                    <div class="w-8 h-8 rounded-full bg-steam-blue flex items-center justify-center flex-shrink-0">
+                                        <i class="fas fa-terminal text-steam-dark"></i>
+                                    </div>
+                                    <div class="ml-3">
+                                        <div class="text-sm font-medium">Command executed</div>
+                                        <div class="text-xs text-gray-400">whoami → WIN10-GAMING\gamer</div>
+                                        <div class="text-xs text-gray-500">2 minutes ago</div>
+                                    </div>
+                                </div>
+                                <div class="flex items-start">
+                                    <div class="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
+                                        <i class="fas fa-download text-steam-dark"></i>
+                                    </div>
+                                    <div class="ml-3">
+                                        <div class="text-sm font-medium">File downloaded</div>
+                                        <div class="text-xs text-gray-400">C:\Users\gamer\Documents\passwords.txt</div>
+                                        <div class="text-xs text-gray-500">7 minutes ago</div>
+                                    </div>
+                                </div>
+                                <div class="flex items-start">
+                                    <div class="w-8 h-8 rounded-full bg-yellow-500 flex items-center justify-center flex-shrink-0">
+                                        <i class="fas fa-camera text-steam-dark"></i>
+                                    </div>
+                                    <div class="ml-3">
+                                        <div class="text-sm font-medium">Screenshot captured</div>
+                                        <div class="text-xs text-gray-400">1920x1080 (1.4 MB)</div>
+                                        <div class="text-xs text-gray-500">12 minutes ago</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Right Column -->
+                    <div class="space-y-6">
+                        <!-- Command History Card -->
+                        <div class="game-card rounded-lg p-4 border border-steam">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="font-medium flex items-center">
+                                    <i class="fas fa-terminal mr-2 steam-blue"></i>
+                                    Command History
+                                </h3>
+                                <button class="text-gray-400 hover:text-white">
+                                    <i class="fas fa-ellipsis-h"></i>
+                                </button>
+                            </div>
+                            <div class="bg-black rounded p-3 h-64 overflow-y-auto scrollbar-steam font-mono text-sm">
+                                <div class="text-green-400">> whoami</div>
+                                <div class="text-gray-300 ml-4">WIN10-GAMING\gamer</div>
+                                <div class="text-green-400 mt-2">> netstat -ano</div>
+                                <div class="text-gray-300 ml-4">
+                                    Proto  Local Address          Foreign Address        State           PID<br>
+                                    TCP    0.0.0.0:27015           0.0.0.0:0              LISTENING       4876<br>
+                                    TCP    0.0.0.0:27036           0.0.0.0:0              LISTENING       4876<br>
+                                    TCP    0.0.0.0:28960           0.0.0.0:0              LISTENING       4876<br>
+                                    TCP    0.0.0.0:4380            0.0.0.0:0              LISTENING       1124<br>
+                                </div>
+                                <div class="text-green-400 mt-2">> ps | find "steam"</div>
+                                <div class="text-gray-300 ml-4">
+                                    PID   Name                         Session<br>
+                                    4876  steam.exe                    1<br>
+                                    5124  steamwebhelper.exe           1<br>
+                                    5348  steamservice.exe             N/A<br>
+                                </div>
+                                <div class="text-green-400 mt-2">> download "C:\Program Files (x86)\Steam\config\loginusers.vdf"</div>
+                                <div class="text-gray-300 ml-4">[+] Downloaded 4.2 KB</div>
+                                <div class="text-green-400 mt-2">> screenshot</div>
+                                <div class="text-gray-300 ml-4">[+] Captured 1920x1080 (1.4 MB)</div>
+                                <div class="text-green-400 mt-2">> keylogger --start</div>
+                                <div class="text-gray-300 ml-4">[+] Keylogger active (PID: 6232)</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Achievements Card -->
+                        <div class="game-card rounded-lg p-4 border border-steam">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="font-medium flex items-center">
+                                    <i class="fas fa-trophy mr-2 steam-blue"></i>
+                                    Achievements
+                                </h3>
+                                <button class="text-gray-400 hover:text-white">
+                                    <i class="fas fa-ellipsis-h"></i>
+                                </button>
+                            </div>
+                            <div class="space-y-3">
+                                <div class="achievement rounded p-3">
+                                    <div class="flex items-center">
+                                        <div class="w-10 h-10 rounded-full bg-yellow-500 flex items-center justify-center flex-shrink-0">
+                                            <i class="fas fa-trophy text-steam-dark"></i>
+                                        </div>
+                                        <div class="ml-3">
+                                            <div class="text-sm font-medium">First Blood</div>
+                                            <div class="text-xs text-gray-400">Gained initial access to a system</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="achievement rounded p-3">
+                                    <div class="flex items-center">
+                                        <div class="w-10 h-10 rounded-full bg-gray-500 flex items-center justify-center flex-shrink-0">
+                                            <i class="fas fa-lock text-steam-dark"></i>
+                                        </div>
+                                        <div class="ml-3">
+                                            <div class="text-sm font-medium">Privilege Escalation</div>
+                                            <div class="text-xs text-gray-400">Gained admin privileges</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="achievement rounded p-3">
+                                    <div class="flex items-center">
+                                        <div class="w-10 h-10 rounded-full bg-gray-500 flex items-center justify-center flex-shrink-0">
+                                            <i class="fas fa-network-wired text-steam-dark"></i>
+                                        </div>
+                                        <div class="ml-3">
+                                            <div class="text-sm font-medium">Network Dominance</div>
+                                            <div class="text-xs text-gray-400">Compromised 5+ systems</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Command Input -->
+            <div class="bg-steam-dark border-t border-steam px-6 py-4">
+                <div class="flex items-center">
+                    <span class="text-green-400 font-mono mr-2 text-lg">></span>
+                    <input type="text" id="commandInput" class="command-input bg-transparent flex-1 font-mono focus:outline-none placeholder-gray-500" placeholder="Type commands here..." autocomplete="off">
+                    <button class="ml-3 px-4 py-2 bg-gradient-to-r from-steam-blue to-blue-500 text-steam-dark rounded font-medium hover:opacity-90 transition">Execute</button>
+                </div>
+                <div class="mt-2 flex space-x-4 text-xs text-gray-400">
+                    <div>Press <kbd class="bg-steam-dark px-2 py-0.5 rounded">Tab</kbd> to autocomplete</div>
+                    <div>Press <kbd class="bg-steam-dark px-2 py-0.5 rounded">↑</kbd> <kbd class="bg-steam-dark px-2 py-0.5 rounded">↓</kbd> for history</div>
+                    <div>Press <kbd class="bg-steam-dark px-2 py-0.5 rounded">Ctrl+Space</kbd> for help</div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Create network graph visualization
+        document.addEventListener('DOMContentLoaded', function() {
+            const graphContainer = document.getElementById('network-graph');
+            const width = graphContainer.clientWidth;
+            const height = graphContainer.clientHeight;
+            
+            // Create nodes
+            const nodes = [
+                { id: 1, x: width * 0.2, y: height * 0.4, active: true, name: "WIN10-GAMING", ip: "192.168.1.15" },
+                { id: 2, x: width * 0.4, y: height * 0.2, active: true, name: "ROUTER", ip: "192.168.1.1" },
+                { id: 3, x: width * 0.6, y: height * 0.3, active: true, name: "NAS", ip: "192.168.1.100" },
+                { id: 4, x: width * 0.5, y: height * 0.6, active: true, name: "WIN11-DEV", ip: "192.168.1.20" },
+                { id: 5, x: width * 0.3, y: height * 0.7, active: true, name: "MACBOOK-PRO", ip: "192.168.1.25" },
+                { id: 6, x: width * 0.7, y: height * 0.7, active: false, name: "ANDROID-PHONE", ip: "192.168.1.30" },
+                { id: 7, x: width * 0.8, y: height * 0.5, active: false, name: "IPHONE", ip: "192.168.1.35" }
+            ];
+            
+            // Create connections
+            const connections = [
+                { from: 1, to: 2, latency: 5 },
+                { from: 1, to: 4, latency: 8 },
+                { from: 1, to: 5, latency: 7 },
+                { from: 2, to: 3, latency: 12 },
+                { from: 2, to: 4, latency: 15 },
+                { from: 3, to: 6, latency: 28 },
+                { from: 4, to: 5, latency: 10 },
+                { from: 4, to: 7, latency: 32 },
+                { from: 5, to: 6, latency: 25 }
+            ];
+            
+            // Draw connections
+            connections.forEach(conn => {
+                const fromNode = nodes.find(n => n.id === conn.from);
+                const toNode = nodes.find(n => n.id === conn.to);
+                
+                if (fromNode && toNode) {
+                    const line = document.createElement('div');
+                    line.className = 'connection';
+                    
+                    // Calculate line position and length
+                    const length = Math.sqrt(
+                        Math.pow(toNode.x - fromNode.x, 2) + 
+                        Math.pow(toNode.y - fromNode.y, 2)
+                    );
+                    
+                    const angle = Math.atan2(
+                        toNode.y - fromNode.y, 
+                        toNode.x - fromNode.x
+                    ) * 180 / Math.PI;
+                    
+                    line.style.width = `${length}px`;
+                    line.style.left = `${fromNode.x}px`;
+                    line.style.top = `${fromNode.y}px`;
+                    line.style.transform = `rotate(${angle}deg)`;
+                    
+                    // Make active connections brighter
+                    if (fromNode.active && toNode.active) {
+                        line.style.backgroundColor = 'rgba(102, 192, 244, 0.7)';
+                    }
+                    
+                    graphContainer.appendChild(line);
+                }
+            });
+            
+            // Draw nodes
+            nodes.forEach(node => {
+                const nodeEl = document.createElement('div');
+                nodeEl.className = 'node';
+                nodeEl.style.left = `${node.x - 7}px`;
+                nodeEl.style.top = `${node.y - 7}px`;
+                nodeEl.setAttribute('title', `${node.name}\n${node.ip}`);
+                
+                if (!node.active) {
+                    nodeEl.style.backgroundColor = '#555';
+                    nodeEl.style.boxShadow = 'none';
+                }
+                
+                // Make node clickable
+                nodeEl.style.cursor = 'pointer';
+                nodeEl.addEventListener('click', () => {
+                    alert(`Selected node: ${node.name}\nIP: ${node.ip}\nStatus: ${node.active ? 'Active' : 'Inactive'}`);
+                });
+                
+                graphContainer.appendChild(nodeEl);
+                
+                // Add pulse animation to active nodes
+                if (node.active) {
+                    setInterval(() => {
+                        const pulse = document.createElement('div');
+                        pulse.className = 'node';
+                        pulse.style.left = `${node.x - 7}px`;
+                        pulse.style.top = `${node.y - 7}px`;
+                        pulse.style.opacity = '1';
+                        pulse.style.transform = 'scale(1)';
+                        pulse.style.transition = 'all 1s ease-out';
+                        
+                        graphContainer.appendChild(pulse);
+                        
+                        setTimeout(() => {
+                            pulse.style.opacity = '0';
+                            pulse.style.transform = 'scale(3)';
+                        }, 50);
+                        
+                        setTimeout(() => {
+                            pulse.remove();
+                        }, 1050);
+                    }, 2000 + Math.random() * 3000);
+                }
+            });
+            
+            // Command input functionality
+            const commandInput = document.getElementById('commandInput');
+            const commandHistory = [
+                'whoami',
+                'netstat -ano',
+                'ps | find "steam"',
+                'download "C:\\Program Files (x86)\\Steam\\config\\loginusers.vdf"',
+                'screenshot',
+                'keylogger --start',
+                'persistence --install',
+                'creds dump',
+                'lateral psexec 192.168.1.20',
+                'portscan 192.168.1.0/24',
+                'hashdump',
+                'shell powershell -c "Get-Process"'
+            ];
+            let historyIndex = -1;
+            
+            commandInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    // Execute command
+                    const command = commandInput.value.trim();
+                    if (command) {
+                        // Add to history if not duplicate
+                        if (commandHistory[commandHistory.length - 1] !== command) {
+                            commandHistory.push(command);
+                        }
+                        commandInput.value = '';
+                        historyIndex = -1;
+                        
+                        // In a real app, you would send the command to the server here
+                        console.log('Executing command:', command);
+                    }
+                } else if (e.key === 'ArrowUp') {
+                    // Navigate command history up
+                    if (historyIndex < commandHistory.length - 1) {
+                        historyIndex++;
+                        commandInput.value = commandHistory[commandHistory.length - 1 - historyIndex];
+                    }
+                    e.preventDefault();
+                } else if (e.key === 'ArrowDown') {
+                    // Navigate command history down
+                    if (historyIndex > 0) {
+                        historyIndex--;
+                        commandInput.value = commandHistory[commandHistory.length - 1 - historyIndex];
+                    } else if (historyIndex === 0) {
+                        historyIndex--;
+                        commandInput.value = '';
+                    }
+                    e.preventDefault();
+                } else if (e.key === 'Tab') {
+                    // Simple autocomplete
+                    e.preventDefault();
+                    const input = commandInput.value.toLowerCase();
+                    const matching = commandHistory.find(cmd => 
+                        cmd.toLowerCase().startsWith(input) && cmd !== input
+                    );
+                    if (matching) {
+                        commandInput.value = matching;
+                    }
+                }
+            });
+            
+            // Add blinking cursor effect to command input
+            setInterval(() => {
+                commandInput.classList.toggle('placeholder-gray-500');
+            }, 500);
+            
+            // Make network graph responsive
+            window.addEventListener('resize', function() {
+                // In a real app, you would recalculate node positions here
+                console.log('Window resized - should recalculate network graph');
+            });
+        });
+    </script>
+</body>
+</html>

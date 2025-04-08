@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geometric C2 Interface</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap');
+        
+        body {
+            font-family: 'Roboto Mono', monospace;
+            background-color: #0f172a;
+            color: #e2e8f0;
+            overflow: hidden;
+        }
+        
+        .hexagon {
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+        }
+        
+        .triangle {
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+        }
+        
+        .diamond {
+            clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+        }
+        
+        .pentagon {
+            clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
+        }
+        
+        .gradient-border {
+            position: relative;
+            border: 2px solid transparent;
+            background-clip: padding-box;
+        }
+        
+        .gradient-border::after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #3b82f6, #8b5cf6, #ec4899);
+            z-index: -1;
+            border-radius: inherit;
+        }
+        
+        .blinking-cursor::after {
+            content: "|";
+            animation: blink 1s step-end infinite;
+        }
+        
+        @keyframes blink {
+            from, to { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        
+        .glow {
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.7);
+        }
+        
+        .glow:hover {
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.9);
+        }
+        
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        .terminal-line {
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .geometric-bg {
+            background: 
+                radial-gradient(circle at 10% 20%, rgba(59, 130, 246, 0.1) 0%, transparent 20%),
+                radial-gradient(circle at 90% 30%, rgba(139, 92, 246, 0.1) 0%, transparent 25%),
+                radial-gradient(circle at 50% 80%, rgba(236, 72, 153, 0.1) 0%, transparent 30%);
+        }
+    </style>
+</head>
+<body class="geometric-bg h-screen flex flex-col">
+    <!-- Header -->
+    <header class="gradient-border p-2 rounded-b-lg">
+        <div class="bg-slate-900 p-3 rounded-lg flex justify-between items-center">
+            <div class="flex items-center space-x-4">
+                <div class="hexagon bg-blue-500 w-10 h-10 flex items-center justify-center glow">
+                    <i class="fas fa-terminal text-white"></i>
+                </div>
+                <h1 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
+                    GEOMETRIC C2
+                </h1>
+            </div>
+            <div class="flex items-center space-x-3">
+                <div class="triangle bg-purple-500 w-8 h-8 flex items-center justify-center cursor-pointer glow">
+                    <i class="fas fa-cog text-xs text-white"></i>
+                </div>
+                <div class="diamond bg-pink-500 w-8 h-8 flex items-center justify-center cursor-pointer glow">
+                    <i class="fas fa-user text-xs text-white"></i>
+                </div>
+                <div class="pentagon bg-blue-500 w-8 h-8 flex items-center justify-center cursor-pointer glow">
+                    <i class="fas fa-power-off text-xs text-white"></i>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex flex-1 overflow-hidden p-4 space-x-4">
+        <!-- Sidebar -->
+        <aside class="w-64 gradient-border rounded-lg flex flex-col">
+            <div class="bg-slate-900 p-4 rounded-lg flex-1 flex flex-col">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="font-bold text-blue-400">ACTIVE SESSIONS</h2>
+                    <div class="flex space-x-2">
+                        <button class="bg-blue-600 hover:bg-blue-700 text-white p-1 rounded">
+                            <i class="fas fa-plus text-xs"></i>
+                        </button>
+                        <button class="bg-slate-700 hover:bg-slate-600 text-white p-1 rounded">
+                            <i class="fas fa-sync-alt text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="space-y-2 overflow-y-auto scrollbar-hide flex-1">
+                    <div class="bg-slate-800 p-3 rounded-lg cursor-pointer hover:bg-slate-700 transition-all glow">
+                        <div class="flex items-center space-x-2">
+                            <div class="hexagon bg-green-500 w-6 h-6"></div>
+                            <div>
+                                <p class="text-sm font-medium">192.168.1.45</p>
+                                <p class="text-xs text-slate-400">Windows 10 | Admin</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-slate-800 p-3 rounded-lg cursor-pointer hover:bg-slate-700 transition-all">
+                        <div class="flex items-center space-x-2">
+                            <div class="hexagon bg-yellow-500 w-6 h-6"></div>
+                            <div>
+                                <p class="text-sm font-medium">10.0.0.12</p>
+                                <p class="text-xs text-slate-400">Windows Server | User</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-slate-800 p-3 rounded-lg cursor-pointer hover:bg-slate-700 transition-all">
+                        <div class="flex items-center space-x-2">
+                            <div class="hexagon bg-red-500 w-6 h-6"></div>
+                            <div>
+                                <p class="text-sm font-medium">172.16.32.8</p>
+                                <p class="text-xs text-slate-400">Linux | Root</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-4 pt-4 border-t border-slate-700">
+                    <h2 class="font-bold text-purple-400 mb-2">QUICK ACTIONS</h2>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button class="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-lg text-xs">
+                            <i class="fas fa-terminal"></i>
+                        </button>
+                        <button class="bg-purple-600 hover:bg-purple-700 text-white p-2 rounded-lg text-xs">
+                            <i class="fas fa-file"></i>
+                        </button>
+                        <button class="bg-pink-600 hover:bg-pink-700 text-white p-2 rounded-lg text-xs">
+                            <i class="fas fa-keyboard"></i>
+                        </button>
+                        <button class="bg-green-600 hover:bg-green-700 text-white p-2 rounded-lg text-xs">
+                            <i class="fas fa-download"></i>
+                        </button>
+                        <button class="bg-yellow-600 hover:bg-yellow-700 text-white p-2 rounded-lg text-xs">
+                            <i class="fas fa-upload"></i>
+                        </button>
+                        <button class="bg-red-600 hover:bg-red-700 text-white p-2 rounded-lg text-xs">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Panel -->
+        <div class="flex-1 flex flex-col space-y-4">
+            <!-- Status Bar -->
+            <div class="gradient-border rounded-lg">
+                <div class="bg-slate-900 p-3 rounded-lg flex justify-between items-center">
+                    <div class="flex items-center space-x-4">
+                        <div class="flex items-center space-x-2">
+                            <span class="w-3 h-3 rounded-full bg-green-500"></span>
+                            <span class="text-sm">Connected</span>
+                        </div>
+                        <div class="text-sm text-slate-400">
+                            <span>Session ID:</span>
+                            <span class="text-blue-400">XK-892-ALPHA</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <div class="text-sm">
+                            <span class="text-slate-400">Last Active:</span>
+                            <span>2 minutes ago</span>
+                        </div>
+                        <div class="flex space-x-2">
+                            <div class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center cursor-pointer">
+                                <i class="fas fa-bell text-yellow-400 text-xs"></i>
+                            </div>
+                            <div class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center cursor-pointer">
+                                <i class="fas fa-question-circle text-blue-400 text-xs"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Terminal -->
+            <div class="gradient-border rounded-lg flex-1 flex flex-col">
+                <div class="bg-slate-900 p-3 rounded-lg flex-1 flex flex-col">
+                    <div class="flex items-center justify-between mb-2">
+                        <h2 class="font-bold text-green-400">TERMINAL</h2>
+                        <div class="flex space-x-2">
+                            <button class="bg-slate-700 hover:bg-slate-600 text-white p-1 rounded text-xs">
+                                Clear
+                            </button>
+                            <button class="bg-slate-700 hover:bg-slate-600 text-white p-1 rounded text-xs">
+                                Save
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-black bg-opacity-50 rounded-lg p-4 flex-1 overflow-y-auto scrollbar-hide font-mono text-sm" id="terminal">
+                        <div class="terminal-line text-green-400">[+] Session established with 192.168.1.45</div>
+                        <div class="terminal-line text-blue-400">[>] Running as: ADMINISTRATOR</div>
+                        <div class="terminal-line text-yellow-400">[!] System: Windows 10 Pro (10.0.19044)</div>
+                        <div class="terminal-line text-purple-400">[>] Privilege level: HIGH</div>
+                        <div class="terminal-line text-pink-400">[>] Current directory: C:\Windows\System32</div>
+                        <div class="terminal-line mt-4">
+                            <span class="text-green-400">admin@target-pc</span>
+                            <span class="text-white">:</span>
+                            <span class="text-blue-400">C:\Windows\System32</span>
+                            <span class="text-white">$</span>
+                            <span class="blinking-cursor"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-3 flex">
+                        <input type="text" class="flex-1 bg-slate-800 border border-slate-700 rounded-l-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter command...">
+                        <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-r-lg">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Panel -->
+            <div class="gradient-border rounded-lg">
+                <div class="bg-slate-900 p-3 rounded-lg">
+                    <div class="flex justify-between items-center mb-2">
+                        <h2 class="font-bold text-yellow-400">SYSTEM INFORMATION</h2>
+                        <div class="flex space-x-2">
+                            <button class="bg-slate-700 hover:bg-slate-600 text-white p-1 rounded text-xs">
+                                <i class="fas fa-chart-line"></i>
+                            </button>
+                            <button class="bg-slate-700 hover:bg-slate-600 text-white p-1 rounded text-xs">
+                                <i class="fas fa-expand"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-4 gap-4">
+                        <div class="bg-slate-800 p-3 rounded-lg">
+                            <div class="flex items-center space-x-2">
+                                <div class="hexagon bg-blue-500 w-8 h-8 flex items-center justify-center">
+                                    <i class="fas fa-microchip text-xs text-white"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-slate-400">CPU USAGE</p>
+                                    <p class="text-lg font-bold">32%</p>
+                                </div>
+                            </div>
+                            <div class="w-full bg-slate-700 h-1 mt-2 rounded-full">
+                                <div class="bg-blue-500 h-1 rounded-full" style="width: 32%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-slate-800 p-3 rounded-lg">
+                            <div class="flex items-center space-x-2">
+                                <div class="hexagon bg-purple-500 w-8 h-8 flex items-center justify-center">
+                                    <i class="fas fa-memory text-xs text-white"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-slate-400">MEMORY</p>
+                                    <p class="text-lg font-bold">4.2/16GB</p>
+                                </div>
+                            </div>
+                            <div class="w-full bg-slate-700 h-1 mt-2 rounded-full">
+                                <div class="bg-purple-500 h-1 rounded-full" style="width: 26%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-slate-800 p-3 rounded-lg">
+                            <div class="flex items-center space-x-2">
+                                <div class="hexagon bg-green-500 w-8 h-8 flex items-center justify-center">
+                                    <i class="fas fa-network-wired text-xs text-white"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-slate-400">NETWORK</p>
+                                    <p class="text-lg font-bold">1.2 MB/s</p>
+                                </div>
+                            </div>
+                            <div class="w-full bg-slate-700 h-1 mt-2 rounded-full">
+                                <div class="bg-green-500 h-1 rounded-full" style="width: 45%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-slate-800 p-3 rounded-lg">
+                            <div class="flex items-center space-x-2">
+                                <div class="hexagon bg-red-500 w-8 h-8 flex items-center justify-center">
+                                    <i class="fas fa-hdd text-xs text-white"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-slate-400">DISK</p>
+                                    <p class="text-lg font-bold">120/500GB</p>
+                                </div>
+                            </div>
+                            <div class="w-full bg-slate-700 h-1 mt-2 rounded-full">
+                                <div class="bg-red-500 h-1 rounded-full" style="width: 24%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Simulate terminal output
+        document.addEventListener('DOMContentLoaded', function() {
+            const terminal = document.getElementById('terminal');
+            const commandInput = document.querySelector('input[type="text"]');
+            const sendButton = document.querySelector('button.bg-blue-600');
+            
+            // Sample commands and responses
+            const commands = {
+                'help': 'Available commands: help, sysinfo, screenshot, download, upload, exit',
+                'sysinfo': 'System Information:\nOS: Windows 10 Pro\nCPU: Intel i7-10700K\nRAM: 16GB\nDisk: 500GB SSD',
+                'screenshot': 'Screenshot captured and saved to /downloads/screenshot.png',
+                'download': 'Usage: download <remote_path> <local_path>',
+                'upload': 'Usage: upload <local_path> <remote_path>',
+                'exit': 'Closing session...'
+            };
+            
+            // Add a new line to the terminal
+            function addTerminalLine(text, colorClass = 'text-white') {
+                const line = document.createElement('div');
+                line.className = `terminal-line ${colorClass} mt-1`;
+                line.textContent = text;
+                terminal.appendChild(line);
+                terminal.scrollTop = terminal.scrollHeight;
+            }
+            
+            // Handle command submission
+            function handleCommand() {
+                const command = commandInput.value.trim();
+                if (!command) return;
+                
+                // Add the command to the terminal
+                addTerminalLine(`$ ${command}`, 'text-green-400');
+                
+                // Clear input
+                commandInput.value = '';
+                
+                // Simulate processing delay
+                setTimeout(() => {
+                    // Get response or default message
+                    const response = commands[command.toLowerCase()] || `Command not found: ${command}`;
+                    
+                    // Add response to terminal
+                    addTerminalLine(response, 'text-blue-400');
+                    
+                    // Add new prompt
+                    addTerminalLine('admin@target-pc:C:\\Windows\\System32$', 'text-green-400');
+                }, 500);
+            }
+            
+            // Event listeners
+            sendButton.addEventListener('click', handleCommand);
+            commandInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    handleCommand();
+                }
+            });
+            
+            // Initial terminal content
+            setTimeout(() => {
+                addTerminalLine('Type "help" for available commands', 'text-yellow-400');
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CYBER-C2</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @font-face {
+            font-family: 'Courier Prime';
+            src: local('Courier Prime'), local('Courier New');
+        }
+        
+        body {
+            font-family: 'Courier Prime', monospace;
+            background-color: #000;
+            color: #0f0;
+            overflow: hidden;
+        }
+        
+        .matrix-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(0, 20, 0, 0.3), rgba(0, 0, 0, 0.9)), 
+                        url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="1" height="1" x="10" y="10" fill="%2300ff00" opacity="0.1"/></svg>');
+            z-index: -1;
+        }
+        
+        .cyber-border {
+            border: 1px solid #00ff00;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+        }
+        
+        .cyber-glow {
+            text-shadow: 0 0 5px rgba(0, 255, 0, 0.7);
+        }
+        
+        .cyber-header {
+            background: linear-gradient(to right, rgba(0, 20, 0, 0.8), rgba(0, 40, 0, 0.5));
+            border-bottom: 1px solid #00ff00;
+        }
+        
+        .cyber-panel {
+            background-color: rgba(0, 10, 0, 0.7);
+        }
+        
+        .cyber-input {
+            background-color: rgba(0, 15, 0, 0.5);
+            border: 1px solid #00aa00;
+            color: #0f0;
+        }
+        
+        .cyber-input:focus {
+            outline: none;
+            border-color: #00ff00;
+            box-shadow: 0 0 5px #00ff00;
+        }
+        
+        .cyber-btn {
+            background-color: rgba(0, 30, 0, 0.7);
+            border: 1px solid #00aa00;
+            color: #0f0;
+            transition: all 0.2s;
+        }
+        
+        .cyber-btn:hover {
+            background-color: rgba(0, 60, 0, 0.7);
+            box-shadow: 0 0 10px #00ff00;
+        }
+        
+        .cyber-btn:active {
+            background-color: rgba(0, 80, 0, 0.7);
+        }
+        
+        .cyber-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .cyber-scroll::-webkit-scrollbar-track {
+            background: rgba(0, 10, 0, 0.5);
+        }
+        
+        .cyber-scroll::-webkit-scrollbar-thumb {
+            background-color: #00aa00;
+            border-radius: 3px;
+        }
+        
+        .cyber-tab {
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+        
+        .cyber-tab.active {
+            border-bottom-color: #00ff00;
+            background-color: rgba(0, 30, 0, 0.3);
+        }
+        
+        .cyber-tab:hover:not(.active) {
+            border-bottom-color: rgba(0, 255, 0, 0.5);
+        }
+        
+        .status-online {
+            border-left: 3px solid #00ff00;
+            background-color: rgba(0, 255, 0, 0.1);
+        }
+        
+        .status-offline {
+            border-left: 3px solid #ff0000;
+            background-color: rgba(255, 0, 0, 0.1);
+        }
+        
+        .status-pending {
+            border-left: 3px solid #ffff00;
+            background-color: rgba(255, 255, 0, 0.1);
+        }
+        
+        .cyber-modal {
+            background-color: rgba(0, 15, 0, 0.95);
+            border: 1px solid #00ff00;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+        }
+        
+        .cyber-code {
+            background-color: rgba(0, 5, 0, 0.8);
+            color: #0f0;
+            font-family: 'Courier Prime', monospace;
+            white-space: pre-wrap;
+        }
+        
+        .cyber-pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 0.7; }
+            50% { opacity: 1; }
+            100% { opacity: 0.7; }
+        }
+        
+        .cyber-flash {
+            animation: flash 0.5s;
+        }
+        
+        @keyframes flash {
+            0% { background-color: rgba(0, 255, 0, 0.3); }
+            100% { background-color: transparent; }
+        }
+        
+        .cyber-checkbox {
+            appearance: none;
+            width: 14px;
+            height: 14px;
+            border: 1px solid #00aa00;
+            background-color: rgba(0, 10, 0, 0.7);
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .cyber-checkbox:checked {
+            background-color: #00aa00;
+        }
+        
+        .cyber-checkbox:checked::after {
+            content: "✓";
+            position: absolute;
+            color: #000;
+            font-size: 10px;
+            left: 2px;
+            top: 0;
+        }
+        
+        .cyber-context-menu {
+            background-color: rgba(0, 20, 0, 0.95);
+            border: 1px solid #00ff00;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+        }
+        
+        .cyber-context-item {
+            padding: 8px 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .cyber-context-item:hover {
+            background-color: rgba(0, 60, 0, 0.7);
+        }
+        
+        .cyber-divider {
+            border-top: 1px solid #00aa00;
+        }
+        
+        .cyber-typewriter {
+            overflow: hidden;
+            border-right: 2px solid #00ff00;
+            white-space: nowrap;
+            animation: typing 3.5s steps(40, end), blink-caret 0.75s step-end infinite;
+        }
+        
+        @keyframes typing {
+            from { width: 0 }
+            to { width: 100% }
+        }
+        
+        @keyframes blink-caret {
+            from, to { border-color: transparent }
+            50% { border-color: #00ff00 }
+        }
+    </style>
+</head>
+<body class="h-screen overflow-hidden">
+    <div class="matrix-bg"></div>
+    
+    <div class="flex flex-col h-full">
+        <!-- Header -->
+        <div class="cyber-header flex items-center justify-between px-4 py-2">
+            <div class="flex items-center space-x-4">
+                <div class="flex items-center cyber-glow">
+                    <i class="fas fa-terminal text-green-500 mr-2"></i>
+                    <span class="font-bold text-lg">CYBER-C2</span>
+                </div>
+                <div class="text-xs text-green-400">
+                    <span class="text-green-300">v3.1.4</span> | 
+                    <span>Connected to: </span>
+                    <span class="text-green-300">darknet://c2-node-7z4x9</span>
+                </div>
+            </div>
+            <div class="flex items-center space-x-3">
+                <div class="flex items-center text-xs">
+                    <div class="w-2 h-2 rounded-full bg-green-500 mr-1"></div>
+                    <span>7 active</span>
+                </div>
+                <div class="flex items-center text-xs">
+                    <div class="w-2 h-2 rounded-full bg-yellow-500 mr-1"></div>
+                    <span>3 pending</span>
+                </div>
+                <div class="h-5 border-r border-green-800"></div>
+                <button class="text-green-400 hover:text-green-300">
+                    <i class="fas fa-cog"></i>
+                </button>
+                <button class="text-green-400 hover:text-green-300">
+                    <i class="fas fa-power-off"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Main content -->
+        <div class="flex flex-1 overflow-hidden">
+            <!-- Side panel -->
+            <div class="w-64 cyber-panel cyber-border flex flex-col">
+                <!-- Session list header -->
+                <div class="p-3 border-b border-green-800 flex justify-between items-center">
+                    <div class="font-medium">ACTIVE IMPLANTS</div>
+                    <div class="flex space-x-2">
+                        <button class="text-green-400 hover:text-green-300 text-sm">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                        <button class="text-green-400 hover:text-green-300 text-sm">
+                            <i class="fas fa-filter"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Session list -->
+                <div class="flex-1 overflow-y-auto cyber-scroll">
+                    <div class="p-3 hover:bg-green-900 hover:bg-opacity-10 cursor-pointer status-online flex items-center">
+                        <div class="w-2 h-2 rounded-full bg-green-500 mr-3"></div>
+                        <div class="flex-1">
+                            <div class="font-medium">DC-01</div>
+                            <div class="text-xs text-green-600">10.0.0.10 | DOMAIN\ADMIN</div>
+                        </div>
+                        <i class="fas fa-chevron-right text-green-600"></i>
+                    </div>
+                    <div class="p-3 hover:bg-green-900 hover:bg-opacity-10 cursor-pointer status-online flex items-center bg-green-900 bg-opacity-5">
+                        <div class="w-2 h-2 rounded-full bg-green-500 mr-3"></div>
+                        <div class="flex-1">
+                            <div class="font-medium">WIN10-X64</div>
+                            <div class="text-xs text-green-600">192.168.1.15 | ADMINISTRATOR</div>
+                        </div>
+                        <i class="fas fa-chevron-right text-green-600"></i>
+                    </div>
+                    <div class="p-3 hover:bg-green-900 hover:bg-opacity-10 cursor-pointer status-pending flex items-center">
+                        <div class="w-2 h-2 rounded-full bg-yellow-500 mr-3"></div>
+                        <div class="flex-1">
+                            <div class="font-medium">WIN-SRV-2019</div>
+                            <div class="text-xs text-green-600">172.16.1.20 | SYSTEM</div>
+                        </div>
+                        <i class="fas fa-chevron-right text-green-600"></i>
+                    </div>
+                    <div class="p-3 hover:bg-green-900 hover:bg-opacity-10 cursor-pointer status-online flex items-center">
+                        <div class="w-2 h-2 rounded-full bg-green-500 mr-3"></div>
+                        <div class="flex-1">
+                            <div class="font-medium">WORKSTATION-3</div>
+                            <div class="text-xs text-green-600">10.1.1.7 | USER</div>
+                        </div>
+                        <i class="fas fa-chevron-right text-green-600"></i>
+                    </div>
+                    <div class="p-3 hover:bg-green-900 hover:bg-opacity-10 cursor-pointer status-offline flex items-center">
+                        <div class="w-2 h-2 rounded-full bg-red-500 mr-3"></div>
+                        <div class="flex-1">
+                            <div class="font-medium">WIN7-LEGACY</div>
+                            <div class="text-xs text-green-600">192.168.2.5 | ADMIN</div>
+                        </div>
+                        <i class="fas fa-chevron-right text-green-600"></i>
+                    </div>
+                    <div class="p-3 hover:bg-green-900 hover:bg-opacity-10 cursor-pointer status-online flex items-center">
+                        <div class="w-2 h-2 rounded-full bg-green-500 mr-3"></div>
+                        <div class="flex-1">
+                            <div class="font-medium">SQL-SERVER</div>
+                            <div class="text-xs text-green-600">10.0.0.15 | SQLSERVICE</div>
+                        </div>
+                        <i class="fas fa-chevron-right text-green-600"></i>
+                    </div>
+                    <div class="p-3 hover:bg-green-900 hover:bg-opacity-10 cursor-pointer status-online flex items-center">
+                        <div class="w-2 h-2 rounded-full bg-green-500 mr-3"></div>
+                        <div class="flex-1">
+                            <div class="font-medium">EXCHANGE</div>
+                            <div class="text-xs text-green-600">10.0.0.20 | NETWORK SERVICE</div>
+                        </div>
+                        <i class="fas fa-chevron-right text-green-600"></i>
+                    </div>
+                </div>
+                
+                <!-- Quick actions -->
+                <div class="p-3 border-t border-green-800">
+                    <div class="text-xs text-green-600 mb-1">QUICK ACTIONS</div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button class="text-xs py-1 px-2 cyber-btn rounded">
+                            <i class="fas fa-terminal mr-1"></i> SHELL
+                        </button>
+                        <button class="text-xs py-1 px-2 cyber-btn rounded">
+                            <i class="fas fa-download mr-1"></i> DOWNLOAD
+                        </button>
+                        <button class="text-xs py-1 px-2 cyber-btn rounded">
+                            <i class="fas fa-camera mr-1"></i> SCREENSHOT
+                        </button>
+                        <button class="text-xs py-1 px-2 cyber-btn rounded">
+                            <i class="fas fa-keyboard mr-1"></i> KEYLOGGER
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Main panel -->
+            <div class="flex-1 flex flex-col overflow-hidden">
+                <!-- Tabs -->
+                <div class="cyber-panel border-b border-green-800 flex items-center px-2">
+                    <div class="cyber-tab active px-4 py-2 flex items-center">
+                        <i class="fas fa-desktop mr-2 text-green-400"></i>
+                        <span>DC-01</span>
+                        <i class="fas fa-times ml-2 text-green-600 hover:text-green-300 cursor-pointer"></i>
+                    </div>
+                    <div class="cyber-tab px-4 py-2 flex items-center">
+                        <i class="fas fa-desktop mr-2 text-green-400"></i>
+                        <span>WIN10-X64</span>
+                        <i class="fas fa-times ml-2 text-green-600 hover:text-green-300 cursor-pointer"></i>
+                    </div>
+                    <div class="cyber-tab px-3 py-2 flex items-center text-green-600 hover:text-green-300">
+                        <i class="fas fa-plus mr-1"></i>
+                    </div>
+                </div>
+                
+                <!-- Content area -->
+                <div class="flex-1 overflow-auto cyber-panel p-4">
+                    <!-- Session info -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                        <div class="cyber-border rounded p-3">
+                            <div class="text-xs text-green-600 mb-1">SESSION INFO</div>
+                            <div class="grid grid-cols-2 gap-2 text-sm">
+                                <div>
+                                    <div class="text-green-600">HOSTNAME:</div>
+                                    <div>DC-01</div>
+                                </div>
+                                <div>
+                                    <div class="text-green-600">IP:</div>
+                                    <div>10.0.0.10</div>
+                                </div>
+                                <div>
+                                    <div class="text-green-600">USER:</div>
+                                    <div>DOMAIN\ADMINISTRATOR</div>
+                                </div>
+                                <div>
+                                    <div class="text-green-600">OS:</div>
+                                    <div>WINDOWS SERVER 2019</div>
+                                </div>
+                                <div>
+                                    <div class="text-green-600">ELEVATED:</div>
+                                    <div class="text-green-300">YES</div>
+                                </div>
+                                <div>
+                                    <div class="text-green-600">FIRST SEEN:</div>
+                                    <div>2 DAYS AGO</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="cyber-border rounded p-3">
+                            <div class="text-xs text-green-600 mb-1">SYSTEM INFO</div>
+                            <div class="grid grid-cols-2 gap-2 text-sm">
+                                <div>
+                                    <div class="text-green-600">CPU:</div>
+                                    <div>INTEL XEON 8 CORES</div>
+                                </div>
+                                <div>
+                                    <div class="text-green-600">RAM:</div>
+                                    <div>32GB (45% USED)</div>
+                                </div>
+                                <div>
+                                    <div class="text-green-600">UPTIME:</div>
+                                    <div>7D 4H 22M</div>
+                                </div>
+                                <div>
+                                    <div class="text-green-600">AV:</div>
+                                    <div class="text-yellow-400">WINDOWS DEFENDER</div>
+                                </div>
+                                <div>
+                                    <div class="text-green-600">ARCH:</div>
+                                    <div>X64</div>
+                                </div>
+                                <div>
+                                    <div class="text-green-600">LATENCY:</div>
+                                    <div>28MS</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="cyber-border rounded p-3">
+                            <div class="text-xs text-green-600 mb-1">MODULES</div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button class="text-xs py-1 px-2 cyber-btn rounded flex items-center justify-center">
+                                    <i class="fas fa-terminal mr-1"></i> CMD
+                                </button>
+                                <button class="text-xs py-1 px-2 cyber-btn rounded flex items-center justify-center">
+                                    <i class="fas fa-code mr-1"></i> POWERSHELL
+                                </button>
+                                <button class="text-xs py-1 px-2 cyber-btn rounded flex items-center justify-center">
+                                    <i class="fas fa-file-download mr-1"></i> DOWNLOAD
+                                </button>
+                                <button class="text-xs py-1 px-2 cyber-btn rounded flex items-center justify-center">
+                                    <i class="fas fa-file-upload mr-1"></i> UPLOAD
+                                </button>
+                                <button class="text-xs py-1 px-2 cyber-btn rounded flex items-center justify-center">
+                                    <i class="fas fa-camera mr-1"></i> SCREENSHOT
+                                </button>
+                                <button class="text-xs py-1 px-2 cyber-btn rounded flex items-center justify-center">
+                                    <i class="fas fa-microphone mr-1"></i> MIC
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Command history -->
+                    <div class="mb-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="text-sm font-medium">COMMAND HISTORY</div>
+                            <div class="flex items-center space-x-2">
+                                <button class="text-xs py-1 px-2 cyber-btn rounded">
+                                    <i class="fas fa-filter mr-1"></i> FILTER
+                                </button>
+                                <button class="text-xs py-1 px-2 cyber-btn rounded">
+                                    <i class="fas fa-trash-alt mr-1"></i> CLEAR
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="cyber-border rounded overflow-hidden">
+                            <table class="min-w-full text-sm">
+                                <thead class="bg-green-900 bg-opacity-20">
+                                    <tr>
+                                        <th class="py-2 px-3 text-left w-8">
+                                            <input type="checkbox" class="cyber-checkbox">
+                                        </th>
+                                        <th class="py-2 px-3 text-left w-16">ID</th>
+                                        <th class="py-2 px-3 text-left">COMMAND</th>
+                                        <th class="py-2 px-3 text-left w-24">STATUS</th>
+                                        <th class="py-2 px-3 text-left w-32">TIMESTAMP</th>
+                                        <th class="py-2 px-3 text-left">OUTPUT</th>
+                                        <th class="py-2 px-3 text-left w-20">ACTIONS</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="border-t border-green-800 hover:bg-green-900 hover:bg-opacity-10">
+                                        <td class="py-2 px-3">
+                                            <input type="checkbox" class="cyber-checkbox">
+                                        </td>
+                                        <td class="py-2 px-3">1</td>
+                                        <td class="py-2 px-3 font-mono">whoami /all</td>
+                                        <td class="py-2 px-3">
+                                            <span class="px-2 py-0.5 rounded text-xs bg-green-900 bg-opacity-30 text-green-300">COMPLETED</span>
+                                        </td>
+                                        <td class="py-2 px-3 text-green-600">2M AGO</td>
+                                        <td class="py-2 px-3">
+                                            <button class="text-green-300 hover:text-green-200 text-xs" onclick="showOutput(1)">
+                                                <i class="fas fa-eye mr-1"></i> VIEW (15 LINES)
+                                            </button>
+                                        </td>
+                                        <td class="py-2 px-3">
+                                            <button class="text-green-600 hover:text-green-300 mr-2">
+                                                <i class="fas fa-redo text-xs"></i>
+                                            </button>
+                                            <button class="text-green-600 hover:text-red-400">
+                                                <i class="fas fa-trash-alt text-xs"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr class="border-t border-green-800 hover:bg-green-900 hover:bg-opacity-10">
+                                        <td class="py-2 px-3">
+                                            <input type="checkbox" class="cyber-checkbox">
+                                        </td>
+                                        <td class="py-2 px-3">2</td>
+                                        <td class="py-2 px-3 font-mono">net group "Domain Admins" /domain</td>
+                                        <td class="py-2 px-3">
+                                            <span class="px-2 py-0.5 rounded text-xs bg-green-900 bg-opacity-30 text-green-300">COMPLETED</span>
+                                        </td>
+                                        <td class="py-2 px-3 text-green-600">5M AGO</td>
+                                        <td class="py-2 px-3">
+                                            <button class="text-green-300 hover:text-green-200 text-xs" onclick="showOutput(2)">
+                                                <i class="fas fa-eye mr-1"></i> VIEW (8 LINES)
+                                            </button>
+                                        </td>
+                                        <td class="py-2 px-3">
+                                            <button class="text-green-600 hover:text-green-300 mr-2">
+                                                <i class="fas fa-redo text-xs"></i>
+                                            </button>
+                                            <button class="text-green-600 hover:text-red-400">
+                                                <i class="fas fa-trash-alt text-xs"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr class="border-t border-green-800 hover:bg-green-900 hover:bg-opacity-10">
+                                        <td class="py-2 px-3">
+                                            <input type="checkbox" class="cyber-checkbox">
+                                        </td>
+                                        <td class="py-2 px-3">3</td>
+                                        <td class="py-2 px-3 font-mono">download C:\secrets\passwords.txt</td>
+                                        <td class="py-2 px-3">
+                                            <span class="px-2 py-0.5 rounded text-xs bg-yellow-900 bg-opacity-30 text-yellow-300">IN PROGRESS</span>
+                                        </td>
+                                        <td class="py-2 px-3 text-green-600">8M AGO</td>
+                                        <td class="py-2 px-3 text-green-600">DOWNLOADING (45%)...</td>
+                                        <td class="py-2 px-3">
+                                            <button class="text-green-600 hover:text-green-300 mr-2">
+                                                <i class="fas fa-redo text-xs"></i>
+                                            </button>
+                                            <button class="text-green-600 hover:text-red-400">
+                                                <i class="fas fa-trash-alt text-xs"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr class="border-t border-green-800 hover:bg-green-900 hover:bg-opacity-10">
+                                        <td class="py-2 px-3">
+                                            <input type="checkbox" class="cyber-checkbox">
+                                        </td>
+                                        <td class="py-2 px-3">4</td>
+                                        <td class="py-2 px-3 font-mono">screenshot -quality 90</td>
+                                        <td class="py-2 px-3">
+                                            <span class="px-2 py-0.5 rounded text-xs bg-red-900 bg-opacity-30 text-red-300">FAILED</span>
+                                        </td>
+                                        <td class="py-2 px-3 text-green-600">12M AGO</td>
+                                        <td class="py-2 px-3 text-green-600">ACCESS DENIED</td>
+                                        <td class="py-2 px-3">
+                                            <button class="text-green-600 hover:text-green-300 mr-2">
+                                                <i class="fas fa-redo text-xs"></i>
+                                            </button>
+                                            <button class="text-green-600 hover:text-red-400">
+                                                <i class="fas fa-trash-alt text-xs"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Command input -->
+                    <div class="mt-auto">
+                        <div class="flex items-center mb-2">
+                            <span class="text-green-300 mr-2">></span>
+                            <input type="text" id="commandInput" class="flex-1 cyber-input rounded px-3 py-2" placeholder="ENTER COMMAND...">
+                            <button id="executeBtn" class="ml-2 px-4 py-2 cyber-btn rounded">
+                                <i class="fas fa-play mr-1"></i> EXECUTE
+                            </button>
+                        </div>
+                        <div class="text-xs text-green-600 pl-6">
+                            AVAILABLE MODULES: <span class="text-green-300">SHELL</span>, <span class="text-green-300">DOWNLOAD</span>, 
+                            <span class="text-green-300">UPLOAD</span>, <span class="text-green-300">KEYLOG</span>, <span class="text-green-300">PERSIST</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Output modal -->
+    <div id="outputModal" class="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center hidden z-50">
+        <div class="cyber-modal rounded-lg w-4/5 h-4/5 flex flex-col">
+            <div class="p-3 border-b border-green-800 flex justify-between items-center">
+                <h3 class="font-medium">COMMAND OUTPUT</h3>
+                <div class="flex items-center space-x-3">
+                    <button class="text-green-400 hover:text-green-300 text-sm">
+                        <i class="fas fa-copy"></i> COPY
+                    </button>
+                    <button class="text-green-400 hover:text-green-300 text-sm">
+                        <i class="fas fa-save"></i> SAVE
+                    </button>
+                    <button onclick="hideOutput()" class="text-green-400 hover:text-green-300">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div id="outputContent" class="p-4 overflow-auto flex-1 cyber-code">
+                <!-- Output will be inserted here -->
+            </div>
+            <div class="p-3 border-t border-green-800 flex justify-between items-center text-xs text-green-600">
+                <div>SHOWING OUTPUT FOR COMMAND #<span id="commandIdDisplay">1</span></div>
+                <div>LINES: <span id="lineCount">0</span> | SIZE: <span id="sizeCount">0</span> BYTES</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Context menu -->
+    <div id="contextMenu" class="cyber-context-menu fixed hidden">
+        <div class="cyber-context-item">EXECUTE COMMAND</div>
+        <div class="cyber-context-item">DOWNLOAD FILE</div>
+        <div class="cyber-context-item">TAKE SCREENSHOT</div>
+        <div class="cyber-context-item">KEYLOGGER</div>
+        <div class="cyber-divider"></div>
+        <div class="cyber-context-item text-red-400 hover:bg-red-900 hover:bg-opacity-20">KILL SESSION</div>
+    </div>
+    
+    <script>
+        // Tab switching
+        document.querySelectorAll('.cyber-tab').forEach(tab => {
+            tab.addEventListener('click', function(e) {
+                if (!e.target.classList.contains('fa-times')) {
+                    document.querySelectorAll('.cyber-tab').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                }
+            });
+        });
+        
+        // Close tab
+        document.querySelectorAll('.cyber-tab .fa-times').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const tab = this.closest('.cyber-tab');
+                if (tab.classList.contains('active')) {
+                    // Find another tab to activate
+                    const tabs = document.querySelectorAll('.cyber-tab');
+                    for (let i = 0; i < tabs.length; i++) {
+                        if (!tabs[i].contains(this) && !tabs[i].querySelector('.fa-plus')) {
+                            tabs[i].click();
+                            break;
+                        }
+                    }
+                }
+                tab.remove();
+            });
+        });
+        
+        // Execute command
+        document.getElementById('executeBtn').addEventListener('click', executeCommand);
+        document.getElementById('commandInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                executeCommand();
+            }
+        });
+        
+        function executeCommand() {
+            const command = document.getElementById('commandInput').value.trim();
+            if (command) {
+                // In a real app, this would send the command to the server
+                console.log(`Executing: ${command}`);
+                
+                // Add to command history (simulated)
+                const tableBody = document.querySelector('tbody');
+                const newRow = document.createElement('tr');
+                newRow.className = 'border-t border-green-800 hover:bg-green-900 hover:bg-opacity-10 cyber-flash';
+                newRow.innerHTML = `
+                    <td class="py-2 px-3">
+                        <input type="checkbox" class="cyber-checkbox">
+                    </td>
+                    <td class="py-2 px-3">5</td>
+                    <td class="py-2 px-3 font-mono">${command}</td>
+                    <td class="py-2 px-3">
+                        <span class="px-2 py-0.5 rounded text-xs bg-yellow-900 bg-opacity-30 text-yellow-300">PENDING</span>
+                    </td>
+                    <td class="py-2 px-3 text-green-600">JUST NOW</td>
+                    <td class="py-2 px-3 text-green-600">WAITING FOR RESPONSE...</td>
+                    <td class="py-2 px-3">
+                        <button class="text-green-600 hover:text-green-300 mr-2">
+                            <i class="fas fa-redo text-xs"></i>
+                        </button>
+                        <button class="text-green-600 hover:text-red-400">
+                            <i class="fas fa-trash-alt text-xs"></i>
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(newRow);
+                
+                // Clear input
+                document.getElementById('commandInput').value = '';
+                
+                // Scroll to bottom
+                document.querySelector('.overflow-auto').scrollTop = document.querySelector('.overflow-auto').scrollHeight;
+            }
+        }
+        
+        // Show command output
+        function showOutput(commandId) {
+            const output = `C:\\Windows\\system32>whoami /all\n\nUSER INFORMATION\n----------------\n\nUser Name      SID\n============== ==============================================\ndomain\\admin S-1-5-21-3623811015-3361044348-30300820-500\n\nGROUP INFORMATION\n----------------\n\nGroup Name                           Type             SID          Attributes\n==================================== ================ ============ ==================================================\nEveryone                             Well-known group S-1-1-0      Mandatory group, Enabled by default, Enabled group\nBUILTIN\\Administrators               Alias            S-1-5-32-544 Mandatory group, Enabled by default, Enabled group\nBUILTIN\\Users                        Alias            S-1-5-32-545 Mandatory group, Enabled by default, Enabled group\nNT AUTHORITY\\INTERACTIVE             Well-known group S-1-5-4      Mandatory group, Enabled by default, Enabled group\nNT AUTHORITY\\Authenticated Users     Well-known group S-1-5-11     Mandatory group, Enabled by default, Enabled group\nNT AUTHORITY\\This Organization      Well-known group S-1-5-15     Mandatory group, Enabled by default, Enabled group\n\nPRIVILEGES INFORMATION\n----------------------\n\nPrivilege Name                Description                          State\n============================= ==================================== =======\nSeIncreaseQuotaPrivilege      Adjust memory quotas for a process   Enabled\nSeSecurityPrivilege           Manage auditing and security log     Enabled\nSeTakeOwnershipPrivilege      Take ownership of files or objects   Enabled\nSeLoadDriverPrivilege         Load and unload device drivers       Enabled\nSeSystemProfilePrivilege      Profile system performance           Enabled\nSeSystemtimePrivilege         Change the system time               Enabled\nSeProfileSingleProcessPrivilege Profile single process             Enabled\nSeIncreaseBasePriorityPrivilege Increase scheduling priority       Enabled\nSeCreatePagefilePrivilege     Create a pagefile                    Enabled\nSeBackupPrivilege             Back up files and directories        Enabled\nSeRestorePrivilege            Restore files and directories        Enabled\nSeShutdownPrivilege          Shut down the system                 Enabled\nSeDebugPrivilege             Debug programs                       Enabled\nSeSystemEnvironmentPrivilege Modify firmware environment values    Enabled\nSeChangeNotifyPrivilege      Bypass traverse checking             Enabled\nSeRemoteShutdownPrivilege    Force shutdown from a remote system   Enabled\nSeUndockPrivilege            Remove computer from docking station  Enabled\nSeManageVolumePrivilege      Perform volume maintenance tasks      Enabled\nSeImpersonatePrivilege       Impersonate a client after authentication Enabled\nSeCreateGlobalPrivilege      Create global objects                Enabled\nSeIncreaseWorkingSetPrivilege Increase a process working set       Enabled\nSeTimeZonePrivilege          Change the time zone                 Enabled\nSeCreateSymbolicLinkPrivilege Create symbolic links                Enabled`;
+            
+            document.getElementById('outputContent').textContent = output;
+            document.getElementById('commandIdDisplay').textContent = commandId;
+            document.getElementById('lineCount').textContent = output.split('\n').length;
+            document.getElementById('sizeCount').textContent = output.length;
+            document.getElementById('outputModal').classList.remove('hidden');
+        }
+        
+        function hideOutput() {
+            document.getElementById('outputModal').classList.add('hidden');
+        }
+        
+        // Context menu
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            const contextMenu = document.getElementById('contextMenu');
+            contextMenu.style.display = 'block';
+            contextMenu.style.left = e.pageX + 'px';
+            contextMenu.style.top = e.pageY + 'px';
+        });
+        
+        document.addEventListener('click', function() {
+            document.getElementById('contextMenu').style.display = 'none';
+        });
+        
+        // Matrix-like terminal effect
+        const terminalText = "CYBER-C2 CONSOLE INITIALIZED... ESTABLISHING SECURE CONNECTION... AUTHENTICATION COMPLETE... WELCOME OPERATOR.";
+        const terminalElement = document.createElement('div');
+        terminalElement.className = 'cyber-typewriter absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-2xl text-green-400 font-bold';
+        terminalElement.textContent = terminalText;
+        document.body.appendChild(terminalElement);
+        
+        setTimeout(() => {
+            terminalElement.remove();
+        }, 4000);
+    </script>
+</body>
+</html>

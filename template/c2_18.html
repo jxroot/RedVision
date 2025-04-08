@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern C2 Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Custom styles */
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .tab-button {
+            transition: all 0.2s ease;
+        }
+        
+        .tab-button.active {
+            background-color: rgba(59, 130, 246, 0.1);
+            border-bottom: 3px solid #3b82f6;
+        }
+        
+        .terminal {
+            background-color: #1e293b;
+            font-family: 'Courier New', monospace;
+            height: 300px;
+            overflow-y: auto;
+        }
+        
+        .terminal-line {
+            color: #d1d5db;
+            font-size: 14px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+        
+        .terminal-input {
+            background-color: transparent;
+            border: none;
+            color: #fff;
+            outline: none;
+            width: 90%;
+        }
+        
+        .agent-card {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .agent-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        
+        .status-active {
+            background-color: #10b981;
+        }
+        
+        .status-inactive {
+            background-color: #ef4444;
+        }
+        
+        .status-sleeping {
+            background-color: #f59e0b;
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #3b82f6;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="min-h-screen flex flex-col">
+        <!-- Header -->
+        <header class="bg-white shadow-sm">
+            <div class="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8 flex justify-between items-center">
+                <div class="flex items-center space-x-4">
+                    <div class="bg-blue-500 p-2 rounded-lg">
+                        <i class="fas fa-terminal text-white text-xl"></i>
+                    </div>
+                    <h1 class="text-xl font-bold text-gray-800">ShadowC2 v3.2</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <input type="text" placeholder="Search..." class="pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold">AD</div>
+                        <span class="text-sm font-medium">Admin</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="flex-1 max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
+            <!-- Stats Overview -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <div class="bg-white rounded-lg shadow p-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">Active Agents</p>
+                            <p class="text-2xl font-bold text-blue-600">24</p>
+                        </div>
+                        <div class="p-3 rounded-full bg-blue-100 text-blue-600">
+                            <i class="fas fa-laptop-code"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow p-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">Tasks Running</p>
+                            <p class="text-2xl font-bold text-green-600">8</p>
+                        </div>
+                        <div class="p-3 rounded-full bg-green-100 text-green-600">
+                            <i class="fas fa-tasks"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow p-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">Alerts</p>
+                            <p class="text-2xl font-bold text-red-600">3</p>
+                        </div>
+                        <div class="p-3 rounded-full bg-red-100 text-red-600">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow p-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">Uptime</p>
+                            <p class="text-2xl font-bold text-purple-600">14d 6h</p>
+                        </div>
+                        <div class="p-3 rounded-full bg-purple-100 text-purple-600">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabs Navigation -->
+            <div class="bg-white rounded-t-lg shadow-sm">
+                <div class="flex border-b">
+                    <button class="tab-button px-6 py-3 text-sm font-medium flex items-center space-x-2 active" data-tab="dashboard">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                    </button>
+                    <button class="tab-button px-6 py-3 text-sm font-medium flex items-center space-x-2" data-tab="agents">
+                        <i class="fas fa-laptop-code"></i>
+                        <span>Agents</span>
+                    </button>
+                    <button class="tab-button px-6 py-3 text-sm font-medium flex items-center space-x-2" data-tab="tasks">
+                        <i class="fas fa-tasks"></i>
+                        <span>Tasks</span>
+                    </button>
+                    <button class="tab-button px-6 py-3 text-sm font-medium flex items-center space-x-2" data-tab="logs">
+                        <i class="fas fa-scroll"></i>
+                        <span>Logs</span>
+                    </button>
+                    <button class="tab-button px-6 py-3 text-sm font-medium flex items-center space-x-2" data-tab="terminal">
+                        <i class="fas fa-terminal"></i>
+                        <span>Terminal</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tab Contents -->
+            <div class="bg-white rounded-b-lg shadow-sm p-6">
+                <!-- Dashboard Tab -->
+                <div id="dashboard" class="tab-content active">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- Recent Activity -->
+                        <div class="lg:col-span-2">
+                            <h2 class="text-lg font-semibold mb-4">Recent Activity</h2>
+                            <div class="bg-gray-50 rounded-lg p-4">
+                                <div class="space-y-4">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="p-2 bg-blue-100 rounded-full text-blue-600">
+                                            <i class="fas fa-laptop"></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm font-medium">Agent "WIN-7X32T9" checked in</p>
+                                            <p class="text-xs text-gray-500">2 minutes ago</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-start space-x-3">
+                                        <div class="p-2 bg-green-100 rounded-full text-green-600">
+                                            <i class="fas fa-check-circle"></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm font-medium">Task "collect-system-info" completed on 3 agents</p>
+                                            <p class="text-xs text-gray-500">15 minutes ago</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-start space-x-3">
+                                        <div class="p-2 bg-red-100 rounded-full text-red-600">
+                                            <i class="fas fa-exclamation-circle"></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm font-medium">Agent "WIN-9K12L4" failed to check in (3 attempts)</p>
+                                            <p class="text-xs text-gray-500">32 minutes ago</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-start space-x-3">
+                                        <div class="p-2 bg-purple-100 rounded-full text-purple-600">
+                                            <i class="fas fa-terminal"></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm font-medium">New command executed: "whoami /all"</p>
+                                            <p class="text-xs text-gray-500">1 hour ago</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Agent Status -->
+                        <div>
+                            <h2 class="text-lg font-semibold mb-4">Agent Status</h2>
+                            <div class="bg-gray-50 rounded-lg p-4">
+                                <div class="space-y-3">
+                                    <div class="flex justify-between items-center">
+                                        <div class="flex items-center space-x-2">
+                                            <span class="status-indicator status-active"></span>
+                                            <span class="text-sm">Active</span>
+                                        </div>
+                                        <span class="text-sm font-medium">18</span>
+                                    </div>
+                                    <div class="flex justify-between items-center">
+                                        <div class="flex items-center space-x-2">
+                                            <span class="status-indicator status-sleeping"></span>
+                                            <span class="text-sm">Sleeping</span>
+                                        </div>
+                                        <span class="text-sm font-medium">4</span>
+                                    </div>
+                                    <div class="flex justify-between items-center">
+                                        <div class="flex items-center space-x-2">
+                                            <span class="status-indicator status-inactive"></span>
+                                            <span class="text-sm">Inactive</span>
+                                        </div>
+                                        <span class="text-sm font-medium">2</span>
+                                    </div>
+                                </div>
+                                <div class="mt-4">
+                                    <canvas id="agentStatusChart" height="150"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Agents Tab -->
+                <div id="agents" class="tab-content">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-lg font-semibold">Agent Management</h2>
+                        <div class="flex space-x-3">
+                            <button class="px-4 py-2 bg-blue-500 text-white rounded-lg text-sm font-medium hover:bg-blue-600 transition">
+                                <i class="fas fa-plus mr-2"></i> Deploy Agent
+                            </button>
+                            <button class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300 transition">
+                                <i class="fas fa-sync-alt mr-2"></i> Refresh
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <!-- Agent Card 1 -->
+                        <div class="agent-card bg-white border rounded-lg p-4 shadow-sm">
+                            <div class="flex justify-between items-start mb-3">
+                                <div>
+                                    <h3 class="font-medium">WIN-7X32T9</h3>
+                                    <p class="text-xs text-gray-500">192.168.1.45</p>
+                                </div>
+                                <div class="flex items-center space-x-1">
+                                    <span class="status-indicator status-active"></span>
+                                    <span class="text-xs">Active</span>
+                                </div>
+                            </div>
+                            <div class="flex justify-between text-xs mb-3">
+                                <div>
+                                    <p class="text-gray-500">OS</p>
+                                    <p>Windows 10 Pro</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500">Last Seen</p>
+                                    <p>2 min ago</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500">User</p>
+                                    <p>admin</p>
+                                </div>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="flex-1 py-1 bg-blue-50 text-blue-600 rounded text-xs font-medium hover:bg-blue-100">
+                                    <i class="fas fa-terminal mr-1"></i> Shell
+                                </button>
+                                <button class="flex-1 py-1 bg-green-50 text-green-600 rounded text-xs font-medium hover:bg-green-100">
+                                    <i class="fas fa-tasks mr-1"></i> Tasks
+                                </button>
+                                <button class="flex-1 py-1 bg-red-50 text-red-600 rounded text-xs font-medium hover:bg-red-100">
+                                    <i class="fas fa-power-off mr-1"></i> Kill
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Agent Card 2 -->
+                        <div class="agent-card bg-white border rounded-lg p-4 shadow-sm">
+                            <div class="flex justify-between items-start mb-3">
+                                <div>
+                                    <h3 class="font-medium">WIN-9K12L4</h3>
+                                    <p class="text-xs text-gray-500">192.168.1.72</p>
+                                </div>
+                                <div class="flex items-center space-x-1">
+                                    <span class="status-indicator status-sleeping"></span>
+                                    <span class="text-xs">Sleeping</span>
+                                </div>
+                            </div>
+                            <div class="flex justify-between text-xs mb-3">
+                                <div>
+                                    <p class="text-gray-500">OS</p>
+                                    <p>Windows Server 2019</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500">Last Seen</p>
+                                    <p>15 min ago</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500">User</p>
+                                    <p>SYSTEM</p>
+                                </div>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="flex-1 py-1 bg-blue-50 text-blue-600 rounded text-xs font-medium hover:bg-blue-100">
+                                    <i class="fas fa-terminal mr-1"></i> Shell
+                                </button>
+                                <button class="flex-1 py-1 bg-green-50 text-green-600 rounded text-xs font-medium hover:bg-green-100">
+                                    <i class="fas fa-tasks mr-1"></i> Tasks
+                                </button>
+                                <button class="flex-1 py-1 bg-red-50 text-red-600 rounded text-xs font-medium hover:bg-red-100">
+                                    <i class="fas fa-power-off mr-1"></i> Kill
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Agent Card 3 -->
+                        <div class="agent-card bg-white border rounded-lg p-4 shadow-sm">
+                            <div class="flex justify-between items-start mb-3">
+                                <div>
+                                    <h3 class="font-medium">WIN-3P45M2</h3>
+                                    <p class="text-xs text-gray-500">192.168.1.33</p>
+                                </div>
+                                <div class="flex items-center space-x-1">
+                                    <span class="status-indicator status-active"></span>
+                                    <span class="text-xs">Active</span>
+                                </div>
+                            </div>
+                            <div class="flex justify-between text-xs mb-3">
+                                <div>
+                                    <p class="text-gray-500">OS</p>
+                                    <p>Windows 11 Pro</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500">Last Seen</p>
+                                    <p>5 min ago</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500">User</p>
+                                    <p>jdoe</p>
+                                </div>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="flex-1 py-1 bg-blue-50 text-blue-600 rounded text-xs font-medium hover:bg-blue-100">
+                                    <i class="fas fa-terminal mr-1"></i> Shell
+                                </button>
+                                <button class="flex-1 py-1 bg-green-50 text-green-600 rounded text-xs font-medium hover:bg-green-100">
+                                    <i class="fas fa-tasks mr-1"></i> Tasks
+                                </button>
+                                <button class="flex-1 py-1 bg-red-50 text-red-600 rounded text-xs font-medium hover:bg-red-100">
+                                    <i class="fas fa-power-off mr-1"></i> Kill
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tasks Tab -->
+                <div id="tasks" class="tab-content">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-lg font-semibold">Task Management</h2>
+                        <div class="flex space-x-3">
+                            <button class="px-4 py-2 bg-blue-500 text-white rounded-lg text-sm font-medium hover:bg-blue-600 transition">
+                                <i class="fas fa-plus mr-2"></i> New Task
+                            </button>
+                            <button class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300 transition">
+                                <i class="fas fa-sync-alt mr-2"></i> Refresh
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Command</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Agent</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#142</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">whoami /all</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">WIN-7X32T9</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Completed</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">10 min ago</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <a href="#" class="text-blue-600 hover:text-blue-900 mr-3">View</a>
+                                        <a href="#" class="text-red-600 hover:text-red-900">Delete</a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#141</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">netstat -ano</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">WIN-9K12L4</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Running</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">25 min ago</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <a href="#" class="text-blue-600 hover:text-blue-900 mr-3">View</a>
+                                        <a href="#" class="text-red-600 hover:text-red-900">Delete</a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#140</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">systeminfo</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">WIN-3P45M2</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Completed</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">1 hour ago</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <a href="#" class="text-blue-600 hover:text-blue-900 mr-3">View</a>
+                                        <a href="#" class="text-red-600 hover:text-red-900">Delete</a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#139</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">ipconfig /all</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">WIN-7X32T9</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Failed</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2 hours ago</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <a href="#" class="text-blue-600 hover:text-blue-900 mr-3">View</a>
+                                        <a href="#" class="text-red-600 hover:text-red-900">Delete</a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Logs Tab -->
+                <div id="logs" class="tab-content">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-lg font-semibold">System Logs</h2>
+                        <div class="flex space-x-3">
+                            <button class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300 transition">
+                                <i class="fas fa-filter mr-2"></i> Filter
+                            </button>
+                            <button class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300 transition">
+                                <i class="fas fa-sync-alt mr-2"></i> Refresh
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <div class="space-y-4">
+                            <div class="flex items-start space-x-3">
+                                <div class="p-2 bg-blue-100 rounded-full text-blue-600">
+                                    <i class="fas fa-info-circle"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium">[INFO] New agent connected: WIN-7X32T9 (192.168.1.45)</p>
+                                    <p class="text-xs text-gray-500">2023-06-15 14:32:18</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start space-x-3">
+                                <div class="p-2 bg-green-100 rounded-full text-green-600">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium">[SUCCESS] Task #142 completed on WIN-7X32T9</p>
+                                    <p class="text-xs text-gray-500">2023-06-15 14:30:45</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start space-x-3">
+                                <div class="p-2 bg-yellow-100 rounded-full text-yellow-600">
+                                    <i class="fas fa-exclamation-circle"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium">[WARNING] Agent WIN-9K12L4 missed check-in (1/3)</p>
+                                    <p class="text-xs text-gray-500">2023-06-15 14:25:12</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start space-x-3">
+                                <div class="p-2 bg-red-100 rounded-full text-red-600">
+                                    <i class="fas fa-times-circle"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium">[ERROR] Task #139 failed on WIN-7X32T9: Access denied</p>
+                                    <p class="text-xs text-gray-500">2023-06-15 14:18:33</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start space-x-3">
+                                <div class="p-2 bg-purple-100 rounded-full text-purple-600">
+                                    <i class="fas fa-terminal"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium">[COMMAND] Executed: whoami /all on WIN-3P45M2</p>
+                                    <p class="text-xs text-gray-500">2023-06-15 14:15:07</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Terminal Tab -->
+                <div id="terminal" class="tab-content">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-lg font-semibold">Interactive Terminal</h2>
+                        <div class="flex space-x-3">
+                            <select class="px-3 py-1 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium">
+                                <option>WIN-7X32T9</option>
+                                <option>WIN-9K12L4</option>
+                                <option>WIN-3P45M2</option>
+                            </select>
+                            <button class="px-4 py-1 bg-blue-500 text-white rounded-lg text-sm font-medium hover:bg-blue-600 transition">
+                                <i class="fas fa-play mr-2"></i> Execute
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="terminal rounded-lg p-4">
+                        <div class="terminal-line">ShadowC2 v3.2 - Interactive Terminal</div>
+                        <div class="terminal-line">Connected to agent: WIN-7X32T9 (192.168.1.45)</div>
+                        <div class="terminal-line">Current user: admin (Administrator)</div>
+                        <div class="terminal-line">OS: Windows 10 Pro (10.0.19044)</div>
+                        <div class="terminal-line mb-4">Last check-in: 2 minutes ago</div>
+                        
+                        <div class="terminal-line flex items-center">
+                            <span class="text-green-400 mr-2">admin@WIN-7X32T9></span>
+                            <input type="text" class="terminal-input" value="whoami" placeholder="Enter command...">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-white border-t mt-6">
+            <div class="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center">
+                    <p class="text-sm text-gray-500">ShadowC2 v3.2 - © 2023 Shadow Security</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-sm text-gray-500 hover:text-gray-700">Docs</a>
+                        <a href="#" class="text-sm text-gray-500 hover:text-gray-700">API</a>
+                        <a href="#" class="text-sm text-gray-500 hover:text-gray-700">Help</a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Tab functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    // Remove active class from all buttons and contents
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    tabContents.forEach(content => content.classList.remove('active'));
+                    
+                    // Add active class to clicked button
+                    button.classList.add('active');
+                    
+                    // Show corresponding content
+                    const tabId = button.getAttribute('data-tab');
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
+            
+            // Simulate terminal input
+            const terminalInput = document.querySelector('.terminal-input');
+            if (terminalInput) {
+                terminalInput.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') {
+                        const command = this.value;
+                        const terminal = this.closest('.terminal');
+                        
+                        // Add command to terminal
+                        const commandLine = document.createElement('div');
+                        commandLine.className = 'terminal-line flex items-center mb-2';
+                        commandLine.innerHTML = `
+                            <span class="text-green-400 mr-2">admin@WIN-7X32T9></span>
+                            <span>${command}</span>
+                        `;
+                        terminal.insertBefore(commandLine, this.parentNode);
+                        
+                        // Add response (simulated)
+                        if (command.trim() === 'whoami') {
+                            const response = document.createElement('div');
+                            response.className = 'terminal-line mb-4';
+                            response.textContent = 'win-7x32t9\\admin';
+                            terminal.insertBefore(response, this.parentNode);
+                        } else if (command.trim() === 'help') {
+                            const response = document.createElement('div');
+                            response.className = 'terminal-line mb-4';
+                            response.innerHTML = `
+                                Available commands:<br>
+                                - whoami<br>
+                                - systeminfo<br>
+                                - ipconfig<br>
+                                - netstat<br>
+                                - help<br>
+                            `;
+                            terminal.insertBefore(response, this.parentNode);
+                        } else {
+                            const response = document.createElement('div');
+                            response.className = 'terminal-line mb-4';
+                            response.textContent = `Command '${command}' not recognized. Type 'help' for available commands.`;
+                            terminal.insertBefore(response, this.parentNode);
+                        }
+                        
+                        // Clear input
+                        this.value = '';
+                        
+                        // Scroll to bottom
+                        terminal.scrollTop = terminal.scrollHeight;
+                    }
+                });
+            }
+            
+            // Simulate chart (would normally use Chart.js)
+            const chartCanvas = document.getElementById('agentStatusChart');
+            if (chartCanvas) {
+                // This is just a placeholder - in a real app you would use Chart.js or similar
+                chartCanvas.innerHTML = '<div class="text-center text-gray-500">Agent status chart would appear here</div>';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Windows C2 UI - VS Code Style</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Fira Code', monospace;
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            overflow: hidden;
+        }
+        
+        .editor-bg {
+            background-color: #1e1e1e;
+        }
+        
+        .sidebar-bg {
+            background-color: #252526;
+        }
+        
+        .status-bar-bg {
+            background-color: #007acc;
+        }
+        
+        .tab-active {
+            background-color: #1e1e1e;
+            border-top: 2px solid #007acc;
+        }
+        
+        .tab-inactive {
+            background-color: #2d2d2d;
+        }
+        
+        .command-input {
+            background-color: #252526;
+            border: 1px solid #3c3c3c;
+            caret-color: #d4d4d4;
+        }
+        
+        .command-input:focus {
+            outline: 1px solid #007acc;
+        }
+        
+        .terminal-bg {
+            background-color: #1e1e1e;
+            border-top: 1px solid #3c3c3c;
+        }
+        
+        .activity-bar-item-active {
+            color: #ffffff;
+            border-left: 2px solid #ffffff;
+        }
+        
+        .activity-bar-item-inactive {
+            color: #858585;
+        }
+        
+        .tree-item-selected {
+            background-color: #37373d;
+        }
+        
+        .scrollbar::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+        
+        .scrollbar::-webkit-scrollbar-track {
+            background: #1e1e1e;
+        }
+        
+        .scrollbar::-webkit-scrollbar-thumb {
+            background: #424242;
+            border-radius: 5px;
+        }
+        
+        .blink {
+            animation: blink 1s step-end infinite;
+        }
+        
+        @keyframes blink {
+            from, to { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        
+        .command-palette {
+            box-shadow: 0 0 8px 2px rgba(0, 0, 0, 0.5);
+        }
+    </style>
+</head>
+<body class="h-screen flex flex-col">
+    <!-- Title Bar -->
+    <div class="bg-gray-800 text-gray-300 flex items-center justify-between px-4 py-1">
+        <div class="flex items-center space-x-2">
+            <i class="fab fa-windows text-blue-400"></i>
+            <span class="text-sm font-medium">Windows C2 UI</span>
+        </div>
+        <div class="flex items-center space-x-4">
+            <span class="text-xs">Administrator</span>
+            <div class="flex space-x-2">
+                <button class="w-6 h-6 flex items-center justify-center hover:bg-gray-700 rounded">
+                    <i class="fas fa-minus text-xs"></i>
+                </button>
+                <button class="w-6 h-6 flex items-center justify-center hover:bg-gray-700 rounded">
+                    <i class="fas fa-square text-xs"></i>
+                </button>
+                <button class="w-6 h-6 flex items-center justify-center hover:bg-red-500 rounded">
+                    <i class="fas fa-times text-xs"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="flex flex-1 overflow-hidden">
+        <!-- Activity Bar -->
+        <div class="sidebar-bg w-12 flex flex-col items-center py-4 space-y-6">
+            <div class="activity-bar-item-active w-full flex items-center justify-center py-2 cursor-pointer">
+                <i class="fas fa-terminal text-lg"></i>
+            </div>
+            <div class="activity-bar-item-inactive w-full flex items-center justify-center py-2 cursor-pointer">
+                <i class="fas fa-search text-lg"></i>
+            </div>
+            <div class="activity-bar-item-inactive w-full flex items-center justify-center py-2 cursor-pointer">
+                <i class="fas fa-code-branch text-lg"></i>
+            </div>
+            <div class="activity-bar-item-inactive w-full flex items-center justify-center py-2 cursor-pointer">
+                <i class="fas fa-bug text-lg"></i>
+            </div>
+            <div class="activity-bar-item-inactive w-full flex items-center justify-center py-2 cursor-pointer">
+                <i class="fas fa-cog text-lg"></i>
+            </div>
+        </div>
+        
+        <!-- Sidebar -->
+        <div class="sidebar-bg w-64 flex flex-col border-r border-gray-700">
+            <div class="px-4 py-2 border-b border-gray-700 flex items-center justify-between">
+                <span class="text-sm font-medium">COMMAND CENTER</span>
+                <i class="fas fa-ellipsis-h text-gray-500 cursor-pointer"></i>
+            </div>
+            <div class="flex-1 overflow-y-auto scrollbar">
+                <div class="py-2">
+                    <div class="px-4 py-1 text-xs text-gray-500 uppercase">Active Sessions</div>
+                    <div class="tree-item-selected px-4 py-1 flex items-center space-x-2 cursor-pointer">
+                        <i class="fas fa-laptop-code text-blue-400"></i>
+                        <span>DESKTOP-ABC123 (Admin)</span>
+                    </div>
+                    <div class="px-4 py-1 flex items-center space-x-2 cursor-pointer hover:bg-gray-700">
+                        <i class="fas fa-laptop text-green-400"></i>
+                        <span>LAPTOP-XYZ789 (User)</span>
+                    </div>
+                    <div class="px-4 py-1 flex items-center space-x-2 cursor-pointer hover:bg-gray-700">
+                        <i class="fas fa-server text-purple-400"></i>
+                        <span>SERVER-001 (System)</span>
+                    </div>
+                </div>
+                <div class="py-2">
+                    <div class="px-4 py-1 text-xs text-gray-500 uppercase">Modules</div>
+                    <div class="px-4 py-1 flex items-center space-x-2 cursor-pointer hover:bg-gray-700">
+                        <i class="fas fa-keyboard text-yellow-400"></i>
+                        <span>Keylogger</span>
+                    </div>
+                    <div class="px-4 py-1 flex items-center space-x-2 cursor-pointer hover:bg-gray-700">
+                        <i class="fas fa-eye text-red-400"></i>
+                        <span>Screen Capture</span>
+                    </div>
+                    <div class="px-4 py-1 flex items-center space-x-2 cursor-pointer hover:bg-gray-700">
+                        <i class="fas fa-file-alt text-blue-400"></i>
+                        <span>File Explorer</span>
+                    </div>
+                    <div class="px-4 py-1 flex items-center space-x-2 cursor-pointer hover:bg-gray-700">
+                        <i class="fas fa-network-wired text-green-400"></i>
+                        <span>Network Scanner</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Editor Area -->
+        <div class="editor-bg flex-1 flex flex-col overflow-hidden">
+            <!-- Tabs -->
+            <div class="flex border-b border-gray-700">
+                <div class="tab-active px-4 py-2 flex items-center space-x-2">
+                    <i class="fas fa-terminal text-blue-400"></i>
+                    <span>Command Console</span>
+                    <i class="fas fa-times text-gray-500 hover:text-gray-300 cursor-pointer"></i>
+                </div>
+                <div class="tab-inactive px-4 py-2 flex items-center space-x-2 cursor-pointer">
+                    <i class="fas fa-file-alt text-gray-500"></i>
+                    <span>Logs</span>
+                    <i class="fas fa-times text-gray-500 hover:text-gray-300 cursor-pointer"></i>
+                </div>
+                <div class="tab-inactive px-4 py-2 flex items-center space-x-2 cursor-pointer">
+                    <i class="fas fa-chart-line text-gray-500"></i>
+                    <span>Statistics</span>
+                    <i class="fas fa-times text-gray-500 hover:text-gray-300 cursor-pointer"></i>
+                </div>
+            </div>
+            
+            <!-- Command Output -->
+            <div class="flex-1 overflow-y-auto p-4 scrollbar">
+                <div class="mb-2">
+                    <span class="text-green-400">admin@DESKTOP-ABC123</span>
+                    <span class="text-gray-500">:</span>
+                    <span class="text-blue-400">~</span>
+                    <span class="text-gray-500">$</span>
+                    <span> whoami</span>
+                </div>
+                <div class="mb-4">
+                    <span>desktop-abc123\administrator</span>
+                </div>
+                
+                <div class="mb-2">
+                    <span class="text-green-400">admin@DESKTOP-ABC123</span>
+                    <span class="text-gray-500">:</span>
+                    <span class="text-blue-400">~</span>
+                    <span class="text-gray-500">$</span>
+                    <span> systeminfo</span>
+                </div>
+                <div class="mb-4 text-xs">
+                    <div>Host Name:                 DESKTOP-ABC123</div>
+                    <div>OS Name:                   Microsoft Windows 10 Pro</div>
+                    <div>OS Version:                10.0.19044 N/A Build 19044</div>
+                    <div>OS Manufacturer:           Microsoft Corporation</div>
+                    <div>System Type:               x64-based PC</div>
+                    <div>Total Physical Memory:     16,384 MB</div>
+                </div>
+                
+                <div class="mb-2">
+                    <span class="text-green-400">admin@DESKTOP-ABC123</span>
+                    <span class="text-gray-500">:</span>
+                    <span class="text-blue-400">~</span>
+                    <span class="text-gray-500">$</span>
+                    <span> netstat -ano</span>
+                </div>
+                <div class="mb-4 text-xs">
+                    <div>Proto  Local Address          Foreign Address        State           PID</div>
+                    <div>TCP    0.0.0.0:80             0.0.0.0:0              LISTENING       4</div>
+                    <div>TCP    0.0.0.0:135            0.0.0.0:0              LISTENING       928</div>
+                    <div>TCP    0.0.0.0:443            0.0.0.0:0              LISTENING       4</div>
+                    <div>TCP    0.0.0.0:445            0.0.0.0:0              LISTENING       4</div>
+                    <div>TCP    0.0.0.0:3389           0.0.0.0:0              LISTENING       336</div>
+                </div>
+                
+                <div class="mb-2">
+                    <span class="text-green-400">admin@DESKTOP-ABC123</span>
+                    <span class="text-gray-500">:</span>
+                    <span class="text-blue-400">~</span>
+                    <span class="text-gray-500">$</span>
+                    <span class="blink">_</span>
+                </div>
+            </div>
+            
+            <!-- Terminal Input -->
+            <div class="terminal-bg p-2">
+                <div class="flex items-center">
+                    <span class="text-green-400 mr-2">$</span>
+                    <input type="text" class="command-input flex-1 px-2 py-1 rounded text-sm" placeholder="Enter command...">
+                    <button class="ml-2 px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded text-sm">
+                        Execute
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Status Bar -->
+    <div class="status-bar-bg text-white text-xs flex items-center justify-between px-4 py-1">
+        <div class="flex items-center space-x-4">
+            <div class="flex items-center space-x-1">
+                <i class="fas fa-shield-alt"></i>
+                <span>Admin</span>
+            </div>
+            <div class="flex items-center space-x-1">
+                <i class="fas fa-plug"></i>
+                <span>3 Active</span>
+            </div>
+            <div class="flex items-center space-x-1">
+                <i class="fas fa-clock"></i>
+                <span>04:32:17</span>
+            </div>
+        </div>
+        <div class="flex items-center space-x-4">
+            <div class="flex items-center space-x-1">
+                <i class="fas fa-code-branch"></i>
+                <span>v2.4.1</span>
+            </div>
+            <div class="flex items-center space-x-1">
+                <i class="fas fa-wifi"></i>
+                <span>192.168.1.105</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Command Palette (hidden by default) -->
+    <div class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden" id="commandPalette">
+        <div class="command-palette bg-gray-800 w-1/2 rounded-md overflow-hidden">
+            <div class="px-4 py-2 bg-gray-900 flex items-center">
+                <i class="fas fa-search text-gray-500 mr-2"></i>
+                <input type="text" class="bg-transparent flex-1 outline-none text-white" placeholder="Type a command...">
+                <span class="text-xs text-gray-500">ESC to close</span>
+            </div>
+            <div class="max-h-96 overflow-y-auto">
+                <div class="px-4 py-2 hover:bg-gray-700 cursor-pointer flex items-center">
+                    <i class="fas fa-terminal text-blue-400 mr-3"></i>
+                    <div>
+                        <div class="font-medium">Execute Command</div>
+                        <div class="text-xs text-gray-500">Run a system command on selected targets</div>
+                    </div>
+                </div>
+                <div class="px-4 py-2 hover:bg-gray-700 cursor-pointer flex items-center">
+                    <i class="fas fa-file-download text-green-400 mr-3"></i>
+                    <div>
+                        <div class="font-medium">Download File</div>
+                        <div class="text-xs text-gray-500">Download a file from the target system</div>
+                    </div>
+                </div>
+                <div class="px-4 py-2 hover:bg-gray-700 cursor-pointer flex items-center">
+                    <i class="fas fa-file-upload text-yellow-400 mr-3"></i>
+                    <div>
+                        <div class="font-medium">Upload File</div>
+                        <div class="text-xs text-gray-500">Upload a file to the target system</div>
+                    </div>
+                </div>
+                <div class="px-4 py-2 hover:bg-gray-700 cursor-pointer flex items-center">
+                    <i class="fas fa-keyboard text-purple-400 mr-3"></i>
+                    <div>
+                        <div class="font-medium">Start Keylogger</div>
+                        <div class="text-xs text-gray-500">Begin capturing keystrokes from the target</div>
+                    </div>
+                </div>
+                <div class="px-4 py-2 hover:bg-gray-700 cursor-pointer flex items-center">
+                    <i class="fas fa-eye text-red-400 mr-3"></i>
+                    <div>
+                        <div class="font-medium">Screen Capture</div>
+                        <div class="text-xs text-gray-500">Take a screenshot of the target's desktop</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Toggle command palette with Ctrl+Shift+P
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.shiftKey && e.key === 'P') {
+                e.preventDefault();
+                const palette = document.getElementById('commandPalette');
+                palette.classList.toggle('hidden');
+                
+                if (!palette.classList.contains('hidden')) {
+                    palette.querySelector('input').focus();
+                }
+            }
+            
+            if (e.key === 'Escape') {
+                document.getElementById('commandPalette').classList.add('hidden');
+            }
+        });
+        
+        // Close palette when clicking outside
+        document.getElementById('commandPalette').addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.classList.add('hidden');
+            }
+        });
+        
+        // Simulate command execution
+        const commandInput = document.querySelector('.command-input');
+        const commandOutput = document.querySelector('.flex-1.overflow-y-auto');
+        
+        commandInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const command = commandInput.value.trim();
+                if (command) {
+                    // Add command to output
+                    const prompt = document.createElement('div');
+                    prompt.className = 'mb-2';
+                    prompt.innerHTML = `
+                        <span class="text-green-400">admin@DESKTOP-ABC123</span>
+                        <span class="text-gray-500">:</span>
+                        <span class="text-blue-400">~</span>
+                        <span class="text-gray-500">$</span>
+                        <span> ${command}</span>
+                    `;
+                    
+                    commandOutput.appendChild(prompt);
+                    
+                    // Add fake output based on command
+                    const output = document.createElement('div');
+                    output.className = 'mb-4';
+                    
+                    if (command.startsWith('help')) {
+                        output.innerHTML = `
+                            <div>Available commands:</div>
+                            <div class="ml-4">- sysinfo: Show system information</div>
+                            <div class="ml-4">- screenshot: Capture target screen</div>
+                            <div class="ml-4">- keylogger: Start/stop keylogger</div>
+                            <div class="ml-4">- download [file]: Download file from target</div>
+                            <div class="ml-4">- upload [file]: Upload file to target</div>
+                            <div class="ml-4">- shell: Open interactive shell</div>
+                            <div class="ml-4">- exit: Close session</div>
+                        `;
+                    } else if (command === 'clear') {
+                        commandOutput.innerHTML = '';
+                    } else {
+                        output.textContent = `Command executed: ${command}`;
+                    }
+                    
+                    commandOutput.appendChild(output);
+                    
+                    // Add new prompt
+                    const newPrompt = document.createElement('div');
+                    newPrompt.className = 'mb-2';
+                    newPrompt.innerHTML = `
+                        <span class="text-green-400">admin@DESKTOP-ABC123</span>
+                        <span class="text-gray-500">:</span>
+                        <span class="text-blue-400">~</span>
+                        <span class="text-gray-500">$</span>
+                        <span class="blink">_</span>
+                    `;
+                    
+                    commandOutput.appendChild(newPrompt);
+                    commandInput.value = '';
+                    
+                    // Scroll to bottom
+                    commandOutput.scrollTop = commandOutput.scrollHeight;
+                }
+            }
+        });
+        
+        // Simulate blinking cursor
+        setInterval(() => {
+            const cursors = document.querySelectorAll('.blink');
+            cursors.forEach(cursor => {
+                cursor.style.visibility = cursor.style.visibility === 'hidden' ? 'visible' : 'hidden';
+            });
+        }, 500);
+    </script>
+</body>
+</html>

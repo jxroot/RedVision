@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neon C2 Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap');
+        
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background-color: #0f0f17;
+        }
+        
+        .neon-border {
+            border: 1px solid rgba(74, 222, 128, 0.2);
+            box-shadow: 0 0 15px rgba(74, 222, 128, 0.1);
+        }
+        
+        .neon-text {
+            text-shadow: 0 0 5px rgba(74, 222, 128, 0.8);
+        }
+        
+        .terminal {
+            background-color: #0a0a12;
+            border: 1px solid #1e1e2e;
+        }
+        
+        .blink {
+            animation: blink 1s step-end infinite;
+        }
+        
+        @keyframes blink {
+            from, to { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        
+        .node-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(74, 222, 128, 0.2);
+        }
+        
+        .node-active {
+            border-left: 4px solid #4ade80;
+            background: linear-gradient(90deg, rgba(74, 222, 128, 0.1) 0%, rgba(16, 16, 24, 0) 100%);
+        }
+        
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #0f0f17 0%, #1a1a2e 100%);
+        }
+        
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        
+        .online {
+            background-color: #4ade80;
+            box-shadow: 0 0 10px #4ade80;
+        }
+        
+        .offline {
+            background-color: #f87171;
+        }
+        
+        .idle {
+            background-color: #fbbf24;
+        }
+    </style>
+</head>
+<body class="gradient-bg text-gray-200 min-h-screen">
+    <div class="container mx-auto px-4 py-6">
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-8">
+            <div class="flex items-center space-x-3">
+                <div class="w-3 h-3 rounded-full bg-green-400"></div>
+                <h1 class="text-2xl font-bold text-green-400 neon-text">NEON<span class="text-white">C2</span></h1>
+                <span class="text-xs bg-green-900/30 text-green-400 px-2 py-1 rounded">v4.0.2</span>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="text-sm">
+                    <span class="text-gray-400">Operator:</span>
+                    <span class="font-medium">admin</span>
+                </div>
+                <div class="flex space-x-2">
+                    <button class="bg-green-900/30 hover:bg-green-900/50 px-3 py-1 rounded text-sm flex items-center border border-green-800/50">
+                        <i class="fas fa-sync-alt mr-2 text-green-400"></i> Sync
+                    </button>
+                    <button class="bg-red-900/30 hover:bg-red-900/50 px-3 py-1 rounded text-sm flex items-center border border-red-800/50">
+                        <i class="fas fa-sign-out-alt mr-2 text-red-400"></i> Exit
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Overview -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div class="bg-gray-900/50 p-4 rounded-lg neon-border">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <p class="text-gray-400 text-sm">Total Nodes</p>
+                        <p class="text-2xl font-bold text-white">24</p>
+                    </div>
+                    <div class="w-10 h-10 rounded-full bg-green-900/30 flex items-center justify-center">
+                        <i class="fas fa-server text-green-400"></i>
+                    </div>
+                </div>
+                <div class="mt-2 flex items-center">
+                    <span class="status-indicator online mr-2"></span>
+                    <span class="text-xs text-gray-400">18 online</span>
+                </div>
+            </div>
+            
+            <div class="bg-gray-900/50 p-4 rounded-lg neon-border">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <p class="text-gray-400 text-sm">Active Sessions</p>
+                        <p class="text-2xl font-bold text-white">12</p>
+                    </div>
+                    <div class="w-10 h-10 rounded-full bg-blue-900/30 flex items-center justify-center">
+                        <i class="fas fa-terminal text-blue-400"></i>
+                    </div>
+                </div>
+                <div class="mt-2 flex items-center">
+                    <span class="status-indicator idle mr-2"></span>
+                    <span class="text-xs text-gray-400">6 idle</span>
+                </div>
+            </div>
+            
+            <div class="bg-gray-900/50 p-4 rounded-lg neon-border">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <p class="text-gray-400 text-sm">Tasks Running</p>
+                        <p class="text-2xl font-bold text-white">8</p>
+                    </div>
+                    <div class="w-10 h-10 rounded-full bg-purple-900/30 flex items-center justify-center">
+                        <i class="fas fa-tasks text-purple-400"></i>
+                    </div>
+                </div>
+                <div class="mt-2 flex items-center">
+                    <span class="status-indicator online mr-2"></span>
+                    <span class="text-xs text-gray-400">4 completed</span>
+                </div>
+            </div>
+            
+            <div class="bg-gray-900/50 p-4 rounded-lg neon-border">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <p class="text-gray-400 text-sm">Last Beacon</p>
+                        <p class="text-2xl font-bold text-white">3s</p>
+                    </div>
+                    <div class="w-10 h-10 rounded-full bg-pink-900/30 flex items-center justify-center">
+                        <i class="fas fa-clock text-pink-400"></i>
+                    </div>
+                </div>
+                <div class="mt-2 flex items-center">
+                    <span class="status-indicator online mr-2"></span>
+                    <span class="text-xs text-gray-400">Connected</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+            <!-- Nodes List -->
+            <div class="lg:col-span-2">
+                <div class="bg-gray-900/50 rounded-lg p-4 h-full neon-border">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-lg font-semibold text-green-400">
+                            <i class="fas fa-network-wired mr-2"></i> Active Nodes
+                        </h2>
+                        <div class="relative">
+                            <input type="text" placeholder="Search..." class="bg-gray-800/50 text-sm px-3 py-1 rounded border border-gray-700 focus:outline-none focus:ring-1 focus:ring-green-500/50">
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-3 max-h-[500px] overflow-y-auto scrollbar-hide pr-2">
+                        <!-- Node Item -->
+                        <div class="node-active bg-gray-800/30 p-3 rounded-lg cursor-pointer transition-all node-card">
+                            <div class="flex items-start space-x-3">
+                                <div class="flex-shrink-0 pt-1">
+                                    <div class="status-indicator online"></div>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex justify-between items-center">
+                                        <p class="text-sm font-medium text-white truncate">WIN-DC-01.corp.local</p>
+                                        <span class="text-xs bg-green-900/30 text-green-400 px-2 py-0.5 rounded">DC</span>
+                                    </div>
+                                    <p class="text-xs text-gray-400">192.168.1.1 | PID: 1024</p>
+                                    <div class="flex justify-between mt-2">
+                                        <span class="text-xs bg-blue-900/30 text-blue-400 px-2 py-0.5 rounded">SYSTEM</span>
+                                        <span class="text-xs text-gray-400">Last: 5s ago</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Node Item -->
+                        <div class="bg-gray-800/30 p-3 rounded-lg cursor-pointer transition-all node-card">
+                            <div class="flex items-start space-x-3">
+                                <div class="flex-shrink-0 pt-1">
+                                    <div class="status-indicator online"></div>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex justify-between items-center">
+                                        <p class="text-sm font-medium text-white truncate">WIN10-FINANCE-03</p>
+                                        <span class="text-xs bg-purple-900/30 text-purple-400 px-2 py-0.5 rounded">Workstation</span>
+                                    </div>
+                                    <p class="text-xs text-gray-400">192.168.1.23 | PID: 4124</p>
+                                    <div class="flex justify-between mt-2">
+                                        <span class="text-xs bg-green-900/30 text-green-400 px-2 py-0.5 rounded">Admin</span>
+                                        <span class="text-xs text-gray-400">Last: 12s ago</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Node Item -->
+                        <div class="bg-gray-800/30 p-3 rounded-lg cursor-pointer transition-all node-card">
+                            <div class="flex items-start space-x-3">
+                                <div class="flex-shrink-0 pt-1">
+                                    <div class="status-indicator idle"></div>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex justify-between items-center">
+                                        <p class="text-sm font-medium text-white truncate">SRV-FILE-02</p>
+                                        <span class="text-xs bg-yellow-900/30 text-yellow-400 px-2 py-0.5 rounded">Server</span>
+                                    </div>
+                                    <p class="text-xs text-gray-400">192.168.1.45 | PID: 5876</p>
+                                    <div class="flex justify-between mt-2">
+                                        <span class="text-xs bg-blue-900/30 text-blue-400 px-2 py-0.5 rounded">User</span>
+                                        <span class="text-xs text-gray-400">Last: 2m ago</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Node Item -->
+                        <div class="bg-gray-800/30 p-3 rounded-lg cursor-pointer transition-all node-card">
+                            <div class="flex items-start space-x-3">
+                                <div class="flex-shrink-0 pt-1">
+                                    <div class="status-indicator online"></div>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex justify-between items-center">
+                                        <p class="text-sm font-medium text-white truncate">WIN11-DEV-05</p>
+                                        <span class="text-xs bg-blue-900/30 text-blue-400 px-2 py-0.5 rounded">Workstation</span>
+                                    </div>
+                                    <p class="text-xs text-gray-400">192.168.1.67 | PID: 3248</p>
+                                    <div class="flex justify-between mt-2">
+                                        <span class="text-xs bg-green-900/30 text-green-400 px-2 py-0.5 rounded">Admin</span>
+                                        <span class="text-xs text-gray-400">Last: 8s ago</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Node Item -->
+                        <div class="bg-gray-800/30 p-3 rounded-lg cursor-pointer transition-all node-card">
+                            <div class="flex items-start space-x-3">
+                                <div class="flex-shrink-0 pt-1">
+                                    <div class="status-indicator offline"></div>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex justify-between items-center">
+                                        <p class="text-sm font-medium text-white truncate">WIN7-LEGACY-01</p>
+                                        <span class="text-xs bg-red-900/30 text-red-400 px-2 py-0.5 rounded">Workstation</span>
+                                    </div>
+                                    <p class="text-xs text-gray-400">192.168.1.89 | PID: 4982</p>
+                                    <div class="flex justify-between mt-2">
+                                        <span class="text-xs bg-blue-900/30 text-blue-400 px-2 py-0.5 rounded">User</span>
+                                        <span class="text-xs text-gray-400">Last: 15m ago</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Main Content -->
+            <div class="lg:col-span-3 space-y-6">
+                <!-- Node Details -->
+                <div class="bg-gray-900/50 rounded-lg p-5 neon-border">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-lg font-semibold text-green-400">
+                            <i class="fas fa-info-circle mr-2"></i> Node Details
+                        </h2>
+                        <div class="flex space-x-2">
+                            <button class="bg-green-900/30 hover:bg-green-900/50 px-3 py-1 rounded text-xs flex items-center border border-green-800/50">
+                                <i class="fas fa-terminal mr-1 text-green-400"></i> Shell
+                            </button>
+                            <button class="bg-blue-900/30 hover:bg-blue-900/50 px-3 py-1 rounded text-xs flex items-center border border-blue-800/50">
+                                <i class="fas fa-cog mr-1 text-blue-400"></i> Modules
+                            </button>
+                            <button class="bg-purple-900/30 hover:bg-purple-900/50 px-3 py-1 rounded text-xs flex items-center border border-purple-800/50">
+                                <i class="fas fa-ellipsis-h mr-1 text-purple-400"></i> More
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                        <div class="bg-gray-800/30 p-3 rounded-lg">
+                            <h3 class="text-sm font-medium text-green-400 mb-2 flex items-center">
+                                <i class="fas fa-desktop mr-2"></i> System
+                            </h3>
+                            <div class="space-y-2 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-400">Hostname:</span>
+                                    <span class="font-medium">WIN-DC-01</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-400">OS:</span>
+                                    <span>Windows Server 2019</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-400">Arch:</span>
+                                    <span>64-bit</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-400">Uptime:</span>
+                                    <span>7d 4h 12m</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gray-800/30 p-3 rounded-lg">
+                            <h3 class="text-sm font-medium text-green-400 mb-2 flex items-center">
+                                <i class="fas fa-user-shield mr-2"></i> Privileges
+                            </h3>
+                            <div class="space-y-2 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-400">User:</span>
+                                    <span class="text-green-400 font-medium">NT AUTHORITY\SYSTEM</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-400">Integrity:</span>
+                                    <span class="text-green-400">SYSTEM</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-400">Process:</span>
+                                    <span>lsass.exe</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-400">Elevated:</span>
+                                    <span class="text-green-400">Yes</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gray-800/30 p-3 rounded-lg">
+                            <h3 class="text-sm font-medium text-green-400 mb-2 flex items-center">
+                                <i class="fas fa-network-wired mr-2"></i> Network
+                            </h3>
+                            <div class="space-y-2 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-400">IP:</span>
+                                    <span>192.168.1.1</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-400">MAC:</span>
+                                    <span>00:1A:2B:3C:4D:5E</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-400">Domain:</span>
+                                    <span>corp.local</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-400">DNS:</span>
+                                    <span>192.168.1.1</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Quick Actions -->
+                    <div class="mt-4">
+                        <h3 class="text-sm font-medium text-green-400 mb-3 flex items-center">
+                            <i class="fas fa-bolt mr-2"></i> Quick Actions
+                        </h3>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                            <button class="bg-gray-800/30 hover:bg-gray-700/50 p-2 rounded flex flex-col items-center text-xs border border-gray-700/50 transition-all">
+                                <i class="fas fa-key text-yellow-400 text-lg mb-1"></i>
+                                <span>Dump Hashes</span>
+                            </button>
+                            <button class="bg-gray-800/30 hover:bg-gray-700/50 p-2 rounded flex flex-col items-center text-xs border border-gray-700/50 transition-all">
+                                <i class="fas fa-users text-purple-400 text-lg mb-1"></i>
+                                <span>List Users</span>
+                            </button>
+                            <button class="bg-gray-800/30 hover:bg-gray-700/50 p-2 rounded flex flex-col items-center text-xs border border-gray-700/50 transition-all">
+                                <i class="fas fa-sitemap text-blue-400 text-lg mb-1"></i>
+                                <span>Network Scan</span>
+                            </button>
+                            <button class="bg-gray-800/30 hover:bg-gray-700/50 p-2 rounded flex flex-col items-center text-xs border border-gray-700/50 transition-all">
+                                <i class="fas fa-file-alt text-pink-400 text-lg mb-1"></i>
+                                <span>File Browser</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Terminal -->
+                <div class="bg-gray-900/50 rounded-lg overflow-hidden neon-border">
+                    <div class="flex items-center justify-between bg-gray-800/70 px-4 py-2">
+                        <div class="flex items-center">
+                            <div class="flex space-x-2 mr-4">
+                                <div class="w-3 h-3 rounded-full bg-red-500/80"></div>
+                                <div class="w-3 h-3 rounded-full bg-yellow-500/80"></div>
+                                <div class="w-3 h-3 rounded-full bg-green-500/80"></div>
+                            </div>
+                            <div class="text-sm font-medium text-green-400">
+                                <i class="fas fa-terminal mr-2"></i> Command Shell
+                            </div>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button class="text-gray-400 hover:text-white text-xs">
+                                <i class="fas fa-expand"></i>
+                            </button>
+                            <button class="text-gray-400 hover:text-white text-xs">
+                                <i class="fas fa-cog"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="terminal p-4 h-64 overflow-y-auto text-green-300 font-mono text-sm scrollbar-hide">
+                        <div class="mb-2">
+                            <span class="text-purple-400">PS</span>
+                            <span class="text-white">></span>
+                            <span class="text-green-300">whoami</span>
+                        </div>
+                        <div class="mb-4">
+                            nt authority\system
+                        </div>
+                        
+                        <div class="mb-2">
+                            <span class="text-purple-400">PS</span>
+                            <span class="text-white">></span>
+                            <span class="text-green-300">net user administrator</span>
+                        </div>
+                        <div class="mb-4 text-xs">
+                            User name                    Administrator<br>
+                            Full Name                    Built-in account for administering the computer/domain<br>
+                            Comment                      Built-in account for administering the computer/domain<br>
+                            User's comment<br>
+                            Country/region code          000 (System Default)<br>
+                            Account active               Yes<br>
+                            Account expires              Never
+                        </div>
+                        
+                        <div class="mb-2">
+                            <span class="text-purple-400">PS</span>
+                            <span class="text-white">></span>
+                            <span class="text-green-300">ipconfig /all</span>
+                        </div>
+                        <div class="mb-4 text-xs">
+                            Windows IP Configuration<br><br>
+                            Host Name . . . . . . . . . . . . : WIN-DC-01<br>
+                            Primary Dns Suffix  . . . . . . . : corp.local<br>
+                            Node Type . . . . . . . . . . . . : Hybrid<br>
+                            IP Routing Enabled. . . . . . . . : No<br>
+                            WINS Proxy Enabled. . . . . . . . : No<br>
+                            DNS Suffix Search List. . . . . . : corp.local
+                        </div>
+                        
+                        <div class="mb-2">
+                            <span class="text-purple-400">PS</span>
+                            <span class="text-white">></span>
+                            <span class="text-green-300 blink">_</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Status Bar -->
+        <div class="mt-6 bg-gray-900/70 rounded-lg px-4 py-2 text-xs flex justify-between items-center neon-border">
+            <div class="flex items-center space-x-4">
+                <div class="flex items-center">
+                    <span class="status-indicator online mr-2"></span>
+                    <span>Connected to c2.corp.local:443 (TLS)</span>
+                </div>
+                <div>
+                    <span class="text-gray-400">Session:</span>
+                    <span class="font-mono">x7f3k9p2q5</span>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2">
+                <span class="text-gray-400">Last update:</span>
+                <span>2023-11-15 14:37:22 UTC</span>
+                <i class="fas fa-lock text-green-400"></i>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Terminal simulation
+        document.addEventListener('DOMContentLoaded', function() {
+            const terminal = document.querySelector('.terminal');
+            const prompt = document.querySelector('.blink');
+            
+            // Node selection
+            const nodes = document.querySelectorAll('.node-card');
+            nodes.forEach(node => {
+                node.addEventListener('click', function() {
+                    nodes.forEach(n => n.classList.remove('node-active'));
+                    this.classList.add('node-active');
+                    
+                    // Update node details based on selection
+                    const nodeName = this.querySelector('p:nth-child(1)').textContent;
+                    const nodeIp = this.querySelector('p:nth-child(2)').textContent.split('|')[0].trim();
+                    
+                    // Simulate loading new node data
+                    setTimeout(() => {
+                        const commands = [
+                            `whoami /all`,
+                            `net group "Domain Admins" /domain`,
+                            `netstat -ano`,
+                            `tasklist /svc`
+                        ];
+                        
+                        // Clear terminal
+                        terminal.innerHTML = '';
+                        
+                        // Add new commands and outputs
+                        commands.forEach((cmd, index) => {
+                            const newLine = document.createElement('div');
+                            newLine.className = 'mb-2';
+                            newLine.innerHTML = `
+                                <span class="text-purple-400">PS</span>
+                                <span class="text-white">></span>
+                                <span class="text-green-300">${cmd}</span>
+                            `;
+                            terminal.appendChild(newLine);
+                            
+                            setTimeout(() => {
+                                const output = document.createElement('div');
+                                output.className = 'mb-4 text-xs';
+                                output.textContent = generateCommandOutput(cmd, nodeName);
+                                terminal.appendChild(output);
+                                
+                                if (index === commands.length - 1) {
+                                    const newPrompt = document.createElement('div');
+                                    newPrompt.className = 'mb-2';
+                                    newPrompt.innerHTML = `
+                                        <span class="text-purple-400">PS</span>
+                                        <span class="text-white">></span>
+                                        <span class="text-green-300 blink">_</span>
+                                    `;
+                                    terminal.appendChild(newPrompt);
+                                    prompt.remove();
+                                    prompt = document.querySelector('.blink');
+                                }
+                                
+                                terminal.scrollTop = terminal.scrollHeight;
+                            }, 500 * (index + 1));
+                        });
+                    }, 300);
+                });
+            });
+            
+            // Generate command output based on node
+            function generateCommandOutput(cmd, nodeName) {
+                if (cmd.includes('whoami')) {
+                    return `USER INFORMATION\n----------------\n\nUser Name           SID\n=================== ========\nnt authority\\system S-1-5-18\n\nGROUP INFORMATION\n----------------\n\nGroup Name                           Type             SID          Attributes\n==================================== ================ ============ ==================================================\nEveryone                             Well-known group S-1-1-0      Mandatory group, Enabled by default, Enabled group\nBUILTIN\\Administrators               Alias            S-1-5-32-544 Mandatory group, Enabled by default, Enabled group\nBUILTIN\\Users                        Alias            S-1-5-32-545 Mandatory group, Enabled by default, Enabled group\nNT AUTHORITY\\SERVICE                 Well-known group S-1-5-6      Mandatory group, Enabled by default, Enabled group\nNT AUTHORITY\\Local account           Well-known group S-1-5-113     Mandatory group, Enabled by default, Enabled group\nMandatory Label\\System Mandatory Level Label            S-1-16-16384`;
+                } else if (cmd.includes('net group')) {
+                    return `Group name     Domain Admins\nComment        Designated administrators of the domain\nMembers\n-------------------------------------------------------------------------------\nAdministrator            admin                   jsmith\n\nThe command completed successfully.`;
+                } else if (cmd.includes('netstat')) {
+                    return `Active Connections\n\n  Proto  Local Address          Foreign Address        State           PID\n  TCP    0.0.0.0:135            0.0.0.0:0              LISTENING       668\n  TCP    0.0.0.0:445            0.0.0.0:0              LISTENING       4\n  TCP    0.0.0.0:3389           0.0.0.0:0              LISTENING       1056\n  TCP    192.168.1.1:139        0.0.0.0:0              LISTENING       4\n  TCP    192.168.1.1:49215      192.168.1.100:443      ESTABLISHED    4124`;
+                } else if (cmd.includes('tasklist')) {
+                    return `Image Name                     PID Services                          \n========================= ======== ================================\nsvchost.exe                  1056 TermService, SessionEnv          \nspoolsv.exe                  1264 Spooler                          \nlsass.exe                     680 SamSs                            \nwinlogon.exe                  620 N/A                              \ncsrss.exe                     572 N/A                              \nservices.exe                  668 Services                         \nwininit.exe                   580 N/A                              \nlsass.exe                    1024 N/A`;
+                }
+                return 'Command executed successfully.';
+            }
+            
+            // Simulate initial terminal output
+            setTimeout(() => {
+                const initialCommands = [
+                    'whoami',
+                    'net user administrator',
+                    'ipconfig /all'
+                ];
+                
+                initialCommands.forEach((cmd, index) => {
+                    setTimeout(() => {
+                        const newLine = document.createElement('div');
+                        newLine.className = 'mb-2';
+                        newLine.innerHTML = `
+                            <span class="text-purple-400">PS</span>
+                            <span class="text-white">></span>
+                            <span class="text-green-300">${cmd}</span>
+                        `;
+                        terminal.insertBefore(newLine, prompt);
+                        
+                        setTimeout(() => {
+                            const output = document.createElement('div');
+                            output.className = 'mb-4 text-xs';
+                            output.textContent = generateCommandOutput(cmd, 'WIN-DC-01');
+                            terminal.insertBefore(output, prompt);
+                            
+                            if (index === initialCommands.length - 1) {
+                                terminal.scrollTop = terminal.scrollHeight;
+                            }
+                        }, 500);
+                    }, 1000 * index);
+                });
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

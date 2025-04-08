@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Windows C2 UI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap');
+        
+        body {
+            font-family: 'Space Mono', monospace;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e6e6e6;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .window-3d {
+            transform-style: preserve-3d;
+            transform: perspective(1000px) rotateX(5deg) rotateY(-5deg);
+            box-shadow: 
+                0 0 0 1px rgba(255,255,255,0.1),
+                0 10px 30px rgba(0,0,0,0.5),
+                20px 20px 30px rgba(0,0,0,0.4);
+            transition: all 0.3s ease;
+        }
+        
+        .window-3d:hover {
+            transform: perspective(1000px) rotateX(0deg) rotateY(0deg);
+            box-shadow: 
+                0 0 0 1px rgba(255,255,255,0.1),
+                0 20px 50px rgba(0,0,0,0.6),
+                30px 30px 50px rgba(0,0,0,0.5);
+        }
+        
+        .terminal-line::before {
+            content: "> ";
+            color: #4ade80;
+        }
+        
+        .glow-text {
+            text-shadow: 0 0 8px rgba(74, 222, 128, 0.7);
+        }
+        
+        .glow-box {
+            box-shadow: 0 0 15px rgba(74, 222, 128, 0.3);
+        }
+        
+        .gradient-border {
+            position: relative;
+            border-radius: 0.5rem;
+        }
+        
+        .gradient-border::before {
+            content: "";
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #4ade80, #3b82f6, #a855f7);
+            border-radius: 0.6rem;
+            z-index: -1;
+            opacity: 0.7;
+        }
+        
+        .neon-btn {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+        
+        .neon-btn::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: all 0.5s;
+        }
+        
+        .neon-btn:hover::before {
+            left: 100%;
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 0.7; }
+            50% { opacity: 1; }
+            100% { opacity: 0.7; }
+        }
+        
+        .command-input:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(74, 222, 128, 0.5);
+        }
+        
+        .scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .scrollbar::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+        }
+        
+        .scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(74, 222, 128, 0.5);
+            border-radius: 10px;
+        }
+        
+        .scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(74, 222, 128, 0.7);
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center p-4">
+    <div class="window-3d w-full max-w-6xl h-[85vh] flex flex-col gradient-border">
+        <!-- Window Title Bar -->
+        <div class="bg-gray-800/80 backdrop-blur-sm border-b border-gray-700/50 rounded-t-lg p-3 flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                <span class="ml-2 text-sm font-bold glow-text">C2 COMMAND CENTER</span>
+            </div>
+            <div class="flex items-center space-x-3">
+                <span class="text-xs text-gray-400">STATUS: <span class="text-green-400 font-bold">ACTIVE</span></span>
+                <span class="text-xs text-gray-400">AGENTS: <span class="text-blue-400 font-bold pulse">12 CONNECTED</span></span>
+                <button class="text-gray-400 hover:text-white transition">
+                    <i class="fas fa-cog"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="flex flex-1 overflow-hidden">
+            <!-- Sidebar -->
+            <div class="w-64 bg-gray-900/70 border-r border-gray-800 flex flex-col">
+                <div class="p-4 border-b border-gray-800">
+                    <h3 class="text-sm font-bold text-green-400 mb-2">ACTIVE SESSIONS</h3>
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between p-2 bg-gray-800/50 rounded hover:bg-gray-800 cursor-pointer">
+                            <div class="flex items-center space-x-2">
+                                <div class="w-2 h-2 rounded-full bg-green-500"></div>
+                                <span class="text-xs">192.168.1.45</span>
+                            </div>
+                            <span class="text-xs text-gray-400">#001</span>
+                        </div>
+                        <div class="flex items-center justify-between p-2 bg-gray-800/50 rounded hover:bg-gray-800 cursor-pointer">
+                            <div class="flex items-center space-x-2">
+                                <div class="w-2 h-2 rounded-full bg-green-500"></div>
+                                <span class="text-xs">10.0.0.12</span>
+                            </div>
+                            <span class="text-xs text-gray-400">#002</span>
+                        </div>
+                        <div class="flex items-center justify-between p-2 bg-gray-800/50 rounded hover:bg-gray-800 cursor-pointer">
+                            <div class="flex items-center space-x-2">
+                                <div class="w-2 h-2 rounded-full bg-yellow-500"></div>
+                                <span class="text-xs">172.16.0.3</span>
+                            </div>
+                            <span class="text-xs text-gray-400">#003</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="p-4 border-b border-gray-800">
+                    <h3 class="text-sm font-bold text-blue-400 mb-2">MODULES</h3>
+                    <div class="space-y-1">
+                        <div class="flex items-center space-x-2 p-2 text-xs hover:bg-gray-800/50 rounded cursor-pointer">
+                            <i class="fas fa-terminal text-blue-400"></i>
+                            <span>Shell Access</span>
+                        </div>
+                        <div class="flex items-center space-x-2 p-2 text-xs hover:bg-gray-800/50 rounded cursor-pointer">
+                            <i class="fas fa-desktop text-purple-400"></i>
+                            <span>Screen Capture</span>
+                        </div>
+                        <div class="flex items-center space-x-2 p-2 text-xs hover:bg-gray-800/50 rounded cursor-pointer">
+                            <i class="fas fa-keyboard text-yellow-400"></i>
+                            <span>Keylogger</span>
+                        </div>
+                        <div class="flex items-center space-x-2 p-2 text-xs hover:bg-gray-800/50 rounded cursor-pointer">
+                            <i class="fas fa-folder-open text-green-400"></i>
+                            <span>File Explorer</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="p-4">
+                    <h3 class="text-sm font-bold text-purple-400 mb-2">QUICK ACTIONS</h3>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button class="neon-btn bg-blue-600/50 hover:bg-blue-600/70 text-xs p-2 rounded flex items-center justify-center space-x-1">
+                            <i class="fas fa-play"></i>
+                            <span>Execute</span>
+                        </button>
+                        <button class="neon-btn bg-green-600/50 hover:bg-green-600/70 text-xs p-2 rounded flex items-center justify-center space-x-1">
+                            <i class="fas fa-upload"></i>
+                            <span>Upload</span>
+                        </button>
+                        <button class="neon-btn bg-red-600/50 hover:bg-red-600/70 text-xs p-2 rounded flex items-center justify-center space-x-1">
+                            <i class="fas fa-trash"></i>
+                            <span>Kill</span>
+                        </button>
+                        <button class="neon-btn bg-purple-600/50 hover:bg-purple-600/70 text-xs p-2 rounded flex items-center justify-center space-x-1">
+                            <i class="fas fa-sync-alt"></i>
+                            <span>Refresh</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Main Terminal -->
+            <div class="flex-1 flex flex-col bg-gray-900/50">
+                <!-- Terminal Header -->
+                <div class="p-3 border-b border-gray-800 flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div class="px-3 py-1 bg-gray-800 rounded-full text-xs font-bold text-green-400 glow-box">
+                            <i class="fas fa-terminal mr-1"></i>
+                            TERMINAL
+                        </div>
+                        <div class="text-xs text-gray-400">
+                            Session: <span class="text-white">#001 - 192.168.1.45</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button class="text-gray-400 hover:text-white text-sm">
+                            <i class="fas fa-expand"></i>
+                        </button>
+                        <button class="text-gray-400 hover:text-white text-sm">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Terminal Output -->
+                <div class="flex-1 p-4 overflow-y-auto scrollbar">
+                    <div class="space-y-1 text-sm font-mono">
+                        <div class="terminal-line text-green-300">Connected to agent #001 (192.168.1.45)</div>
+                        <div class="terminal-line text-green-300">System: Windows 10 Pro (Build 19044.1586)</div>
+                        <div class="terminal-line text-green-300">User: Administrator</div>
+                        <div class="terminal-line text-green-300">Privilege: Elevated</div>
+                        <div class="terminal-line text-green-300">Last active: 2 minutes ago</div>
+                        <div class="terminal-line text-green-300">----------------------------------------</div>
+                        <div class="terminal-line text-white">systeminfo</div>
+                        <div class="text-gray-300 ml-4">
+                            <div>Host Name:                 WIN-ADMIN</div>
+                            <div>OS Name:                   Microsoft Windows 10 Pro</div>
+                            <div>OS Version:                10.0.19044 N/A Build 19044</div>
+                            <div>OS Manufacturer:           Microsoft Corporation</div>
+                            <div>System Boot Time:           5/15/2023, 8:23:17 AM</div>
+                        </div>
+                        <div class="terminal-line text-white">whoami</div>
+                        <div class="text-gray-300 ml-4">win-admin\administrator</div>
+                        <div class="terminal-line text-white">netstat -ano</div>
+                        <div class="text-gray-300 ml-4">
+                            <div>TCP    0.0.0.0:80           0.0.0.0:0              LISTENING       4</div>
+                            <div>TCP    0.0.0.0:135          0.0.0.0:0              LISTENING       1084</div>
+                            <div>TCP    0.0.0.0:443          0.0.0.0:0              LISTENING       4</div>
+                            <div>TCP    0.0.0.0:445          0.0.0.0:0              LISTENING       4</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Command Input -->
+                <div class="p-3 border-t border-gray-800">
+                    <div class="flex items-center">
+                        <span class="text-green-400 mr-2">></span>
+                        <input type="text" class="command-input flex-1 bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm focus:border-green-500 focus:ring-0" placeholder="Enter command...">
+                        <button class="ml-2 px-3 py-2 bg-green-600/70 hover:bg-green-600 text-white rounded neon-btn">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Panel -->
+            <div class="w-72 bg-gray-900/70 border-l border-gray-800 flex flex-col">
+                <div class="p-4 border-b border-gray-800">
+                    <h3 class="text-sm font-bold text-blue-400 mb-2">SYSTEM INFO</h3>
+                    <div class="space-y-3">
+                        <div>
+                            <div class="text-xs text-gray-400 mb-1">CPU USAGE</div>
+                            <div class="w-full bg-gray-800 rounded-full h-2">
+                                <div class="bg-blue-500 h-2 rounded-full" style="width: 65%"></div>
+                            </div>
+                            <div class="text-xs text-gray-400 mt-1">65% - Intel i7-9700K</div>
+                        </div>
+                        <div>
+                            <div class="text-xs text-gray-400 mb-1">MEMORY USAGE</div>
+                            <div class="w-full bg-gray-800 rounded-full h-2">
+                                <div class="bg-purple-500 h-2 rounded-full" style="width: 42%"></div>
+                            </div>
+                            <div class="text-xs text-gray-400 mt-1">42% - 12.3/32GB</div>
+                        </div>
+                        <div>
+                            <div class="text-xs text-gray-400 mb-1">NETWORK</div>
+                            <div class="flex justify-between text-xs">
+                                <span class="text-green-400">↑ 1.2 MB/s</span>
+                                <span class="text-blue-400">↓ 3.7 MB/s</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="p-4 border-b border-gray-800">
+                    <h3 class="text-sm font-bold text-purple-400 mb-2">ACTIVE PROCESSES</h3>
+                    <div class="space-y-2 max-h-40 overflow-y-auto scrollbar">
+                        <div class="flex items-center justify-between text-xs p-1 hover:bg-gray-800/50 rounded cursor-pointer">
+                            <span>explorer.exe</span>
+                            <span class="text-gray-400">12.4MB</span>
+                        </div>
+                        <div class="flex items-center justify-between text-xs p-1 hover:bg-gray-800/50 rounded cursor-pointer">
+                            <span>chrome.exe</span>
+                            <span class="text-gray-400">324.7MB</span>
+                        </div>
+                        <div class="flex items-center justify-between text-xs p-1 hover:bg-gray-800/50 rounded cursor-pointer">
+                            <span>svchost.exe</span>
+                            <span class="text-gray-400">8.2MB</span>
+                        </div>
+                        <div class="flex items-center justify-between text-xs p-1 hover:bg-gray-800/50 rounded cursor-pointer">
+                            <span>powershell.exe</span>
+                            <span class="text-gray-400">15.8MB</span>
+                        </div>
+                        <div class="flex items-center justify-between text-xs p-1 hover:bg-gray-800/50 rounded cursor-pointer">
+                            <span>spotify.exe</span>
+                            <span class="text-gray-400">112.3MB</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="p-4 flex-1">
+                    <h3 class="text-sm font-bold text-yellow-400 mb-2">ALERTS</h3>
+                    <div class="space-y-2">
+                        <div class="p-2 bg-yellow-900/30 border border-yellow-800/50 rounded text-xs">
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="font-bold text-yellow-400">AV Detection</span>
+                                <span class="text-gray-400">2 min ago</span>
+                            </div>
+                            <p>Windows Defender detected payload.exe</p>
+                        </div>
+                        <div class="p-2 bg-red-900/30 border border-red-800/50 rounded text-xs">
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="font-bold text-red-400">Connection Lost</span>
+                                <span class="text-gray-400">15 min ago</span>
+                            </div>
+                            <p>Agent #004 (10.0.0.15) disconnected</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Status Bar -->
+        <div class="bg-gray-800/80 backdrop-blur-sm border-t border-gray-700/50 rounded-b-lg p-2 flex items-center justify-between text-xs">
+            <div class="flex items-center space-x-4">
+                <div class="flex items-center space-x-1">
+                    <i class="fas fa-shield-alt text-green-400"></i>
+                    <span>Encrypted: <span class="text-white">AES-256</span></span>
+                </div>
+                <div class="flex items-center space-x-1">
+                    <i class="fas fa-bolt text-blue-400"></i>
+                    <span>Latency: <span class="text-white">47ms</span></span>
+                </div>
+                <div class="flex items-center space-x-1">
+                    <i class="fas fa-clock text-purple-400"></i>
+                    <span>Uptime: <span class="text-white">2h 17m</span></span>
+                </div>
+            </div>
+            <div class="text-gray-400">
+                <span>Last sync: <span class="text-white">05/15/2023 14:23:45 UTC</span></span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simple terminal interaction
+        const commandInput = document.querySelector('.command-input');
+        const terminalOutput = document.querySelector('.terminal-output');
+        
+        commandInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const command = commandInput.value.trim();
+                if (command) {
+                    // Add command to terminal
+                    const commandLine = document.createElement('div');
+                    commandLine.className = 'terminal-line text-white';
+                    commandLine.textContent = command;
+                    terminalOutput.appendChild(commandLine);
+                    
+                    // Add response (simulated)
+                    const response = document.createElement('div');
+                    response.className = 'text-gray-300 ml-4 mb-2';
+                    
+                    if (command.startsWith('help')) {
+                        response.innerHTML = `
+                            Available commands:<br>
+                            - systeminfo: Get system information<br>
+                            - whoami: Get current user<br>
+                            - netstat: List network connections<br>
+                            - download [file]: Download file from agent<br>
+                            - screenshot: Capture screen<br>
+                            - exit: End session
+                        `;
+                    } else {
+                        response.textContent = `Command "${command}" executed successfully`;
+                    }
+                    
+                    terminalOutput.appendChild(response);
+                    commandInput.value = '';
+                    
+                    // Scroll to bottom
+                    terminalOutput.scrollTop = terminalOutput.scrollHeight;
+                }
+            }
+        });
+        
+        // Simulate blinking cursor effect
+        setInterval(() => {
+            const cursor = document.querySelector('.command-input::after');
+            if (cursor) {
+                cursor.style.opacity = cursor.style.opacity === '0' ? '1' : '0';
+            }
+        }, 500);
+        
+        // 3D effect on window hover
+        const window3d = document.querySelector('.window-3d');
+        window3d.addEventListener('mousemove', (e) => {
+            const x = e.clientX - window3d.getBoundingClientRect().left;
+            const y = e.clientY - window3d.getBoundingClientRect().top;
+            
+            const centerX = window3d.offsetWidth / 2;
+            const centerY = window3d.offsetHeight / 2;
+            
+            const angleX = (y - centerY) / 20;
+            const angleY = (centerX - x) / 20;
+            
+            window3d.style.transform = `perspective(1000px) rotateX(${angleX}deg) rotateY(${angleY}deg)`;
+        });
+        
+        window3d.addEventListener('mouseleave', () => {
+            window3d.style.transform = 'perspective(1000px) rotateX(5deg) rotateY(-5deg)';
+        });
+    </script>
+</body>
+</html>

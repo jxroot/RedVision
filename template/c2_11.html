@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeonC2 - iOS Style Windows C2 UI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #f2f2f7;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        .ios-card {
+            border-radius: 14px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .ios-navbar {
+            backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.8);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        .command-input {
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .tab-active {
+            color: #007AFF;
+            position: relative;
+        }
+        
+        .tab-active:after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 6px;
+            height: 6px;
+            background-color: #007AFF;
+            border-radius: 50%;
+        }
+        
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+        }
+        
+        .online {
+            background-color: #34C759;
+        }
+        
+        .offline {
+            background-color: #FF3B30;
+        }
+        
+        .idle {
+            background-color: #FF9500;
+        }
+        
+        .terminal-output {
+            font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+            font-size: 13px;
+        }
+        
+        .blink-cursor {
+            animation: blink 1s step-end infinite;
+        }
+        
+        @keyframes blink {
+            from, to { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #007AFF 0%, #5856D6 100%);
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- iOS Style Navigation Bar -->
+    <nav class="ios-navbar fixed top-0 left-0 right-0 z-50 px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center space-x-2">
+            <div class="gradient-bg w-8 h-8 rounded-lg flex items-center justify-center">
+                <i class="fas fa-terminal text-white text-sm"></i>
+            </div>
+            <h1 class="font-semibold text-lg">NeonC2</h1>
+        </div>
+        <div class="flex items-center space-x-4">
+            <button class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
+                <i class="fas fa-search text-gray-500 text-sm"></i>
+            </button>
+            <button class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
+                <i class="fas fa-cog text-gray-500 text-sm"></i>
+            </button>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <div class="pt-20 pb-24 px-6">
+        <!-- Dashboard Overview -->
+        <div class="ios-card p-5 mb-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="font-semibold text-lg">Dashboard</h2>
+                <span class="text-xs text-gray-500">Last sync: Just now</span>
+            </div>
+            
+            <div class="grid grid-cols-3 gap-4">
+                <div class="ios-card p-4">
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-500 text-sm">Active</span>
+                        <span class="status-indicator online"></span>
+                    </div>
+                    <h3 class="text-2xl font-bold mt-2">24</h3>
+                    <p class="text-xs text-gray-500 mt-1">+2 today</p>
+                </div>
+                
+                <div class="ios-card p-4">
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-500 text-sm">Idle</span>
+                        <span class="status-indicator idle"></span>
+                    </div>
+                    <h3 class="text-2xl font-bold mt-2">8</h3>
+                    <p class="text-xs text-gray-500 mt-1">-1 today</p>
+                </div>
+                
+                <div class="ios-card p-4">
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-500 text-sm">Offline</span>
+                        <span class="status-indicator offline"></span>
+                    </div>
+                    <h3 class="text-2xl font-bold mt-2">12</h3>
+                    <p class="text-xs text-gray-500 mt-1">No change</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tabs Navigation -->
+        <div class="flex justify-around items-center mb-6">
+            <button class="tab-active font-medium text-sm py-2">Terminal</button>
+            <button class="text-gray-500 font-medium text-sm py-2">Sessions</button>
+            <button class="text-gray-500 font-medium text-sm py-2">Modules</button>
+            <button class="text-gray-500 font-medium text-sm py-2">Logs</button>
+        </div>
+        
+        <!-- Terminal Section -->
+        <div class="ios-card p-5 mb-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="font-semibold">Active Terminal</h2>
+                <div class="flex items-center space-x-2">
+                    <span class="status-indicator online"></span>
+                    <span class="text-xs">WIN-7X86-USER (192.168.1.105)</span>
+                </div>
+            </div>
+            
+            <div class="ios-card command-input p-4 mb-4">
+                <div class="terminal-output h-64 overflow-y-auto mb-4" id="terminalOutput">
+                    <div class="text-green-500">Microsoft Windows [Version 10.0.19045.3086]</div>
+                    <div class="text-green-500">(c) Microsoft Corporation. All rights reserved.</div>
+                    <div class="text-green-500 mb-4">C:\Windows\system32></div>
+                    <div class="text-white">whoami</div>
+                    <div class="text-gray-300 mb-4">win-7x86-user\administrator</div>
+                    <div class="text-white">systeminfo</div>
+                    <div class="text-gray-300 mb-4">
+                        Host Name:                 WIN-7X86-USER<br>
+                        OS Name:                   Microsoft Windows 10 Pro<br>
+                        OS Version:                10.0.19045 N/A Build 19045<br>
+                        OS Manufacturer:           Microsoft Corporation<br>
+                        System Type:               x64-based PC<br>
+                        Registered Owner:          User<br>
+                        Registered Organization:   <br>
+                        Product ID:                00330-80000-00000-AAOEM<br>
+                        Original Install Date:     3/15/2023, 1:23:45 PM
+                    </div>
+                    <div class="text-white">C:\Windows\system32><span class="blink-cursor">_</span></div>
+                </div>
+                
+                <div class="flex">
+                    <input type="text" class="flex-1 bg-gray-100 rounded-l-lg px-4 py-2 text-sm focus:outline-none" placeholder="Enter command...">
+                    <button class="gradient-bg text-white rounded-r-lg px-4 py-2 text-sm font-medium">Send</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="ios-card p-5">
+            <h2 class="font-semibold mb-4">Quick Actions</h2>
+            <div class="grid grid-cols-4 gap-3">
+                <button class="ios-card p-3 flex flex-col items-center">
+                    <div class="gradient-bg w-10 h-10 rounded-full flex items-center justify-center mb-1">
+                        <i class="fas fa-desktop text-white text-sm"></i>
+                    </div>
+                    <span class="text-xs text-center">Screenshot</span>
+                </button>
+                
+                <button class="ios-card p-3 flex flex-col items-center">
+                    <div class="gradient-bg w-10 h-10 rounded-full flex items-center justify-center mb-1">
+                        <i class="fas fa-keyboard text-white text-sm"></i>
+                    </div>
+                    <span class="text-xs text-center">Keylogger</span>
+                </button>
+                
+                <button class="ios-card p-3 flex flex-col items-center">
+                    <div class="gradient-bg w-10 h-10 rounded-full flex items-center justify-center mb-1">
+                        <i class="fas fa-file-download text-white text-sm"></i>
+                    </div>
+                    <span class="text-xs text-center">Download</span>
+                </button>
+                
+                <button class="ios-card p-3 flex flex-col items-center">
+                    <div class="gradient-bg w-10 h-10 rounded-full flex items-center justify-center mb-1">
+                        <i class="fas fa-power-off text-white text-sm"></i>
+                    </div>
+                    <span class="text-xs text-center">Execute</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bottom Tab Bar -->
+    <div class="ios-navbar fixed bottom-0 left-0 right-0 z-50 px-6 py-3 flex justify-around items-center">
+        <button class="flex flex-col items-center">
+            <i class="fas fa-tachometer-alt text-gray-500 text-lg"></i>
+            <span class="text-xs mt-1 text-gray-500">Dashboard</span>
+        </button>
+        <button class="flex flex-col items-center">
+            <i class="fas fa-list text-gray-500 text-lg"></i>
+            <span class="text-xs mt-1 text-gray-500">Sessions</span>
+        </button>
+        <button class="flex flex-col items-center">
+            <i class="fas fa-terminal text-blue-500 text-lg"></i>
+            <span class="text-xs mt-1 text-blue-500">Terminal</span>
+        </button>
+        <button class="flex flex-col items-center">
+            <i class="fas fa-cubes text-gray-500 text-lg"></i>
+            <span class="text-xs mt-1 text-gray-500">Modules</span>
+        </button>
+        <button class="flex flex-col items-center">
+            <i class="fas fa-user text-gray-500 text-lg"></i>
+            <span class="text-xs mt-1 text-gray-500">Profile</span>
+        </button>
+    </div>
+    
+    <script>
+        // Simulate terminal output
+        const terminalOutput = document.getElementById('terminalOutput');
+        
+        function addCommand(command, output) {
+            const commandElement = document.createElement('div');
+            commandElement.className = 'text-white';
+            commandElement.textContent = command;
+            
+            const outputElement = document.createElement('div');
+            outputElement.className = 'text-gray-300 mb-4';
+            outputElement.innerHTML = output;
+            
+            const promptElement = document.createElement('div');
+            promptElement.className = 'text-white';
+            promptElement.innerHTML = 'C:\\Windows\\system32><span class="blink-cursor">_</span>';
+            
+            terminalOutput.appendChild(commandElement);
+            terminalOutput.appendChild(outputElement);
+            terminalOutput.appendChild(promptElement);
+            
+            // Scroll to bottom
+            terminalOutput.scrollTop = terminalOutput.scrollHeight;
+        }
+        
+        // Example of adding a new command
+        setTimeout(() => {
+            addCommand('ipconfig', 
+                'Windows IP Configuration<br><br>' +
+                'Ethernet adapter Ethernet:<br>' +
+                '   Connection-specific DNS Suffix  . : localdomain<br>' +
+                '   Link-local IPv6 Address . . . . . : fe80::1234:5678:90ab:cdef%12<br>' +
+                '   IPv4 Address. . . . . . . . . . . : 192.168.1.105<br>' +
+                '   Subnet Mask . . . . . . . . . . . : 255.255.255.0<br>' +
+                '   Default Gateway . . . . . . . . . : 192.168.1.1');
+        }, 3000);
+        
+        // Handle command submission
+        document.querySelector('button').addEventListener('click', function() {
+            const input = document.querySelector('input');
+            if (input.value.trim() !== '') {
+                addCommand(input.value, 'Command executed successfully');
+                input.value = '';
+            }
+        });
+        
+        // Also handle Enter key
+        document.querySelector('input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.querySelector('button').click();
+            }
+        });
+    </script>
+</body>
+</html>

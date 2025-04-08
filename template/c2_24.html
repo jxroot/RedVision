@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Windows C2 UI - QRadar Style</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'IBM Plex Sans', sans-serif;
+            background-color: #121218;
+            color: #e0e0e0;
+            overflow: hidden;
+        }
+        
+        .qradar-blue {
+            background-color: #1B70D1;
+        }
+        
+        .qradar-dark {
+            background-color: #121218;
+        }
+        
+        .qradar-panel {
+            background-color: #1E1E27;
+            border: 1px solid #2D2D3A;
+        }
+        
+        .qradar-header {
+            background-color: #1A1A24;
+            border-bottom: 1px solid #2D2D3A;
+        }
+        
+        .qradar-sidebar {
+            background-color: #1A1A24;
+            border-right: 1px solid #2D2D3A;
+        }
+        
+        .qradar-tab-active {
+            background-color: #1E1E27;
+            border-bottom: 3px solid #1B70D1;
+        }
+        
+        .qradar-tab-inactive {
+            background-color: #1A1A24;
+            border-bottom: 3px solid transparent;
+        }
+        
+        .qradar-input {
+            background-color: #1E1E27;
+            border: 1px solid #2D2D3A;
+            color: #e0e0e0;
+        }
+        
+        .qradar-input:focus {
+            outline: none;
+            border-color: #1B70D1;
+        }
+        
+        .qradar-button {
+            background-color: #1B70D1;
+            color: white;
+        }
+        
+        .qradar-button:hover {
+            background-color: #1659A8;
+        }
+        
+        .qradar-button-secondary {
+            background-color: #2D2D3A;
+            color: white;
+        }
+        
+        .qradar-button-secondary:hover {
+            background-color: #3D3D4A;
+        }
+        
+        .qradar-alert {
+            background-color: #2D1A1A;
+            border-left: 4px solid #D11B1B;
+        }
+        
+        .qradar-success {
+            background-color: #1A2D1A;
+            border-left: 4px solid #1BD11B;
+        }
+        
+        .qradar-warning {
+            background-color: #2D2D1A;
+            border-left: 4px solid #D1D11B;
+        }
+        
+        .qradar-table-header {
+            background-color: #1A1A24;
+        }
+        
+        .qradar-table-row:hover {
+            background-color: #2D2D3A;
+        }
+        
+        .scrollbar::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        .scrollbar::-webkit-scrollbar-track {
+            background: #1A1A24;
+        }
+        
+        .scrollbar::-webkit-scrollbar-thumb {
+            background: #2D2D3A;
+            border-radius: 4px;
+        }
+        
+        .blink {
+            animation: blink 1s step-end infinite;
+        }
+        
+        @keyframes blink {
+            from, to { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        
+        .qradar-selected {
+            background-color: #2D3D70;
+        }
+    </style>
+</head>
+<body class="h-screen flex flex-col">
+    <!-- Top Navigation -->
+    <div class="qradar-blue h-10 flex items-center justify-between px-4">
+        <div class="flex items-center space-x-4">
+            <i class="fas fa-shield-alt text-white"></i>
+            <span class="text-white font-medium">Windows C2 Console</span>
+            <div class="flex space-x-4 ml-8">
+                <span class="text-white text-sm hover:underline cursor-pointer">Dashboard</span>
+                <span class="text-white text-sm hover:underline cursor-pointer">Sessions</span>
+                <span class="text-white text-sm hover:underline cursor-pointer">Modules</span>
+                <span class="text-white text-sm hover:underline cursor-pointer">Logs</span>
+                <span class="text-white text-sm hover:underline cursor-pointer">Reports</span>
+            </div>
+        </div>
+        <div class="flex items-center space-x-4">
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-bell text-white"></i>
+                <span class="text-white text-sm">3</span>
+            </div>
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-user-circle text-white text-xl"></i>
+                <span class="text-white text-sm">admin</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="flex flex-1 overflow-hidden">
+        <!-- Sidebar -->
+        <div class="qradar-sidebar w-64 flex flex-col">
+            <!-- Search -->
+            <div class="p-3 border-b border-gray-700">
+                <div class="relative">
+                    <input type="text" placeholder="Search sessions..." class="qradar-input w-full px-3 py-2 pl-8 rounded text-sm">
+                    <i class="fas fa-search absolute left-2 top-3 text-gray-500"></i>
+                </div>
+            </div>
+            
+            <!-- Session List -->
+            <div class="flex-1 overflow-y-auto scrollbar">
+                <div class="p-3">
+                    <div class="text-xs text-gray-500 uppercase mb-2">Active Sessions (3)</div>
+                    <div class="qradar-selected rounded p-2 mb-1 cursor-pointer flex items-center space-x-2">
+                        <i class="fas fa-laptop-code text-blue-400"></i>
+                        <span class="text-sm">DESKTOP-ABC123</span>
+                        <span class="text-xs text-gray-500 ml-auto">Admin</span>
+                    </div>
+                    <div class="rounded p-2 mb-1 cursor-pointer flex items-center space-x-2 hover:bg-gray-800">
+                        <i class="fas fa-laptop text-green-400"></i>
+                        <span class="text-sm">LAPTOP-XYZ789</span>
+                        <span class="text-xs text-gray-500 ml-auto">User</span>
+                    </div>
+                    <div class="rounded p-2 mb-1 cursor-pointer flex items-center space-x-2 hover:bg-gray-800">
+                        <i class="fas fa-server text-purple-400"></i>
+                        <span class="text-sm">SERVER-001</span>
+                        <span class="text-xs text-gray-500 ml-auto">System</span>
+                    </div>
+                </div>
+                
+                <div class="p-3">
+                    <div class="text-xs text-gray-500 uppercase mb-2">Offline Sessions (2)</div>
+                    <div class="rounded p-2 mb-1 cursor-pointer flex items-center space-x-2 hover:bg-gray-800 opacity-50">
+                        <i class="fas fa-laptop text-gray-500"></i>
+                        <span class="text-sm">DESKTOP-DEF456</span>
+                        <span class="text-xs text-gray-500 ml-auto">User</span>
+                    </div>
+                    <div class="rounded p-2 mb-1 cursor-pointer flex items-center space-x-2 hover:bg-gray-800 opacity-50">
+                        <i class="fas fa-desktop text-gray-500"></i>
+                        <span class="text-sm">WORKSTATION-002</span>
+                        <span class="text-xs text-gray-500 ml-auto">User</span>
+                    </div>
+                </div>
+                
+                <div class="p-3">
+                    <div class="text-xs text-gray-500 uppercase mb-2">Quick Actions</div>
+                    <div class="rounded p-2 mb-1 cursor-pointer flex items-center space-x-2 hover:bg-gray-800">
+                        <i class="fas fa-terminal text-blue-400"></i>
+                        <span class="text-sm">Execute Command</span>
+                    </div>
+                    <div class="rounded p-2 mb-1 cursor-pointer flex items-center space-x-2 hover:bg-gray-800">
+                        <i class="fas fa-file-download text-green-400"></i>
+                        <span class="text-sm">Download File</span>
+                    </div>
+                    <div class="rounded p-2 mb-1 cursor-pointer flex items-center space-x-2 hover:bg-gray-800">
+                        <i class="fas fa-file-upload text-yellow-400"></i>
+                        <span class="text-sm">Upload File</span>
+                    </div>
+                    <div class="rounded p-2 mb-1 cursor-pointer flex items-center space-x-2 hover:bg-gray-800">
+                        <i class="fas fa-keyboard text-purple-400"></i>
+                        <span class="text-sm">Keylogger</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Panel -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- Tabs -->
+            <div class="flex border-b border-gray-700">
+                <div class="qradar-tab-active px-4 py-2 flex items-center space-x-2 cursor-pointer">
+                    <i class="fas fa-terminal text-blue-400"></i>
+                    <span class="text-sm">Command Console</span>
+                </div>
+                <div class="qradar-tab-inactive px-4 py-2 flex items-center space-x-2 cursor-pointer">
+                    <i class="fas fa-file-alt text-gray-500"></i>
+                    <span class="text-sm">Session Logs</span>
+                </div>
+                <div class="qradar-tab-inactive px-4 py-2 flex items-center space-x-2 cursor-pointer">
+                    <i class="fas fa-chart-line text-gray-500"></i>
+                    <span class="text-sm">Statistics</span>
+                </div>
+                <div class="qradar-tab-inactive px-4 py-2 flex items-center space-x-2 cursor-pointer">
+                    <i class="fas fa-network-wired text-gray-500"></i>
+                    <span class="text-sm">Network</span>
+                </div>
+            </div>
+            
+            <!-- Command Output -->
+            <div class="flex-1 overflow-y-auto p-4 scrollbar">
+                <div class="qradar-panel rounded mb-4 p-4">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center space-x-2">
+                            <i class="fas fa-laptop-code text-blue-400"></i>
+                            <span class="font-medium">DESKTOP-ABC123</span>
+                            <span class="text-xs bg-blue-900 text-blue-200 px-2 py-1 rounded">Active</span>
+                            <span class="text-xs text-gray-500">(192.168.1.105)</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-xs text-gray-500">Last active: 2 min ago</span>
+                            <button class="qradar-button-secondary text-xs px-3 py-1 rounded">Disconnect</button>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <div class="text-xs text-gray-500 mb-1">System Information</div>
+                        <div class="grid grid-cols-4 gap-4 text-sm">
+                            <div>
+                                <div class="text-gray-500">OS</div>
+                                <div>Windows 10 Pro</div>
+                            </div>
+                            <div>
+                                <div class="text-gray-500">Arch</div>
+                                <div>x64</div>
+                            </div>
+                            <div>
+                                <div class="text-gray-500">User</div>
+                                <div>Administrator</div>
+                            </div>
+                            <div>
+                                <div class="text-gray-500">Uptime</div>
+                                <div>3d 7h 22m</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-2">
+                        <div class="flex items-center space-x-2">
+                            <span class="text-blue-400">$</span>
+                            <span>whoami</span>
+                        </div>
+                        <div class="mt-1 ml-4 text-sm">desktop-abc123\administrator</div>
+                    </div>
+                    
+                    <div class="mb-2">
+                        <div class="flex items-center space-x-2">
+                            <span class="text-blue-400">$</span>
+                            <span>systeminfo</span>
+                        </div>
+                        <div class="mt-1 ml-4 text-xs">
+                            <div>Host Name:                 DESKTOP-ABC123</div>
+                            <div>OS Name:                   Microsoft Windows 10 Pro</div>
+                            <div>OS Version:                10.0.19044 N/A Build 19044</div>
+                            <div>Total Physical Memory:     16,384 MB</div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-2">
+                        <div class="flex items-center space-x-2">
+                            <span class="text-blue-400">$</span>
+                            <span>netstat -ano</span>
+                        </div>
+                        <div class="mt-1 ml-4 text-xs">
+                            <div>Proto  Local Address          Foreign Address        State           PID</div>
+                            <div>TCP    0.0.0.0:80             0.0.0.0:0              LISTENING       4</div>
+                            <div>TCP    0.0.0.0:135            0.0.0.0:0              LISTENING       928</div>
+                            <div>TCP    0.0.0.0:3389           0.0.0.0:0              LISTENING       336</div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center space-x-2">
+                        <span class="text-blue-400">$</span>
+                        <span class="blink">_</span>
+                    </div>
+                </div>
+                
+                <!-- Alerts -->
+                <div class="qradar-alert rounded p-3 mb-4 flex items-start">
+                    <i class="fas fa-exclamation-circle text-red-500 mt-1 mr-3"></i>
+                    <div>
+                        <div class="font-medium">New security alert</div>
+                        <div class="text-xs">Antivirus process detected on DESKTOP-ABC123. Consider migrating to another process.</div>
+                    </div>
+                </div>
+                
+                <!-- Recent Commands -->
+                <div class="qradar-panel rounded p-4">
+                    <div class="text-sm font-medium mb-3">Recent Commands</div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead class="qradar-table-header">
+                                <tr>
+                                    <th class="text-left py-2 px-3">Time</th>
+                                    <th class="text-left py-2 px-3">Command</th>
+                                    <th class="text-left py-2 px-3">Target</th>
+                                    <th class="text-left py-2 px-3">Status</th>
+                                    <th class="text-left py-2 px-3">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-t border-gray-700 qradar-table-row">
+                                    <td class="py-2 px-3">2023-11-15 14:32:17</td>
+                                    <td class="py-2 px-3">netstat -ano</td>
+                                    <td class="py-2 px-3">DESKTOP-ABC123</td>
+                                    <td class="py-2 px-3"><span class="text-green-500">Success</span></td>
+                                    <td class="py-2 px-3">
+                                        <button class="text-blue-400 hover:underline text-xs">View Output</button>
+                                    </td>
+                                </tr>
+                                <tr class="border-t border-gray-700 qradar-table-row">
+                                    <td class="py-2 px-3">2023-11-15 14:30:45</td>
+                                    <td class="py-2 px-3">systeminfo</td>
+                                    <td class="py-2 px-3">DESKTOP-ABC123</td>
+                                    <td class="py-2 px-3"><span class="text-green-500">Success</span></td>
+                                    <td class="py-2 px-3">
+                                        <button class="text-blue-400 hover:underline text-xs">View Output</button>
+                                    </td>
+                                </tr>
+                                <tr class="border-t border-gray-700 qradar-table-row">
+                                    <td class="py-2 px-3">2023-11-15 14:28:12</td>
+                                    <td class="py-2 px-3">whoami</td>
+                                    <td class="py-2 px-3">DESKTOP-ABC123</td>
+                                    <td class="py-2 px-3"><span class="text-green-500">Success</span></td>
+                                    <td class="py-2 px-3">
+                                        <button class="text-blue-400 hover:underline text-xs">View Output</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Command Input -->
+            <div class="qradar-panel border-t border-gray-700 p-3">
+                <div class="flex items-center space-x-2">
+                    <div class="flex-1 relative">
+                        <input type="text" placeholder="Enter command..." class="qradar-input w-full px-3 py-2 pl-8 rounded">
+                        <i class="fas fa-terminal absolute left-2 top-3 text-gray-500"></i>
+                    </div>
+                    <button class="qradar-button px-4 py-2 rounded">Execute</button>
+                    <button class="qradar-button-secondary px-3 py-2 rounded">
+                        <i class="fas fa-history"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right Panel -->
+        <div class="qradar-sidebar w-64 flex flex-col border-l border-gray-700">
+            <div class="p-3 border-b border-gray-700">
+                <div class="text-sm font-medium">Session Details</div>
+            </div>
+            
+            <div class="flex-1 overflow-y-auto scrollbar p-3">
+                <div class="mb-4">
+                    <div class="text-xs text-gray-500 mb-2">ACTIVITY TIMELINE</div>
+                    <div class="space-y-3">
+                        <div class="flex items-start">
+                            <div class="w-2 h-2 bg-blue-500 rounded-full mt-1 mr-2"></div>
+                            <div>
+                                <div class="text-xs">Command executed</div>
+                                <div class="text-xs text-gray-500">netstat -ano</div>
+                                <div class="text-xs text-gray-500">14:32:17</div>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="w-2 h-2 bg-blue-500 rounded-full mt-1 mr-2"></div>
+                            <div>
+                                <div class="text-xs">Command executed</div>
+                                <div class="text-xs text-gray-500">systeminfo</div>
+                                <div class="text-xs text-gray-500">14:30:45</div>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="w-2 h-2 bg-green-500 rounded-full mt-1 mr-2"></div>
+                            <div>
+                                <div class="text-xs">Session established</div>
+                                <div class="text-xs text-gray-500">14:28:02</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <div class="text-xs text-gray-500 mb-2">SYSTEM METRICS</div>
+                    <div class="grid grid-cols-2 gap-2 text-sm">
+                        <div class="qradar-panel p-2 rounded">
+                            <div class="text-gray-500 text-xs">CPU</div>
+                            <div class="flex items-center">
+                                <div class="w-full bg-gray-700 rounded h-2 mr-2">
+                                    <div class="bg-blue-500 h-2 rounded" style="width: 32%"></div>
+                                </div>
+                                <span>32%</span>
+                            </div>
+                        </div>
+                        <div class="qradar-panel p-2 rounded">
+                            <div class="text-gray-500 text-xs">Memory</div>
+                            <div class="flex items-center">
+                                <div class="w-full bg-gray-700 rounded h-2 mr-2">
+                                    <div class="bg-green-500 h-2 rounded" style="width: 64%"></div>
+                                </div>
+                                <span>64%</span>
+                            </div>
+                        </div>
+                        <div class="qradar-panel p-2 rounded">
+                            <div class="text-gray-500 text-xs">Network In</div>
+                            <div>1.2 MB/s</div>
+                        </div>
+                        <div class="qradar-panel p-2 rounded">
+                            <div class="text-gray-500 text-xs">Network Out</div>
+                            <div>0.8 MB/s</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <div class="text-xs text-gray-500 mb-2">QUICK ACTIONS</div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button class="qradar-button-secondary text-xs p-2 rounded flex flex-col items-center">
+                            <i class="fas fa-keyboard mb-1"></i>
+                            <span>Keylogger</span>
+                        </button>
+                        <button class="qradar-button-secondary text-xs p-2 rounded flex flex-col items-center">
+                            <i class="fas fa-eye mb-1"></i>
+                            <span>Screenshot</span>
+                        </button>
+                        <button class="qradar-button-secondary text-xs p-2 rounded flex flex-col items-center">
+                            <i class="fas fa-file-download mb-1"></i>
+                            <span>Download</span>
+                        </button>
+                        <button class="qradar-button-secondary text-xs p-2 rounded flex flex-col items-center">
+                            <i class="fas fa-file-upload mb-1"></i>
+                            <span>Upload</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Status Bar -->
+    <div class="qradar-blue h-8 flex items-center justify-between px-4 text-xs text-white">
+        <div class="flex items-center space-x-4">
+            <div class="flex items-center space-x-1">
+                <i class="fas fa-shield-alt"></i>
+                <span>Secure Connection</span>
+            </div>
+            <div class="flex items-center space-x-1">
+                <i class="fas fa-plug"></i>
+                <span>3 Active Sessions</span>
+            </div>
+            <div class="flex items-center space-x-1">
+                <i class="fas fa-clock"></i>
+                <span>15 Nov 2023, 14:35:22 UTC</span>
+            </div>
+        </div>
+        <div class="flex items-center space-x-4">
+            <div class="flex items-center space-x-1">
+                <i class="fas fa-database"></i>
+                <span>v2.4.1</span>
+            </div>
+            <div class="flex items-center space-x-1">
+                <i class="fas fa-user-shield"></i>
+                <span>admin</span>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Simulate blinking cursor
+        setInterval(() => {
+            const cursors = document.querySelectorAll('.blink');
+            cursors.forEach(cursor => {
+                cursor.style.visibility = cursor.style.visibility === 'hidden' ? 'visible' : 'hidden';
+            });
+        }, 500);
+        
+        // Simulate command execution
+        const commandInput = document.querySelector('.qradar-input');
+        const commandOutput = document.querySelector('.flex-1.overflow-y-auto .qradar-panel:first-child');
+        
+        commandInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const command = commandInput.value.trim();
+                if (command) {
+                    // Add command to output
+                    const commandLine = document.createElement('div');
+                    commandLine.className = 'mb-2';
+                    commandLine.innerHTML = `
+                        <div class="flex items-center space-x-2">
+                            <span class="text-blue-400">$</span>
+                            <span>${command}</span>
+                        </div>
+                    `;
+                    
+                    commandOutput.appendChild(commandLine);
+                    
+                    // Add fake output based on command
+                    const output = document.createElement('div');
+                    output.className = 'mt-1 ml-4 text-sm mb-4';
+                    
+                    if (command.startsWith('help')) {
+                        output.innerHTML = `
+                            <div>Available commands:</div>
+                            <div class="ml-4">- sysinfo: Show system information</div>
+                            <div class="ml-4">- screenshot: Capture target screen</div>
+                            <div class="ml-4">- keylogger: Start/stop keylogger</div>
+                            <div class="ml-4">- download [file]: Download file from target</div>
+                            <div class="ml-4">- upload [file]: Upload file to target</div>
+                        `;
+                    } else if (command === 'clear') {
+                        commandOutput.innerHTML = `
+                            <div class="flex items-center space-x-2">
+                                <span class="text-blue-400">$</span>
+                                <span class="blink">_</span>
+                            </div>
+                        `;
+                    } else {
+                        output.textContent = `Command executed: ${command}`;
+                    }
+                    
+                    commandOutput.appendChild(output);
+                    
+                    // Add new prompt
+                    const newPrompt = document.createElement('div');
+                    newPrompt.className = 'flex items-center space-x-2';
+                    newPrompt.innerHTML = `
+                        <span class="text-blue-400">$</span>
+                        <span class="blink">_</span>
+                    `;
+                    
+                    commandOutput.appendChild(newPrompt);
+                    commandInput.value = '';
+                    
+                    // Scroll to bottom
+                    commandOutput.scrollTop = commandOutput.scrollHeight;
+                }
+            }
+        });
+        
+        // Simulate session selection
+        const sessionItems = document.querySelectorAll('.qradar-sidebar .rounded.p-2');
+        sessionItems.forEach(item => {
+            item.addEventListener('click', function() {
+                sessionItems.forEach(i => i.classList.remove('qradar-selected'));
+                this.classList.add('qradar-selected');
+            });
+        });
+    </script>
+</body>
+</html>

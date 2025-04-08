@@ -1,0 +1,1435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CYBER-CORE DASHBOARD</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @font-face {
+            font-family: 'Orbitron';
+            src: local('Orbitron'), url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&display=swap');
+        }
+        
+        :root {
+            --primary: #00f7ff;
+            --secondary: #ff00aa;
+            --dark: #0a0e17;
+            --darker: #05080f;
+            --light: #e0f8ff;
+            --accent: #7700ff;
+        }
+        
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background-color: var(--darker);
+            color: var(--light);
+            overflow: hidden;
+        }
+        
+        .cyber-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(0, 247, 255, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 80% 70%, rgba(255, 0, 170, 0.05) 0%, transparent 40%),
+                linear-gradient(to bottom, var(--darker) 0%, var(--dark) 100%);
+            z-index: -2;
+        }
+        
+        .grid-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 247, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 247, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -1;
+        }
+        
+        .cyber-border {
+            border: 1px solid var(--primary);
+            box-shadow: 0 0 10px rgba(0, 247, 255, 0.3);
+        }
+        
+        .cyber-glow {
+            text-shadow: 0 0 8px rgba(0, 247, 255, 0.7);
+        }
+        
+        .cyber-panel {
+            background: rgba(10, 20, 30, 0.8);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(0, 247, 255, 0.2);
+        }
+        
+        .cyber-input {
+            background-color: rgba(15, 25, 40, 0.8);
+            border: 1px solid var(--primary);
+            color: var(--light);
+            transition: all 0.3s;
+        }
+        
+        .cyber-input:focus {
+            outline: none;
+            border-color: var(--secondary);
+            box-shadow: 0 0 15px var(--secondary);
+        }
+        
+        .cyber-btn {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border: none;
+            color: var(--dark);
+            font-weight: bold;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+        }
+        
+        .cyber-btn:hover {
+            background: linear-gradient(135deg, var(--accent), var(--primary));
+            box-shadow: 0 0 15px rgba(0, 247, 255, 0.7);
+            transform: translateY(-1px);
+        }
+        
+        .cyber-btn-secondary {
+            background: rgba(20, 30, 50, 0.7);
+            border: 1px solid var(--primary);
+            color: var(--light);
+        }
+        
+        .cyber-btn-secondary:hover {
+            background: rgba(30, 50, 80, 0.7);
+            box-shadow: 0 0 10px rgba(0, 247, 255, 0.5);
+        }
+        
+        .cyber-scroll::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .cyber-scroll::-webkit-scrollbar-track {
+            background: rgba(10, 20, 30, 0.5);
+        }
+        
+        .cyber-scroll::-webkit-scrollbar-thumb {
+            background-color: var(--primary);
+            border-radius: 4px;
+        }
+        
+        .cyber-tab {
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .cyber-tab.active {
+            border-bottom-color: var(--secondary);
+            background: rgba(255, 0, 170, 0.2);
+        }
+        
+        .cyber-tab:hover:not(.active) {
+            border-bottom-color: rgba(255, 0, 170, 0.5);
+        }
+        
+        .status-online {
+            background: linear-gradient(90deg, rgba(0, 247, 255, 0.1), transparent);
+            border-left: 3px solid var(--primary);
+        }
+        
+        .status-offline {
+            background: linear-gradient(90deg, rgba(255, 0, 0, 0.1), transparent);
+            border-left: 3px solid #ff3860;
+        }
+        
+        .status-warning {
+            background: linear-gradient(90deg, rgba(255, 166, 0, 0.1), transparent);
+            border-left: 3px solid #ffaa00;
+        }
+        
+        .cyber-modal {
+            background: rgba(15, 25, 40, 0.98);
+            border: 1px solid var(--secondary);
+            box-shadow: 0 0 30px rgba(255, 0, 170, 0.7);
+            backdrop-filter: blur(10px);
+        }
+        
+        .cyber-code {
+            background-color: rgba(5, 10, 20, 0.8);
+            color: var(--light);
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+        }
+        
+        .cyber-pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 0.7; }
+            50% { opacity: 1; }
+            100% { opacity: 0.7; }
+        }
+        
+        .cyber-flash {
+            animation: flash 0.5s;
+        }
+        
+        @keyframes flash {
+            0% { background-color: rgba(255, 0, 170, 0.3); }
+            100% { background-color: transparent; }
+        }
+        
+        .cyber-checkbox {
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border: 1px solid var(--primary);
+            background-color: rgba(20, 30, 50, 0.7);
+            cursor: pointer;
+            position: relative;
+            border-radius: 3px;
+        }
+        
+        .cyber-checkbox:checked {
+            background-color: var(--primary);
+        }
+        
+        .cyber-checkbox:checked::after {
+            content: "✓";
+            position: absolute;
+            color: var(--dark);
+            font-size: 12px;
+            left: 3px;
+            top: 0;
+        }
+        
+        .cyber-context-menu {
+            background: rgba(20, 30, 50, 0.98);
+            border: 1px solid var(--secondary);
+            box-shadow: 0 0 15px rgba(255, 0, 170, 0.7);
+            backdrop-filter: blur(5px);
+        }
+        
+        .cyber-context-item {
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .cyber-context-item:hover {
+            background: rgba(255, 0, 170, 0.3);
+        }
+        
+        .cyber-divider {
+            border-top: 1px solid rgba(255, 0, 170, 0.5);
+        }
+        
+        .cyber-radial-progress {
+            position: relative;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: 
+                conic-gradient(var(--primary) var(--progress), transparent var(--progress));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .cyber-radial-inner {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(20, 30, 50, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .cyber-node {
+            position: relative;
+            padding-left: 20px;
+        }
+        
+        .cyber-node::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 10px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--primary);
+            box-shadow: 0 0 10px var(--primary);
+        }
+        
+        .cyber-connection {
+            position: absolute;
+            left: 5px;
+            top: 20px;
+            bottom: -10px;
+            width: 2px;
+            background: rgba(0, 247, 255, 0.5);
+        }
+        
+        .cyber-tooltip {
+            position: absolute;
+            background: rgba(20, 30, 50, 0.95);
+            border: 1px solid var(--primary);
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+            z-index: 100;
+        }
+        
+        .cyber-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .cyber-badge-primary {
+            background: var(--primary);
+            color: var(--dark);
+        }
+        
+        .cyber-badge-success {
+            background: #00ff9d;
+            color: var(--dark);
+        }
+        
+        .cyber-badge-warning {
+            background: #ffaa00;
+            color: var(--dark);
+        }
+        
+        .cyber-badge-danger {
+            background: #ff3860;
+            color: white;
+        }
+        
+        .cyber-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--dark);
+            font-weight: bold;
+        }
+        
+        .cyber-wave {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="rgba(0, 247, 255, 0.1)" d="M0,192L48,197.3C96,203,192,213,288,229.3C384,245,480,267,576,250.7C672,235,768,181,864,181.3C960,181,1056,235,1152,234.7C1248,235,1344,181,1392,154.7L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>');
+            background-size: cover;
+            background-repeat: no-repeat;
+            z-index: -1;
+        }
+        
+        .cyber-corner {
+            position: relative;
+        }
+        
+        .cyber-corner::before, .cyber-corner::after {
+            content: "";
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-color: var(--primary);
+            border-style: solid;
+            border-width: 0;
+        }
+        
+        .cyber-corner::before {
+            top: 0;
+            left: 0;
+            border-top-width: 2px;
+            border-left-width: 2px;
+        }
+        
+        .cyber-corner::after {
+            bottom: 0;
+            right: 0;
+            border-bottom-width: 2px;
+            border-right-width: 2px;
+        }
+        
+        .cyber-line {
+            position: relative;
+        }
+        
+        .cyber-line::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+        }
+        
+        .cyber-graph {
+            position: relative;
+            height: 100px;
+            background: rgba(0, 247, 255, 0.05);
+            border: 1px solid rgba(0, 247, 255, 0.2);
+        }
+        
+        .cyber-graph-line {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            stroke: var(--primary);
+            stroke-width: 2;
+            fill: none;
+        }
+        
+        .cyber-graph-area {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            fill: rgba(0, 247, 255, 0.1);
+        }
+        
+        .cyber-alert {
+            animation: alert-pulse 1.5s infinite;
+        }
+        
+        @keyframes alert-pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 0, 170, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 0, 170, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 0, 170, 0); }
+        }
+        
+        .cyber-rotate {
+            animation: rotate 4s linear infinite;
+        }
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .cyber-blink {
+            animation: blink 1s step-end infinite;
+        }
+        
+        @keyframes blink {
+            from, to { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+    </style>
+</head>
+<body class="h-screen overflow-hidden">
+    <div class="cyber-bg"></div>
+    <div class="grid-overlay"></div>
+    <div class="cyber-wave"></div>
+    
+    <!-- Initialization sequence -->
+    <div id="initSequence" class="fixed inset-0 flex items-center justify-center z-50 bg-black">
+        <div class="text-center">
+            <div class="text-5xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500">
+                CYBER-CORE SYSTEM
+            </div>
+            <div class="w-full max-w-2xl mx-auto h-1 bg-gradient-to-r from-cyan-900 via-cyan-400 to-cyan-900 rounded-full mb-8"></div>
+            <div class="text-lg text-cyan-300 mb-8">NEURAL NETWORK INTERFACE v5.2.7</div>
+            
+            <div class="w-full max-w-xl mx-auto bg-gray-900 bg-opacity-50 rounded-full h-4 mb-8">
+                <div id="initProgress" class="bg-gradient-to-r from-cyan-400 to-purple-500 h-4 rounded-full" style="width: 0%"></div>
+            </div>
+            
+            <div id="initStatus" class="text-sm text-cyan-400 font-mono">
+                > Initializing quantum encryption protocols...
+            </div>
+        </div>
+    </div>
+    
+    <div class="flex flex-col h-full hidden" id="mainApp">
+        <!-- Header -->
+        <div class="cyber-panel flex items-center justify-between px-6 py-4 border-b border-cyan-900">
+            <div class="flex items-center space-x-6">
+                <div class="flex items-center cyber-glow">
+                    <div class="cyber-avatar mr-3 flex items-center justify-center">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <span class="font-bold text-2xl tracking-wider">CYBER-CORE</span>
+                </div>
+                <div class="text-sm text-cyan-300 flex items-center space-x-4">
+                    <div class="flex items-center">
+                        <span class="text-white font-mono">v5.2.7</span>
+                    </div>
+                    <div class="h-5 border-r border-cyan-800 mx-1"></div>
+                    <div class="flex items-center">
+                        <i class="fas fa-shield-alt mr-2 text-green-400"></i>
+                        <span>Security: </span>
+                        <span class="text-white ml-1">97%</span>
+                    </div>
+                    <div class="flex items-center">
+                        <i class="fas fa-bolt mr-2 text-yellow-400"></i>
+                        <span>Power: </span>
+                        <span class="text-white ml-1">84%</span>
+                    </div>
+                    <div class="flex items-center">
+                        <i class="fas fa-network-wired mr-2 text-purple-400"></i>
+                        <span>Nodes: </span>
+                        <span class="text-white ml-1">19/24</span>
+                    </div>
+                </div>
+            </div>
+            <div class="flex items-center space-x-6">
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <div class="cyber-alert w-3 h-3 rounded-full bg-red-500 absolute -top-1 -right-1"></div>
+                        <button class="text-cyan-300 hover:text-white text-xl">
+                            <i class="fas fa-bell"></i>
+                        </button>
+                    </div>
+                    <button class="text-cyan-300 hover:text-white text-xl">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                    <button class="text-cyan-300 hover:text-white text-xl">
+                        <i class="fas fa-user-astronaut"></i>
+                    </button>
+                    <button class="text-cyan-300 hover:text-red-400 text-xl">
+                        <i class="fas fa-power-off"></i>
+                    </button>
+                </div>
+                <div class="h-8 border-r border-cyan-800 mx-2"></div>
+                <div class="text-sm text-cyan-300">
+                    <div class="font-mono">SYSTEM TIME: <span id="systemTime" class="text-white">00:00:00</span></div>
+                    <div class="font-mono">SESSION: <span class="text-white">ADMIN-7X9P2</span></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main content -->
+        <div class="flex flex-1 overflow-hidden">
+            <!-- Side panel -->
+            <div class="w-80 cyber-panel flex flex-col border-r border-cyan-900">
+                <!-- Navigation -->
+                <div class="p-4 cyber-line">
+                    <div class="text-xs uppercase tracking-widest text-cyan-400 mb-3">NAVIGATION MATRIX</div>
+                    <div class="space-y-2">
+                        <button class="w-full text-left px-4 py-3 rounded-md flex items-center cyber-btn-secondary">
+                            <i class="fas fa-dashboard mr-3 text-cyan-400"></i>
+                            <span>Dashboard</span>
+                            <span class="ml-auto cyber-badge cyber-badge-primary">ACTIVE</span>
+                        </button>
+                        <button class="w-full text-left px-4 py-3 rounded-md flex items-center cyber-btn-secondary">
+                            <i class="fas fa-network-wired mr-3 text-purple-400"></i>
+                            <span>Neural Network</span>
+                        </button>
+                        <button class="w-full text-left px-4 py-3 rounded-md flex items-center cyber-btn-secondary">
+                            <i class="fas fa-terminal mr-3 text-green-400"></i>
+                            <span>Command Center</span>
+                        </button>
+                        <button class="w-full text-left px-4 py-3 rounded-md flex items-center cyber-btn-secondary">
+                            <i class="fas fa-database mr-3 text-yellow-400"></i>
+                            <span>Data Core</span>
+                        </button>
+                        <button class="w-full text-left px-4 py-3 rounded-md flex items-center cyber-btn-secondary">
+                            <i class="fas fa-shield-virus mr-3 text-red-400"></i>
+                            <span>Security Matrix</span>
+                        </button>
+                        <button class="w-full text-left px-4 py-3 rounded-md flex items-center cyber-btn-secondary">
+                            <i class="fas fa-chart-network mr-3 text-pink-400"></i>
+                            <span>Analytics Hub</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Quick Access -->
+                <div class="p-4 border-t border-cyan-900 cyber-line">
+                    <div class="text-xs uppercase tracking-widest text-cyan-400 mb-3">QUICK ACCESS</div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button class="px-3 py-2 rounded-md text-xs cyber-btn flex items-center justify-center">
+                            <i class="fas fa-bolt mr-2"></i> EXECUTE
+                        </button>
+                        <button class="px-3 py-2 rounded-md text-xs cyber-btn-secondary flex items-center justify-center">
+                            <i class="fas fa-upload mr-2"></i> UPLOAD
+                        </button>
+                        <button class="px-3 py-2 rounded-md text-xs cyber-btn-secondary flex items-center justify-center">
+                            <i class="fas fa-download mr-2"></i> DOWNLOAD
+                        </button>
+                        <button class="px-3 py-2 rounded-md text-xs cyber-btn-secondary flex items-center justify-center">
+                            <i class="fas fa-code mr-2"></i> SCRIPT
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- System Status -->
+                <div class="p-4 border-t border-cyan-900 flex-1 flex flex-col">
+                    <div class="text-xs uppercase tracking-widest text-cyan-400 mb-3">SYSTEM STATUS</div>
+                    <div class="space-y-5 flex-1">
+                        <!-- CPU Usage -->
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <div class="flex items-center">
+                                    <i class="fas fa-microchip mr-2 text-cyan-400"></i>
+                                    <span>CPU LOAD</span>
+                                </div>
+                                <span class="text-sm font-bold">68%</span>
+                            </div>
+                            <div class="w-full bg-cyan-900 bg-opacity-30 rounded-full h-2">
+                                <div class="bg-gradient-to-r from-cyan-400 to-purple-500 h-2 rounded-full" style="width: 68%"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Memory Usage -->
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <div class="flex items-center">
+                                    <i class="fas fa-memory mr-2 text-purple-400"></i>
+                                    <span>MEMORY</span>
+                                </div>
+                                <span class="text-sm font-bold">7.8/16GB</span>
+                            </div>
+                            <div class="w-full bg-cyan-900 bg-opacity-30 rounded-full h-2">
+                                <div class="bg-gradient-to-r from-purple-400 to-pink-500 h-2 rounded-full" style="width: 48%"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Network Activity -->
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <div class="flex items-center">
+                                    <i class="fas fa-wifi mr-2 text-green-400"></i>
+                                    <span>NETWORK</span>
+                                </div>
+                                <span class="text-sm font-bold">3.2MB/s</span>
+                            </div>
+                            <div class="w-full bg-cyan-900 bg-opacity-30 rounded-full h-2">
+                                <div class="bg-gradient-to-r from-green-400 to-cyan-500 h-2 rounded-full" style="width: 72%"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Storage -->
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <div class="flex items-center">
+                                    <i class="fas fa-database mr-2 text-yellow-400"></i>
+                                    <span>STORAGE</span>
+                                </div>
+                                <span class="text-sm font-bold">1.2/4TB</span>
+                            </div>
+                            <div class="w-full bg-cyan-900 bg-opacity-30 rounded-full h-2">
+                                <div class="bg-gradient-to-r from-yellow-400 to-red-500 h-2 rounded-full" style="width: 30%"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Radial indicators -->
+                        <div class="grid grid-cols-3 gap-4 mt-6">
+                            <div class="text-center">
+                                <div class="cyber-radial-progress mx-auto" style="--progress: 92%">
+                                    <div class="cyber-radial-inner">92%</div>
+                                </div>
+                                <div class="text-xs mt-2 uppercase tracking-wider">Uptime</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="cyber-radial-progress mx-auto" style="--progress: 97%">
+                                    <div class="cyber-radial-inner">97%</div>
+                                </div>
+                                <div class="text-xs mt-2 uppercase tracking-wider">Security</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="cyber-radial-progress mx-auto" style="--progress: 84%">
+                                    <div class="cyber-radial-inner">84%</div>
+                                </div>
+                                <div class="text-xs mt-2 uppercase tracking-wider">Power</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- System Alerts -->
+                <div class="p-4 border-t border-cyan-900">
+                    <div class="flex justify-between items-center mb-3">
+                        <div class="text-xs uppercase tracking-widest text-cyan-400">SYSTEM ALERTS</div>
+                        <span class="cyber-badge cyber-badge-danger text-xs">3 NEW</span>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="flex items-start">
+                            <div class="w-2 h-2 rounded-full bg-red-500 mt-1.5 mr-2"></div>
+                            <div class="text-xs">
+                                <div class="font-bold">SECURITY BREACH</div>
+                                <div class="text-cyan-300">Node #NC-2872</div>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="w-2 h-2 rounded-full bg-yellow-500 mt-1.5 mr-2"></div>
+                            <div class="text-xs">
+                                <div class="font-bold">HIGH LOAD</div>
+                                <div class="text-cyan-300">Core Processor</div>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="w-2 h-2 rounded-full bg-red-500 mt-1.5 mr-2"></div>
+                            <div class="text-xs">
+                                <div class="font-bold">CONNECTION LOST</div>
+                                <div class="text-cyan-300">Node #NC-2865</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Main panel -->
+            <div class="flex-1 flex flex-col overflow-hidden">
+                <!-- Dashboard header -->
+                <div class="cyber-panel p-4 border-b border-cyan-900 flex items-center justify-between">
+                    <div class="flex items-center space-x-6">
+                        <div class="text-xl font-bold flex items-center">
+                            <i class="fas fa-dashboard mr-3 text-cyan-400"></i>
+                            <span>DASHBOARD</span>
+                        </div>
+                        <div class="flex space-x-3">
+                            <button class="px-4 py-1 rounded-md text-sm cyber-btn-secondary">
+                                <i class="fas fa-plus mr-2"></i> New Node
+                            </button>
+                            <button class="px-4 py-1 rounded-md text-sm cyber-btn-secondary">
+                                <i class="fas fa-sync-alt mr-2"></i> Refresh
+                            </button>
+                            <button class="px-4 py-1 rounded-md text-sm cyber-btn-secondary">
+                                <i class="fas fa-filter mr-2"></i> Filter
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <div class="relative">
+                            <input type="text" placeholder="Search nodes..." class="cyber-input px-4 py-1 rounded-full text-sm w-64">
+                            <i class="fas fa-search absolute right-3 top-1/2 transform -translate-y-1/2 text-cyan-400"></i>
+                        </div>
+                        <button class="px-4 py-1 rounded-md text-sm cyber-btn">
+                            <i class="fas fa-rocket mr-2"></i> Deploy
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Content area -->
+                <div class="flex-1 overflow-auto cyber-panel p-6 cyber-scroll">
+                    <!-- Network overview -->
+                    <div class="mb-8 cyber-corner">
+                        <div class="text-lg font-bold mb-4 flex items-center">
+                            <i class="fas fa-project-diagram mr-3 text-cyan-400"></i>
+                            <span>NEURAL NETWORK OVERVIEW</span>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                            <!-- Core node -->
+                            <div class="cyber-border rounded-lg p-4 relative overflow-hidden">
+                                <div class="absolute top-0 right-0 bg-gradient-to-r from-cyan-900 to-cyan-500 text-black text-xs px-3 py-1 rounded-bl-lg font-bold">
+                                    CORE NODE
+                                </div>
+                                <div class="flex items-center mb-3">
+                                    <div class="w-3 h-3 rounded-full bg-green-400 mr-3"></div>
+                                    <div class="font-bold">cyber-core-9f3x2</div>
+                                </div>
+                                <div class="text-sm text-cyan-300 mb-4 font-mono">10.0.0.1 | Last ping: 12s ago</div>
+                                
+                                <div class="cyber-graph mb-4">
+                                    <svg viewBox="0 0 200 50" class="cyber-graph-line">
+                                        <path d="M0,50 L20,40 L40,35 L60,30 L80,25 L100,20 L120,15 L140,10 L160,15 L180,20 L200,25" />
+                                    </svg>
+                                    <svg viewBox="0 0 200 50" class="cyber-graph-area">
+                                        <path d="M0,50 L20,40 L40,35 L60,30 L80,25 L100,20 L120,15 L140,10 L160,15 L180,20 L200,25 L200,50 Z" />
+                                    </svg>
+                                </div>
+                                
+                                <div class="grid grid-cols-3 gap-2 mb-4">
+                                    <div class="text-center">
+                                        <div class="text-xl font-bold">12</div>
+                                        <div class="text-xs text-cyan-300">SESSIONS</div>
+                                    </div>
+                                    <div class="text-center">
+                                        <div class="text-xl font-bold">5.2MB/s</div>
+                                        <div class="text-xs text-cyan-300">THROUGHPUT</div>
+                                    </div>
+                                    <div class="text-center">
+                                        <div class="text-xl font-bold">28ms</div>
+                                        <div class="text-xs text-cyan-300">LATENCY</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex space-x-2">
+                                    <button class="flex-1 py-1 rounded text-xs cyber-btn">
+                                        <i class="fas fa-terminal mr-1"></i> CONNECT
+                                    </button>
+                                    <button class="flex-1 py-1 rounded text-xs cyber-btn-secondary">
+                                        <i class="fas fa-chart-bar mr-1"></i> STATS
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Gateway node -->
+                            <div class="cyber-border rounded-lg p-4 relative overflow-hidden">
+                                <div class="absolute top-0 right-0 bg-gradient-to-r from-purple-900 to-purple-500 text-black text-xs px-3 py-1 rounded-bl-lg font-bold">
+                                    GATEWAY
+                                </div>
+                                <div class="flex items-center mb-3">
+                                    <div class="w-3 h-3 rounded-full bg-green-400 mr-3"></div>
+                                    <div class="font-bold">cyber-gw-7k2y1</div>
+                                </div>
+                                <div class="text-sm text-cyan-300 mb-4 font-mono">192.168.1.1 | Last ping: 45s ago</div>
+                                
+                                <div class="cyber-graph mb-4">
+                                    <svg viewBox="0 0 200 50" class="cyber-graph-line">
+                                        <path d="M0,50 L20,45 L40,40 L60,35 L80,30 L100,25 L120,20 L140,15 L160,20 L180,25 L200,30" />
+                                    </svg>
+                                    <svg viewBox="0 0 200 50" class="cyber-graph-area">
+                                        <path d="M0,50 L20,45 L40,40 L60,35 L80,30 L100,25 L120,20 L140,15 L160,20 L180,25 L200,30 L200,50 Z" />
+                                    </svg>
+                                </div>
+                                
+                                <div class="grid grid-cols-3 gap-2 mb-4">
+                                    <div class="text-center">
+                                        <div class="text-xl font-bold">8</div>
+                                        <div class="text-xs text-cyan-300">SESSIONS</div>
+                                    </div>
+                                    <div class="text-center">
+                                        <div class="text-xl font-bold">3.7MB/s</div>
+                                        <div class="text-xs text-cyan-300">THROUGHPUT</div>
+                                    </div>
+                                    <div class="text-center">
+                                        <div class="text-xl font-bold">42ms</div>
+                                        <div class="text-xs text-cyan-300">LATENCY</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex space-x-2">
+                                    <button class="flex-1 py-1 rounded text-xs cyber-btn">
+                                        <i class="fas fa-terminal mr-1"></i> CONNECT
+                                    </button>
+                                    <button class="flex-1 py-1 rounded text-xs cyber-btn-secondary">
+                                        <i class="fas fa-chart-bar mr-1"></i> STATS
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Relay node -->
+                            <div class="cyber-border rounded-lg p-4 relative overflow-hidden">
+                                <div class="absolute top-0 right-0 bg-gradient-to-r from-pink-900 to-pink-500 text-black text-xs px-3 py-1 rounded-bl-lg font-bold">
+                                    RELAY
+                                </div>
+                                <div class="flex items-center mb-3">
+                                    <div class="w-3 h-3 rounded-full bg-yellow-400 mr-3"></div>
+                                    <div class="font-bold">cyber-relay-4p9q8</div>
+                                </div>
+                                <div class="text-sm text-cyan-300 mb-4 font-mono">172.16.0.1 | Last ping: 2m ago</div>
+                                
+                                <div class="cyber-graph mb-4">
+                                    <svg viewBox="0 0 200 50" class="cyber-graph-line">
+                                        <path d="M0,50 L20,45 L40,40 L60,35 L80,30 L100,25 L120,30 L140,35 L160,30 L180,25 L200,20" />
+                                    </svg>
+                                    <svg viewBox="0 0 200 50" class="cyber-graph-area">
+                                        <path d="M0,50 L20,45 L40,40 L60,35 L80,30 L100,25 L120,30 L140,35 L160,30 L180,25 L200,20 L200,50 Z" />
+                                    </svg>
+                                </div>
+                                
+                                <div class="grid grid-cols-3 gap-2 mb-4">
+                                    <div class="text-center">
+                                        <div class="text-xl font-bold">5</div>
+                                        <div class="text-xs text-cyan-300">SESSIONS</div>
+                                    </div>
+                                    <div class="text-center">
+                                        <div class="text-xl font-bold">1.8MB/s</div>
+                                        <div class="text-xs text-cyan-300">THROUGHPUT</div>
+                                    </div>
+                                    <div class="text-center">
+                                        <div class="text-xl font-bold">76ms</div>
+                                        <div class="text-xs text-cyan-300">LATENCY</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex space-x-2">
+                                    <button class="flex-1 py-1 rounded text-xs cyber-btn">
+                                        <i class="fas fa-terminal mr-1"></i> CONNECT
+                                    </button>
+                                    <button class="flex-1 py-1 rounded text-xs cyber-btn-secondary">
+                                        <i class="fas fa-chart-bar mr-1"></i> STATS
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Active sessions -->
+                    <div class="mb-8 cyber-corner">
+                        <div class="text-lg font-bold mb-4 flex items-center">
+                            <i class="fas fa-desktop mr-3 text-cyan-400"></i>
+                            <span>ACTIVE SESSIONS</span>
+                        </div>
+                        
+                        <div class="cyber-border rounded-lg overflow-hidden">
+                            <table class="min-w-full text-sm">
+                                <thead class="bg-cyan-900 bg-opacity-30">
+                                    <tr>
+                                        <th class="py-3 px-4 text-left w-8">
+                                            <input type="checkbox" class="cyber-checkbox">
+                                        </th>
+                                        <th class="py-3 px-4 text-left">SESSION ID</th>
+                                        <th class="py-3 px-4 text-left">NODE</th>
+                                        <th class="py-3 px-4 text-left">TARGET</th>
+                                        <th class="py-3 px-4 text-left">USER</th>
+                                        <th class="py-3 px-4 text-left">STATUS</th>
+                                        <th class="py-3 px-4 text-left">DURATION</th>
+                                        <th class="py-3 px-4 text-left">ACTIONS</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="border-t border-cyan-900 hover:bg-cyan-900 hover:bg-opacity-10 status-online">
+                                        <td class="py-3 px-4">
+                                            <input type="checkbox" class="cyber-checkbox">
+                                        </td>
+                                        <td class="py-3 px-4 font-mono">#CC-2873</td>
+                                        <td class="py-3 px-4">
+                                            <div class="flex items-center">
+                                                <div class="w-2 h-2 rounded-full bg-green-400 mr-2"></div>
+                                                <span>cyber-core-9f3x2</span>
+                                            </div>
+                                        </td>
+                                        <td class="py-3 px-4">DC-01 (10.0.0.10)</td>
+                                        <td class="py-3 px-4">DOMAIN\Admin</td>
+                                        <td class="py-3 px-4">
+                                            <span class="cyber-badge cyber-badge-success">ACTIVE</span>
+                                        </td>
+                                        <td class="py-3 px-4">2h 18m</td>
+                                        <td class="py-3 px-4">
+                                            <div class="flex space-x-3">
+                                                <button class="text-cyan-300 hover:text-white" data-tooltip="Connect">
+                                                    <i class="fas fa-terminal"></i>
+                                                </button>
+                                                <button class="text-cyan-300 hover:text-white" data-tooltip="Monitor">
+                                                    <i class="fas fa-chart-line"></i>
+                                                </button>
+                                                <button class="text-cyan-300 hover:text-red-400" data-tooltip="Terminate">
+                                                    <i class="fas fa-power-off"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr class="border-t border-cyan-900 hover:bg-cyan-900 hover:bg-opacity-10 status-online">
+                                        <td class="py-3 px-4">
+                                            <input type="checkbox" class="cyber-checkbox">
+                                        </td>
+                                        <td class="py-3 px-4 font-mono">#CC-2872</td>
+                                        <td class="py-3 px-4">
+                                            <div class="flex items-center">
+                                                <div class="w-2 h-2 rounded-full bg-green-400 mr-2"></div>
+                                                <span>cyber-gw-7k2y1</span>
+                                            </div>
+                                        </td>
+                                        <td class="py-3 px-4">WIN10-X64 (192.168.1.15)</td>
+                                        <td class="py-3 px-4">Administrator</td>
+                                        <td class="py-3 px-4">
+                                            <span class="cyber-badge cyber-badge-success">ACTIVE</span>
+                                        </td>
+                                        <td class="py-3 px-4">1h 45m</td>
+                                        <td class="py-3 px-4">
+                                            <div class="flex space-x-3">
+                                                <button class="text-cyan-300 hover:text-white" data-tooltip="Connect">
+                                                    <i class="fas fa-terminal"></i>
+                                                </button>
+                                                <button class="text-cyan-300 hover:text-white" data-tooltip="Monitor">
+                                                    <i class="fas fa-chart-line"></i>
+                                                </button>
+                                                <button class="text-cyan-300 hover:text-red-400" data-tooltip="Terminate">
+                                                    <i class="fas fa-power-off"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr class="border-t border-cyan-900 hover:bg-cyan-900 hover:bg-opacity-10 status-warning">
+                                        <td class="py-3 px-4">
+                                            <input type="checkbox" class="cyber-checkbox">
+                                        </td>
+                                        <td class="py-3 px-4 font-mono">#CC-2869</td>
+                                        <td class="py-3 px-4">
+                                            <div class="flex items-center">
+                                                <div class="w-2 h-2 rounded-full bg-yellow-400 mr-2"></div>
+                                                <span>cyber-relay-4p9q8</span>
+                                            </div>
+                                        </td>
+                                        <td class="py-3 px-4">WIN-SRV-2019 (172.16.1.20)</td>
+                                        <td class="py-3 px-4">SYSTEM</td>
+                                        <td class="py-3 px-4">
+                                            <span class="cyber-badge cyber-badge-warning">PENDING</span>
+                                        </td>
+                                        <td class="py-3 px-4">12m</td>
+                                        <td class="py-3 px-4">
+                                            <div class="flex space-x-3">
+                                                <button class="text-cyan-300 hover:text-white" data-tooltip="Connect">
+                                                    <i class="fas fa-terminal"></i>
+                                                </button>
+                                                <button class="text-cyan-300 hover:text-white" data-tooltip="Monitor">
+                                                    <i class="fas fa-chart-line"></i>
+                                                </button>
+                                                <button class="text-cyan-300 hover:text-red-400" data-tooltip="Terminate">
+                                                    <i class="fas fa-power-off"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr class="border-t border-cyan-900 hover:bg-cyan-900 hover:bg-opacity-10 status-offline">
+                                        <td class="py-3 px-4">
+                                            <input type="checkbox" class="cyber-checkbox">
+                                        </td>
+                                        <td class="py-3 px-4 font-mono">#CC-2865</td>
+                                        <td class="py-3 px-4">
+                                            <div class="flex items-center">
+                                                <div class="w-2 h-2 rounded-full bg-red-400 mr-2"></div>
+                                                <span>cyber-core-9f3x2</span>
+                                            </div>
+                                        </td>
+                                        <td class="py-3 px-4">WIN7-LEGACY (192.168.2.5)</td>
+                                        <td class="py-3 px-4">ADMIN</td>
+                                        <td class="py-3 px-4">
+                                            <span class="cyber-badge cyber-badge-danger">LOST</span>
+                                        </td>
+                                        <td class="py-3 px-4">3h 22m</td>
+                                        <td class="py-3 px-4">
+                                            <div class="flex space-x-3">
+                                                <button class="text-cyan-300 hover:text-white" data-tooltip="Connect">
+                                                    <i class="fas fa-terminal"></i>
+                                                </button>
+                                                <button class="text-cyan-300 hover:text-white" data-tooltip="Monitor">
+                                                    <i class="fas fa-chart-line"></i>
+                                                </button>
+                                                <button class="text-cyan-300 hover:text-red-400" data-tooltip="Terminate">
+                                                    <i class="fas fa-power-off"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Recent activity -->
+                    <div class="cyber-corner">
+                        <div class="text-lg font-bold mb-4 flex items-center">
+                            <i class="fas fa-history mr-3 text-cyan-400"></i>
+                            <span>RECENT ACTIVITY</span>
+                        </div>
+                        
+                        <div class="cyber-border rounded-lg p-4">
+                            <div class="space-y-4">
+                                <div class="cyber-node text-sm pl-6 relative">
+                                    <div class="cyber-connection"></div>
+                                    <div class="font-mono flex items-center">
+                                        <i class="fas fa-terminal mr-3 text-green-400"></i>
+                                        <span>whoami /all executed on #CC-2873</span>
+                                        <span class="ml-auto text-xs text-cyan-400">2 minutes ago</span>
+                                    </div>
+                                </div>
+                                <div class="cyber-node text-sm pl-6 relative">
+                                    <div class="cyber-connection"></div>
+                                    <div class="font-mono flex items-center">
+                                        <i class="fas fa-download mr-3 text-blue-400"></i>
+                                        <span>File downloaded from #CC-2872</span>
+                                        <span class="ml-auto text-xs text-cyan-400">5 minutes ago</span>
+                                    </div>
+                                </div>
+                                <div class="cyber-node text-sm pl-6 relative">
+                                    <div class="cyber-connection"></div>
+                                    <div class="font-mono flex items-center">
+                                        <i class="fas fa-shield-alt mr-3 text-yellow-400"></i>
+                                        <span>Security alert triggered on cyber-gw-7k2y1</span>
+                                        <span class="ml-auto text-xs text-cyan-400">8 minutes ago</span>
+                                    </div>
+                                </div>
+                                <div class="cyber-node text-sm pl-6 relative">
+                                    <div class="cyber-connection"></div>
+                                    <div class="font-mono flex items-center">
+                                        <i class="fas fa-power-off mr-3 text-red-400"></i>
+                                        <span>Session #CC-2865 terminated</span>
+                                        <span class="ml-auto text-xs text-cyan-400">12 minutes ago</span>
+                                    </div>
+                                </div>
+                                <div class="cyber-node text-sm pl-6 relative">
+                                    <div class="cyber-connection"></div>
+                                    <div class="font-mono flex items-center">
+                                        <i class="fas fa-upload mr-3 text-purple-400"></i>
+                                        <span>File uploaded to #CC-2869</span>
+                                        <span class="ml-auto text-xs text-cyan-400">15 minutes ago</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right panel -->
+            <div class="w-96 cyber-panel border-l border-cyan-900 flex flex-col">
+                <!-- Selected session -->
+                <div class="p-4 border-b border-cyan-900">
+                    <div class="text-lg font-bold mb-2 flex items-center">
+                        <i class="fas fa-desktop mr-3 text-cyan-400"></i>
+                        <span>SELECTED SESSION</span>
+                    </div>
+                    <div class="cyber-border rounded-lg p-4">
+                        <div class="flex items-center mb-3">
+                            <div class="w-3 h-3 rounded-full bg-green-400 mr-3"></div>
+                            <div class="font-bold">#CC-2873</div>
+                        </div>
+                        <div class="text-sm text-cyan-300 mb-4 font-mono">
+                            <div>DC-01 (10.0.0.10)</div>
+                            <div>DOMAIN\Admin | Elevated: Yes</div>
+                            <div>Windows Server 2019 | x64</div>
+                        </div>
+                        
+                        <div class="grid grid-cols-3 gap-2 mb-4">
+                            <div class="text-center">
+                                <div class="text-xl font-bold">28ms</div>
+                                <div class="text-xs text-cyan-300">LATENCY</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-xl font-bold">2h 18m</div>
+                                <div class="text-xs text-cyan-300">DURATION</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-xl font-bold">12</div>
+                                <div class="text-xs text-cyan-300">COMMANDS</div>
+                            </div>
+                        </div>
+                        
+                        <button class="w-full py-2 rounded-md cyber-btn">
+                            <i class="fas fa-terminal mr-2"></i> INTERACT
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Session details -->
+                <div class="p-4 border-b border-cyan-900 flex-1">
+                    <div class="text-lg font-bold mb-2 flex items-center">
+                        <i class="fas fa-info-circle mr-3 text-cyan-400"></i>
+                        <span>SESSION DETAILS</span>
+                    </div>
+                    <div class="space-y-4">
+                        <div>
+                            <div class="text-sm text-cyan-300 mb-1">SYSTEM INFORMATION</div>
+                            <div class="cyber-border rounded-lg p-3 text-sm">
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div>
+                                        <div class="text-cyan-300">CPU:</div>
+                                        <div>Intel Xeon 8 cores @ 3.2GHz</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-cyan-300">RAM:</div>
+                                        <div>32GB (45% used)</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-cyan-300">Uptime:</div>
+                                        <div>7d 4h 22m</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-cyan-300">AV:</div>
+                                        <div class="text-yellow-400">Windows Defender</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="text-sm text-cyan-300 mb-1">NETWORK INFORMATION</div>
+                            <div class="cyber-border rounded-lg p-3 text-sm">
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div>
+                                        <div class="text-cyan-300">IP:</div>
+                                        <div>10.0.0.10</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-cyan-300">Gateway:</div>
+                                        <div>10.0.0.1</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-cyan-300">DNS:</div>
+                                        <div>10.0.0.2</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-cyan-300">MAC:</div>
+                                        <div>00:15:5d:01:2a:3b</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="text-sm text-cyan-300 mb-1">ACTIVE PROCESSES</div>
+                            <div class="cyber-border rounded-lg p-3 text-sm max-h-40 overflow-y-auto cyber-scroll">
+                                <div class="grid grid-cols-3 gap-2 text-xs font-mono mb-2 text-cyan-300">
+                                    <div>PID</div>
+                                    <div>NAME</div>
+                                    <div>CPU</div>
+                                </div>
+                                <div class="grid grid-cols-3 gap-2 text-xs font-mono mb-1">
+                                    <div>1248</div>
+                                    <div>svchost.exe</div>
+                                    <div>12%</div>
+                                </div>
+                                <div class="grid grid-cols-3 gap-2 text-xs font-mono mb-1">
+                                    <div>1532</div>
+                                    <div>lsass.exe</div>
+                                    <div>8%</div>
+                                </div>
+                                <div class="grid grid-cols-3 gap-2 text-xs font-mono mb-1">
+                                    <div>1724</div>
+                                    <div>powershell.exe</div>
+                                    <div>5%</div>
+                                </div>
+                                <div class="grid grid-cols-3 gap-2 text-xs font-mono mb-1">
+                                    <div>2016</div>
+                                    <div>explorer.exe</div>
+                                    <div>3%</div>
+                                </div>
+                                <div class="grid grid-cols-3 gap-2 text-xs font-mono mb-1">
+                                    <div>2248</div>
+                                    <div>chrome.exe</div>
+                                    <div>15%</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Quick command -->
+                <div class="p-4">
+                    <div class="text-sm text-cyan-300 mb-1">QUICK COMMAND</div>
+                    <div class="flex">
+                        <input type="text" class="flex-1 cyber-input rounded-l-md px-3 py-2" placeholder="Enter command...">
+                        <button class="px-4 py-2 rounded-r-md cyber-btn">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                    <div class="text-xs text-cyan-400 mt-2">
+                        Available modules: <span class="text-white">shell</span>, <span class="text-white">download</span>, 
+                        <span class="text-white">upload</span>, <span class="text-white">keylog</span>, <span class="text-white">screenshot</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Command terminal modal -->
+    <div id="terminalModal" class="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center hidden z-50">
+        <div class="cyber-modal rounded-lg w-4/5 h-4/5 flex flex-col">
+            <div class="p-3 border-b border-cyan-900 flex justify-between items-center">
+                <h3 class="font-medium flex items-center">
+                    <i class="fas fa-terminal mr-2 text-cyan-400"></i>
+                    COMMAND TERMINAL - #CC-2873
+                </h3>
+                <div class="flex items-center space-x-3">
+                    <button class="text-cyan-400 hover:text-white text-sm">
+                        <i class="fas fa-copy mr-1"></i> COPY
+                    </button>
+                    <button class="text-cyan-400 hover:text-white text-sm">
+                        <i class="fas fa-save mr-1"></i> SAVE
+                    </button>
+                    <button onclick="hideTerminal()" class="text-cyan-400 hover:text-white">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="p-4 overflow-auto flex-1 cyber-code">
+                <div class="mb-2">
+                    <span class="text-green-400">cyber@dc-01></span> whoami /all
+                </div>
+                <div class="mb-4 pl-6 text-sm">
+                    USER INFORMATION<br>
+                    ----------------<br><br>
+                    User Name      SID<br>
+                    ============== ==============================================<br>
+                    domain\admin S-1-5-21-3623811015-3361044348-30300820-500<br><br>
+                    GROUP INFORMATION<br>
+                    ----------------<br><br>
+                    Group Name                           Type             SID          Attributes<br>
+                    ==================================== ================ ============ ==================================================<br>
+                    Everyone                             Well-known group S-1-1-0      Mandatory group, Enabled by default, Enabled group<br>
+                    BUILTIN\Administrators               Alias            S-1-5-32-544 Mandatory group, Enabled by default, Enabled group<br>
+                    BUILTIN\Users                        Alias            S-1-5-32-545 Mandatory group, Enabled by default, Enabled group<br>
+                </div>
+                <div class="mb-2">
+                    <span class="text-green-400">cyber@dc-01></span> net group "Domain Admins" /domain
+                </div>
+                <div class="mb-4 pl-6 text-sm">
+                    Group name     Domain Admins<br>
+                    Comment        Designated administrators of the domain<br><br>
+                    Members<br>
+                    -------------------------------------------------------------------------------<br>
+                    Administrator            john.doe              jane.smith<br>
+                    backup.admin            service.admin<br><br>
+                    The command completed successfully.
+                </div>
+                <div class="mb-2">
+                    <span class="text-green-400">cyber@dc-01></span> <span class="cyber-pulse">_</span>
+                </div>
+            </div>
+            <div class="p-3 border-t border-cyan-900">
+                <div class="flex">
+                    <input type="text" class="flex-1 cyber-input rounded-l-md px-3 py-2" placeholder="Enter command...">
+                    <button class="px-4 py-2 rounded-r-md cyber-btn">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Context menu -->
+    <div id="contextMenu" class="cyber-context-menu fixed hidden">
+        <div class="cyber-context-item flex items-center">
+            <i class="fas fa-terminal mr-2"></i> OPEN TERMINAL
+        </div>
+        <div class="cyber-context-item flex items-center">
+            <i class="fas fa-download mr-2"></i> DOWNLOAD FILE
+        </div>
+        <div class="cyber-context-item flex items-center">
+            <i class="fas fa-upload mr-2"></i> UPLOAD FILE
+        </div>
+        <div class="cyber-context-item flex items-center">
+            <i class="fas fa-eye mr-2"></i> MONITOR SESSION
+        </div>
+        <div class="cyber-divider"></div>
+        <div class="cyber-context-item flex items-center text-red-400">
+            <i class="fas fa-power-off mr-2"></i> TERMINATE SESSION
+        </div>
+    </div>
+    
+    <script>
+        // Initialization sequence
+        let progress = 0;
+        const initInterval = setInterval(() => {
+            progress += Math.floor(Math.random() * 10) + 5;
+            if (progress > 100) progress = 100;
+            
+            document.getElementById('initProgress').style.width = `${progress}%`;
+            
+            const statusMessages = [
+                "> Initializing quantum encryption protocols...",
+                "> Establishing neural network connections...",
+                "> Authenticating user credentials...",
+                "> Loading security matrix...",
+                "> Synchronizing data cores...",
+                "> Preparing command interface...",
+                "> Finalizing system checks..."
+            ];
+            
+            const randomStatus = statusMessages[Math.floor(Math.random() * statusMessages.length)];
+            document.getElementById('initStatus').textContent = randomStatus;
+            
+            if (progress === 100) {
+                clearInterval(initInterval);
+                setTimeout(() => {
+                    document.getElementById('initSequence').style.opacity = '0';
+                    setTimeout(() => {
+                        document.getElementById('initSequence').remove();
+                        document.getElementById('mainApp').classList.remove('hidden');
+                    }, 1000);
+                }, 500);
+            }
+        }, 300);
+        
+        // Update system time
+        function updateSystemTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', {hour12: false});
+            document.getElementById('systemTime').textContent = timeString;
+        }
+        
+        setInterval(updateSystemTime, 1000);
+        updateSystemTime();
+        
+        // Show terminal modal
+        function showTerminal() {
+            document.getElementById('terminalModal').classList.remove('hidden');
+        }
+        
+        function hideTerminal() {
+            document.getElementById('terminalModal').classList.add('hidden');
+        }
+        
+        // Make terminal buttons work
+        document.querySelectorAll('[data-action="terminal"]').forEach(btn => {
+            btn.addEventListener('click', showTerminal);
+        });
+        
+        // Context menu
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            const contextMenu = document.getElementById('contextMenu');
+            contextMenu.style.display = 'block';
+            contextMenu.style.left = e.pageX + 'px';
+            contextMenu.style.top = e.pageY + 'px';
+        });
+        
+        document.addEventListener('click', function() {
+            document.getElementById('contextMenu').style.display = 'none';
+        });
+        
+        // Tooltip functionality
+        const tooltips = document.querySelectorAll('[data-tooltip]');
+        const tooltipElement = document.createElement('div');
+        tooltipElement.className = 'cyber-tooltip';
+        document.body.appendChild(tooltipElement);
+        
+        tooltips.forEach(el => {
+            el.addEventListener('mouseenter', (e) => {
+                const rect = el.getBoundingClientRect();
+                tooltipElement.textContent = el.getAttribute('data-tooltip');
+                tooltipElement.style.left = `${rect.left + rect.width/2}px`;
+                tooltipElement.style.top = `${rect.top - 10}px`;
+                tooltipElement.style.transform = 'translateX(-50%) translateY(-100%)';
+                tooltipElement.style.opacity = '1';
+            });
+            
+            el.addEventListener('mouseleave', () => {
+                tooltipElement.style.opacity = '0';
+            });
+        });
+        
+        // Animate graphs
+        function animateGraphs() {
+            const graphs = document.querySelectorAll('.cyber-graph-line');
+            graphs.forEach(graph => {
+                const path = graph.querySelector('path');
+                const length = path.getTotalLength();
+                
+                // Set up the starting positions
+                path.style.strokeDasharray = length;
+                path.style.strokeDashoffset = length;
+                
+                // Trigger the animationQ
+                path.getBoundingClientRect();
+                path.style.transition = 'stroke-dashoffset 2s ease-in-out';
+                path.style.strokeDashoffset = '0';
+            });
+        }
+        
+        setTimeout(animateGraphs, 3500);
+    </script>
+</body>
+</html>

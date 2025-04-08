@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linode C2 Commander</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 5px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        
+        /* Windows-style window */
+        .window {
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+            border-radius: 8px 8px 0 0;
+            overflow: hidden;
+        }
+        
+        .window-header {
+            background: linear-gradient(to right, #0078d7, #004e8c);
+            color: white;
+            padding: 8px 12px;
+            cursor: move;
+            user-select: none;
+        }
+        
+        .window-content {
+            background-color: #f0f0f0;
+            border-left: 1px solid #ddd;
+            border-right: 1px solid #ddd;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        /* Linode-style tabs */
+        .linode-tab {
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+        }
+        
+        .linode-tab:hover {
+            border-bottom-color: #00aaff;
+        }
+        
+        .linode-tab.active {
+            border-bottom-color: #00aaff;
+            color: #00aaff;
+            font-weight: 500;
+        }
+        
+        /* Status indicators */
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        
+        .status-online {
+            background-color: #2ecc71;
+        }
+        
+        .status-offline {
+            background-color: #e74c3c;
+        }
+        
+        .status-idle {
+            background-color: #f39c12;
+        }
+        
+        /* Command input */
+        .command-input {
+            font-family: 'Courier New', monospace;
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+        }
+        
+        /* Custom context menu */
+        .context-menu {
+            display: none;
+            position: absolute;
+            background-color: white;
+            border: 1px solid #ddd;
+            box-shadow: 2px 2px 10px rgba(0,0,0,0.2);
+            z-index: 1000;
+        }
+        
+        .context-menu-item {
+            padding: 8px 16px;
+            cursor: pointer;
+        }
+        
+        .context-menu-item:hover {
+            background-color: #f0f0f0;
+        }
+    </style>
+</head>
+<body class="bg-gray-200 font-sans">
+    <div class="container mx-auto p-4">
+        <!-- Main Window -->
+        <div class="window max-w-6xl mx-auto">
+            <!-- Window Header -->
+            <div class="window-header flex justify-between items-center">
+                <div class="flex items-center">
+                    <i class="fas fa-server mr-2"></i>
+                    <span class="font-semibold">Linode C2 Commander v2.4.1</span>
+                </div>
+                <div class="window-controls flex">
+                    <div class="px-3 py-1 hover:bg-blue-600"><i class="fas fa-minus"></i></div>
+                    <div class="px-3 py-1 hover:bg-blue-600"><i class="fas fa-square"></i></div>
+                    <div class="px-3 py-1 hover:bg-red-600"><i class="fas fa-times"></i></div>
+                </div>
+            </div>
+            
+            <!-- Window Content -->
+            <div class="window-content">
+                <!-- Toolbar -->
+                <div class="bg-white border-b flex items-center px-4 py-2">
+                    <button class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded mr-2">
+                        <i class="fas fa-plus mr-1"></i> New Session
+                    </button>
+                    <button class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-3 py-1 rounded mr-2">
+                        <i class="fas fa-sync-alt mr-1"></i> Refresh
+                    </button>
+                    <button class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-3 py-1 rounded mr-2">
+                        <i class="fas fa-cog mr-1"></i> Settings
+                    </button>
+                    <div class="ml-auto">
+                        <input type="text" placeholder="Search nodes..." class="px-3 py-1 border rounded w-64">
+                    </div>
+                </div>
+                
+                <!-- Main Content -->
+                <div class="flex" style="height: 500px;">
+                    <!-- Sidebar -->
+                    <div class="w-64 bg-white border-r p-2 overflow-y-auto">
+                        <div class="mb-4">
+                            <h3 class="font-semibold text-gray-700 mb-2 flex justify-between items-center">
+                                <span>Node Groups</span>
+                                <i class="fas fa-plus-circle text-blue-500 cursor-pointer"></i>
+                            </h3>
+                            <ul>
+                                <li class="pl-4 py-1 hover:bg-gray-100 cursor-pointer flex items-center">
+                                    <i class="fas fa-globe-americas text-green-500 mr-2"></i>
+                                    All Nodes (24)
+                                </li>
+                                <li class="pl-4 py-1 hover:bg-gray-100 cursor-pointer flex items-center">
+                                    <i class="fas fa-building text-blue-500 mr-2"></i>
+                                    Corporate (8)
+                                </li>
+                                <li class="pl-4 py-1 hover:bg-gray-100 cursor-pointer flex items-center">
+                                    <i class="fas fa-home text-purple-500 mr-2"></i>
+                                    Residential (12)
+                                </li>
+                                <li class="pl-4 py-1 hover:bg-gray-100 cursor-pointer flex items-center">
+                                    <i class="fas fa-server text-orange-500 mr-2"></i>
+                                    Servers (4)
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h3 class="font-semibold text-gray-700 mb-2">Quick Actions</h3>
+                            <button class="w-full bg-gray-100 hover:bg-gray-200 text-left px-3 py-1 rounded mb-1 flex items-center">
+                                <i class="fas fa-terminal mr-2 text-green-600"></i>
+                                Execute Command
+                            </button>
+                            <button class="w-full bg-gray-100 hover:bg-gray-200 text-left px-3 py-1 rounded mb-1 flex items-center">
+                                <i class="fas fa-file-download mr-2 text-blue-600"></i>
+                                Download File
+                            </button>
+                            <button class="w-full bg-gray-100 hover:bg-gray-200 text-left px-3 py-1 rounded mb-1 flex items-center">
+                                <i class="fas fa-file-upload mr-2 text-purple-600"></i>
+                                Upload File
+                            </button>
+                        </div>
+                        
+                        <div>
+                            <h3 class="font-semibold text-gray-700 mb-2">Status Overview</h3>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div class="bg-green-100 p-2 rounded text-center">
+                                    <div class="text-green-800 font-bold">18</div>
+                                    <div class="text-xs text-green-600">Online</div>
+                                </div>
+                                <div class="bg-red-100 p-2 rounded text-center">
+                                    <div class="text-red-800 font-bold">2</div>
+                                    <div class="text-xs text-red-600">Offline</div>
+                                </div>
+                                <div class="bg-yellow-100 p-2 rounded text-center">
+                                    <div class="text-yellow-800 font-bold">3</div>
+                                    <div class="text-xs text-yellow-600">Idle</div>
+                                </div>
+                                <div class="bg-blue-100 p-2 rounded text-center">
+                                    <div class="text-blue-800 font-bold">1</div>
+                                    <div class="text-xs text-blue-600">Maintenance</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Main Panel -->
+                    <div class="flex-1 flex flex-col">
+                        <!-- Tabs -->
+                        <div class="bg-white border-b flex">
+                            <div class="linode-tab active px-4 py-2 cursor-pointer border-r">
+                                <i class="fas fa-list mr-1"></i> Node List
+                            </div>
+                            <div class="linode-tab px-4 py-2 cursor-pointer border-r">
+                                <i class="fas fa-chart-line mr-1"></i> Analytics
+                            </div>
+                            <div class="linode-tab px-4 py-2 cursor-pointer border-r">
+                                <i class="fas fa-history mr-1"></i> Activity Log
+                            </div>
+                            <div class="linode-tab px-4 py-2 cursor-pointer">
+                                <i class="fas fa-tools mr-1"></i> Tools
+                            </div>
+                        </div>
+                        
+                        <!-- Content Area -->
+                        <div class="flex-1 overflow-auto bg-white p-4">
+                            <!-- Node Table -->
+                            <div class="mb-4">
+                                <div class="flex justify-between items-center mb-2">
+                                    <h3 class="font-semibold text-lg">Active Nodes</h3>
+                                    <div class="text-sm text-gray-500">Last updated: <span id="update-time">Just now</span></div>
+                                </div>
+                                
+                                <table class="min-w-full bg-white border">
+                                    <thead>
+                                        <tr class="bg-gray-100">
+                                            <th class="py-2 px-4 border-b text-left">ID</th>
+                                            <th class="py-2 px-4 border-b text-left">Status</th>
+                                            <th class="py-2 px-4 border-b text-left">Hostname</th>
+                                            <th class="py-2 px-4 border-b text-left">IP Address</th>
+                                            <th class="py-2 px-4 border-b text-left">Location</th>
+                                            <th class="py-2 px-4 border-b text-left">Last Seen</th>
+                                            <th class="py-2 px-4 border-b text-left">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="py-2 px-4 border-b">#NX-4821</td>
+                                            <td class="py-2 px-4 border-b"><span class="status-indicator status-online"></span> Online</td>
+                                            <td class="py-2 px-4 border-b">corp-web-01</td>
+                                            <td class="py-2 px-4 border-b">192.168.1.45</td>
+                                            <td class="py-2 px-4 border-b">New York, US</td>
+                                            <td class="py-2 px-4 border-b">2 minutes ago</td>
+                                            <td class="py-2 px-4 border-b">
+                                                <button class="text-blue-500 hover:text-blue-700 mr-2"><i class="fas fa-terminal"></i></button>
+                                                <button class="text-green-500 hover:text-green-700 mr-2"><i class="fas fa-desktop"></i></button>
+                                                <button class="text-purple-500 hover:text-purple-700"><i class="fas fa-ellipsis-h"></i></button>
+                                            </td>
+                                        </tr>
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="py-2 px-4 border-b">#NX-5712</td>
+                                            <td class="py-2 px-4 border-b"><span class="status-indicator status-online"></span> Online</td>
+                                            <td class="py-2 px-4 border-b">res-pc-109</td>
+                                            <td class="py-2 px-4 border-b">10.0.34.21</td>
+                                            <td class="py-2 px-4 border-b">London, UK</td>
+                                            <td class="py-2 px-4 border-b">5 minutes ago</td>
+                                            <td class="py-2 px-4 border-b">
+                                                <button class="text-blue-500 hover:text-blue-700 mr-2"><i class="fas fa-terminal"></i></button>
+                                                <button class="text-green-500 hover:text-green-700 mr-2"><i class="fas fa-desktop"></i></button>
+                                                <button class="text-purple-500 hover:text-purple-700"><i class="fas fa-ellipsis-h"></i></button>
+                                            </td>
+                                        </tr>
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="py-2 px-4 border-b">#NX-8934</td>
+                                            <td class="py-2 px-4 border-b"><span class="status-indicator status-idle"></span> Idle</td>
+                                            <td class="py-2 px-4 border-b">svr-db-02</td>
+                                            <td class="py-2 px-4 border-b">172.16.5.67</td>
+                                            <td class="py-2 px-4 border-b">Tokyo, JP</td>
+                                            <td class="py-2 px-4 border-b">15 minutes ago</td>
+                                            <td class="py-2 px-4 border-b">
+                                                <button class="text-blue-500 hover:text-blue-700 mr-2"><i class="fas fa-terminal"></i></button>
+                                                <button class="text-green-500 hover:text-green-700 mr-2"><i class="fas fa-desktop"></i></button>
+                                                <button class="text-purple-500 hover:text-purple-700"><i class="fas fa-ellipsis-h"></i></button>
+                                            </td>
+                                        </tr>
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="py-2 px-4 border-b">#NX-3267</td>
+                                            <td class="py-2 px-4 border-b"><span class="status-indicator status-offline"></span> Offline</td>
+                                            <td class="py-2 px-4 border-b">corp-lap-22</td>
+                                            <td class="py-2 px-4 border-b">192.168.3.12</td>
+                                            <td class="py-2 px-4 border-b">Berlin, DE</td>
+                                            <td class="py-2 px-4 border-b">2 hours ago</td>
+                                            <td class="py-2 px-4 border-b">
+                                                <button class="text-blue-500 hover:text-blue-700 mr-2"><i class="fas fa-terminal"></i></button>
+                                                <button class="text-green-500 hover:text-green-700 mr-2"><i class="fas fa-desktop"></i></button>
+                                                <button class="text-purple-500 hover:text-purple-700"><i class="fas fa-ellipsis-h"></i></button>
+                                            </td>
+                                        </tr>
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="py-2 px-4 border-b">#NX-7581</td>
+                                            <td class="py-2 px-4 border-b"><span class="status-indicator status-online"></span> Online</td>
+                                            <td class="py-2 px-4 border-b">res-pc-203</td>
+                                            <td class="py-2 px-4 border-b">10.0.12.89</td>
+                                            <td class="py-2 px-4 border-b">Sydney, AU</td>
+                                            <td class="py-2 px-4 border-b">1 minute ago</td>
+                                            <td class="py-2 px-4 border-b">
+                                                <button class="text-blue-500 hover:text-blue-700 mr-2"><i class="fas fa-terminal"></i></button>
+                                                <button class="text-green-500 hover:text-green-700 mr-2"><i class="fas fa-desktop"></i></button>
+                                                <button class="text-purple-500 hover:text-purple-700"><i class="fas fa-ellipsis-h"></i></button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <!-- Command Execution Panel -->
+                            <div class="border rounded overflow-hidden">
+                                <div class="bg-gray-100 px-4 py-2 border-b flex justify-between items-center">
+                                    <div class="font-medium">Execute Command</div>
+                                    <div class="flex">
+                                        <select class="border rounded px-2 py-1 mr-2 text-sm">
+                                            <option>All Selected Nodes (3)</option>
+                                            <option>Only Online Nodes (2)</option>
+                                            <option>Custom Selection</option>
+                                        </select>
+                                        <button class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm">
+                                            <i class="fas fa-play mr-1"></i> Execute
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="p-2">
+                                    <textarea class="command-input w-full p-2 rounded" rows="4" placeholder="Enter command to execute on selected nodes...">whoami</textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Status Bar -->
+            <div class="bg-gray-800 text-white px-4 py-1 text-sm flex justify-between items-center">
+                <div>
+                    <span class="mr-4"><i class="fas fa-circle text-green-500 mr-1"></i> Connected</span>
+                    <span class="mr-4"><i class="fas fa-shield-alt text-blue-400 mr-1"></i> Encrypted</span>
+                    <span><i class="fas fa-user-secret text-purple-400 mr-1"></i> Anonymous</span>
+                </div>
+                <div>
+                    <span class="mr-4">CPU: 24%</span>
+                    <span>Memory: 1.2GB/8GB</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Context Menu (hidden by default) -->
+        <div id="context-menu" class="context-menu">
+            <div class="context-menu-item"><i class="fas fa-terminal mr-2"></i> Open Terminal</div>
+            <div class="context-menu-item"><i class="fas fa-desktop mr-2"></i> Remote Desktop</div>
+            <div class="context-menu-item"><i class="fas fa-file-download mr-2"></i> Download Files</div>
+            <div class="context-menu-item"><i class="fas fa-keyboard mr-2"></i> Keylogger</div>
+            <div class="context-menu-item"><i class="fas fa-camera mr-2"></i> Screenshot</div>
+            <div class="context-menu-divider border-t my-1"></div>
+            <div class="context-menu-item text-red-500"><i class="fas fa-power-off mr-2"></i> Disconnect Node</div>
+        </div>
+    </div>
+
+    <script>
+        // Simple script to handle tab switching
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabs = document.querySelectorAll('.linode-tab');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // Remove active class from all tabs
+                    tabs.forEach(t => t.classList.remove('active'));
+                    // Add active class to clicked tab
+                    this.classList.add('active');
+                });
+            });
+            
+            // Update time every minute
+            function updateTime() {
+                const now = new Date();
+                const timeString = now.toLocaleTimeString();
+                document.getElementById('update-time').textContent = timeString;
+            }
+            
+            updateTime();
+            setInterval(updateTime, 60000);
+            
+            // Simple context menu handler
+            const contextMenu = document.getElementById('context-menu');
+            const ellipsisButtons = document.querySelectorAll('.fa-ellipsis-h');
+            
+            ellipsisButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    // Position the context menu near the clicked button
+                    const rect = this.getBoundingClientRect();
+                    contextMenu.style.display = 'block';
+                    contextMenu.style.left = `${rect.left}px`;
+                    contextMenu.style.top = `${rect.bottom}px`;
+                });
+            });
+            
+            // Close context menu when clicking elsewhere
+            document.addEventListener('click', function() {
+                contextMenu.style.display = 'none';
+            });
+        });
+    </script>
+</body>
+</html>

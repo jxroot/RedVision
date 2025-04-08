@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glass C2 Interface</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap');
+        
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: linear-gradient(135deg, #1e3a8a 0%, #6b21a8 50%, #831843 100%);
+            color: #e2e8f0;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        }
+        
+        .glass-button {
+            background: rgba(30, 58, 138, 0.5);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .glass-button:hover {
+            background: rgba(30, 58, 138, 0.7);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4);
+        }
+        
+        .glass-card {
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .glass-card:hover {
+            background: rgba(15, 23, 42, 0.6);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.3);
+        }
+        
+        .blinking-cursor::after {
+            content: "|";
+            animation: blink 1s step-end infinite;
+        }
+        
+        @keyframes blink {
+            from, to { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        
+        .glow-text {
+            text-shadow: 0 0 8px rgba(147, 197, 253, 0.8);
+        }
+        
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        .terminal-line {
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .gradient-border {
+            position: relative;
+            border-radius: 12px;
+        }
+        
+        .gradient-border::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: -1px;
+            right: -1px;
+            bottom: -1px;
+            background: linear-gradient(45deg, #3b82f6, #8b5cf6, #ec4899);
+            z-index: -1;
+            border-radius: 12px;
+            opacity: 0.7;
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+        }
+    </style>
+</head>
+<body class="flex flex-col h-screen">
+    <!-- Header -->
+    <header class="gradient-border m-4">
+        <div class="glass-panel p-4 rounded-xl flex justify-between items-center">
+            <div class="flex items-center space-x-4">
+                <div class="w-12 h-12 rounded-full glass-button flex items-center justify-center pulse">
+                    <i class="fas fa-shield-alt text-xl text-blue-300"></i>
+                </div>
+                <h1 class="text-2xl font-bold glow-text bg-clip-text text-transparent bg-gradient-to-r from-blue-300 to-purple-300">
+                    GLASS C2
+                </h1>
+            </div>
+            <div class="flex items-center space-x-3">
+                <div class="glass-button w-10 h-10 rounded-full flex items-center justify-center cursor-pointer">
+                    <i class="fas fa-cog text-blue-300"></i>
+                </div>
+                <div class="glass-button w-10 h-10 rounded-full flex items-center justify-center cursor-pointer">
+                    <i class="fas fa-bell text-yellow-300"></i>
+                </div>
+                <div class="glass-button w-10 h-10 rounded-full flex items-center justify-center cursor-pointer">
+                    <i class="fas fa-user text-pink-300"></i>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex flex-1 overflow-hidden mx-4 mb-4 space-x-4">
+        <!-- Sidebar -->
+        <aside class="w-64 flex flex-col">
+            <div class="glass-panel p-4 rounded-xl flex-1 flex flex-col">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="font-bold text-blue-300 glow-text">ACTIVE SESSIONS</h2>
+                    <div class="flex space-x-2">
+                        <button class="glass-button text-blue-300 p-2 rounded-lg">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                        <button class="glass-button text-blue-300 p-2 rounded-lg">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="space-y-3 overflow-y-auto scrollbar-hide flex-1">
+                    <div class="glass-card p-3 rounded-lg cursor-pointer">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-3 h-3 rounded-full bg-green-400 glow-text"></div>
+                            <div>
+                                <p class="text-sm font-medium">192.168.1.45</p>
+                                <p class="text-xs text-blue-200">Windows 10 | Admin</p>
+                            </div>
+                            <div class="ml-auto">
+                                <span class="text-xs px-2 py-1 rounded-full bg-blue-900 bg-opacity-50 text-blue-200">Active</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="glass-card p-3 rounded-lg cursor-pointer">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-3 h-3 rounded-full bg-yellow-400"></div>
+                            <div>
+                                <p class="text-sm font-medium">10.0.0.12</p>
+                                <p class="text-xs text-blue-200">Windows Server | User</p>
+                            </div>
+                            <div class="ml-auto">
+                                <span class="text-xs px-2 py-1 rounded-full bg-purple-900 bg-opacity-50 text-purple-200">Idle</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="glass-card p-3 rounded-lg cursor-pointer">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-3 h-3 rounded-full bg-red-400"></div>
+                            <div>
+                                <p class="text-sm font-medium">172.16.32.8</p>
+                                <p class="text-xs text-blue-200">Linux | Root</p>
+                            </div>
+                            <div class="ml-auto">
+                                <span class="text-xs px-2 py-1 rounded-full bg-red-900 bg-opacity-50 text-red-200">Offline</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-4 pt-4 border-t border-slate-700 border-opacity-50">
+                    <h2 class="font-bold text-purple-300 glow-text mb-3">QUICK ACTIONS</h2>
+                    <div class="grid grid-cols-3 gap-3">
+                        <button class="glass-button flex flex-col items-center justify-center p-3 rounded-xl">
+                            <i class="fas fa-terminal text-blue-300 mb-1"></i>
+                            <span class="text-xs text-blue-200">Shell</span>
+                        </button>
+                        <button class="glass-button flex flex-col items-center justify-center p-3 rounded-xl">
+                            <i class="fas fa-file text-purple-300 mb-1"></i>
+                            <span class="text-xs text-purple-200">Files</span>
+                        </button>
+                        <button class="glass-button flex flex-col items-center justify-center p-3 rounded-xl">
+                            <i class="fas fa-keyboard text-pink-300 mb-1"></i>
+                            <span class="text-xs text-pink-200">Keylogger</span>
+                        </button>
+                        <button class="glass-button flex flex-col items-center justify-center p-3 rounded-xl">
+                            <i class="fas fa-download text-green-300 mb-1"></i>
+                            <span class="text-xs text-green-200">Download</span>
+                        </button>
+                        <button class="glass-button flex flex-col items-center justify-center p-3 rounded-xl">
+                            <i class="fas fa-upload text-yellow-300 mb-1"></i>
+                            <span class="text-xs text-yellow-200">Upload</span>
+                        </button>
+                        <button class="glass-button flex flex-col items-center justify-center p-3 rounded-xl">
+                            <i class="fas fa-trash text-red-300 mb-1"></i>
+                            <span class="text-xs text-red-200">Remove</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Panel -->
+        <div class="flex-1 flex flex-col space-y-4">
+            <!-- Status Bar -->
+            <div class="gradient-border">
+                <div class="glass-panel p-4 rounded-xl flex justify-between items-center">
+                    <div class="flex items-center space-x-6">
+                        <div class="flex items-center space-x-2">
+                            <span class="w-3 h-3 rounded-full bg-green-400 glow-text"></span>
+                            <span class="text-sm">Connected</span>
+                        </div>
+                        <div class="text-sm">
+                            <span class="text-blue-200">Session ID:</span>
+                            <span class="text-blue-300 glow-text">GC2-892-ALPHA</span>
+                        </div>
+                        <div class="text-sm">
+                            <span class="text-blue-200">Agent Version:</span>
+                            <span class="text-blue-300">v2.4.1</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <div class="text-sm">
+                            <span class="text-blue-200">Last Active:</span>
+                            <span>2 minutes ago</span>
+                        </div>
+                        <div class="flex space-x-3">
+                            <div class="glass-button w-8 h-8 rounded-full flex items-center justify-center cursor-pointer">
+                                <i class="fas fa-chart-line text-blue-300 text-sm"></i>
+                            </div>
+                            <div class="glass-button w-8 h-8 rounded-full flex items-center justify-center cursor-pointer">
+                                <i class="fas fa-expand text-blue-300 text-sm"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Terminal -->
+            <div class="gradient-border flex-1">
+                <div class="glass-panel p-4 rounded-xl h-full flex flex-col">
+                    <div class="flex items-center justify-between mb-3">
+                        <h2 class="font-bold text-green-300 glow-text">TERMINAL</h2>
+                        <div class="flex space-x-2">
+                            <button class="glass-button text-blue-300 px-3 py-1 rounded-lg text-sm">
+                                Clear
+                            </button>
+                            <button class="glass-button text-blue-300 px-3 py-1 rounded-lg text-sm">
+                                Save
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-black bg-opacity-30 rounded-lg p-4 flex-1 overflow-y-auto scrollbar-hide font-mono text-sm" id="terminal">
+                        <div class="terminal-line text-green-400">[+] Session established with 192.168.1.45</div>
+                        <div class="terminal-line text-blue-300">[>] Running as: ADMINISTRATOR</div>
+                        <div class="terminal-line text-yellow-300">[!] System: Windows 10 Pro (10.0.19044)</div>
+                        <div class="terminal-line text-purple-300">[>] Privilege level: HIGH</div>
+                        <div class="terminal-line text-pink-300">[>] Current directory: C:\Windows\System32</div>
+                        <div class="terminal-line mt-4">
+                            <span class="text-green-300">admin@target-pc</span>
+                            <span class="text-white">:</span>
+                            <span class="text-blue-300">C:\Windows\System32</span>
+                            <span class="text-white">$</span>
+                            <span class="blinking-cursor"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-3 flex">
+                        <input type="text" class="flex-1 glass-panel border-0 rounded-l-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50" placeholder="Enter command...">
+                        <button class="glass-button text-blue-300 px-4 py-3 rounded-r-xl hover:bg-blue-900 hover:bg-opacity-50">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Info -->
+            <div class="gradient-border">
+                <div class="glass-panel p-4 rounded-xl">
+                    <div class="flex justify-between items-center mb-3">
+                        <h2 class="font-bold text-yellow-300 glow-text">SYSTEM INFORMATION</h2>
+                        <div class="flex space-x-2">
+                            <button class="glass-button text-blue-300 px-3 py-1 rounded-lg text-sm">
+                                <i class="fas fa-chart-pie"></i>
+                            </button>
+                            <button class="glass-button text-blue-300 px-3 py-1 rounded-lg text-sm">
+                                <i class="fas fa-expand"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-4 gap-4">
+                        <div class="glass-card p-3 rounded-xl">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 rounded-xl bg-blue-900 bg-opacity-50 flex items-center justify-center">
+                                    <i class="fas fa-microchip text-blue-300"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-blue-200">CPU USAGE</p>
+                                    <p class="text-lg font-bold text-blue-300">32%</p>
+                                </div>
+                            </div>
+                            <div class="w-full bg-slate-800 bg-opacity-50 h-1.5 mt-2 rounded-full">
+                                <div class="bg-blue-400 h-1.5 rounded-full" style="width: 32%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="glass-card p-3 rounded-xl">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 rounded-xl bg-purple-900 bg-opacity-50 flex items-center justify-center">
+                                    <i class="fas fa-memory text-purple-300"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-purple-200">MEMORY</p>
+                                    <p class="text-lg font-bold text-purple-300">4.2/16GB</p>
+                                </div>
+                            </div>
+                            <div class="w-full bg-slate-800 bg-opacity-50 h-1.5 mt-2 rounded-full">
+                                <div class="bg-purple-400 h-1.5 rounded-full" style="width: 26%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="glass-card p-3 rounded-xl">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 rounded-xl bg-green-900 bg-opacity-50 flex items-center justify-center">
+                                    <i class="fas fa-network-wired text-green-300"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-green-200">NETWORK</p>
+                                    <p class="text-lg font-bold text-green-300">1.2 MB/s</p>
+                                </div>
+                            </div>
+                            <div class="w-full bg-slate-800 bg-opacity-50 h-1.5 mt-2 rounded-full">
+                                <div class="bg-green-400 h-1.5 rounded-full" style="width: 45%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="glass-card p-3 rounded-xl">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 rounded-xl bg-red-900 bg-opacity-50 flex items-center justify-center">
+                                    <i class="fas fa-hdd text-red-300"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-red-200">DISK</p>
+                                    <p class="text-lg font-bold text-red-300">120/500GB</p>
+                                </div>
+                            </div>
+                            <div class="w-full bg-slate-800 bg-opacity-50 h-1.5 mt-2 rounded-full">
+                                <div class="bg-red-400 h-1.5 rounded-full" style="width: 24%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Simulate terminal output
+        document.addEventListener('DOMContentLoaded', function() {
+            const terminal = document.getElementById('terminal');
+            const commandInput = document.querySelector('input[type="text"]');
+            const sendButton = document.querySelector('button.glass-button');
+            
+            // Sample commands and responses
+            const commands = {
+                'help': 'Available commands: help, sysinfo, screenshot, download, upload, exit',
+                'sysinfo': 'System Information:\nOS: Windows 10 Pro\nCPU: Intel i7-10700K\nRAM: 16GB\nDisk: 500GB SSD',
+                'screenshot': 'Screenshot captured and saved to /downloads/screenshot.png',
+                'download': 'Usage: download <remote_path> <local_path>',
+                'upload': 'Usage: upload <local_path> <remote_path>',
+                'exit': 'Closing session...',
+                'clear': '',
+                'whoami': 'nt authority\\system',
+                'ipconfig': 'Ethernet adapter Ethernet:\n   IPv4 Address. . . . . . . . . . . : 192.168.1.45\n   Subnet Mask . . . . . . . . . . . : 255.255.255.0\n   Default Gateway . . . . . . . . . : 192.168.1.1'
+            };
+            
+            // Add a new line to the terminal
+            function addTerminalLine(text, colorClass = 'text-white') {
+                if (text.trim() === '') {
+                    terminal.innerHTML = '';
+                    return;
+                }
+                
+                const line = document.createElement('div');
+                line.className = `terminal-line ${colorClass} mt-1`;
+                line.textContent = text;
+                terminal.appendChild(line);
+                terminal.scrollTop = terminal.scrollHeight;
+            }
+            
+            // Handle command submission
+            function handleCommand() {
+                const command = commandInput.value.trim();
+                if (!command) return;
+                
+                // Add the command to the terminal
+                addTerminalLine(`$ ${command}`, 'text-green-300');
+                
+                // Clear input
+                commandInput.value = '';
+                
+                // Simulate processing delay
+                setTimeout(() => {
+                    // Get response or default message
+                    const response = commands[command.toLowerCase()] || `Command not found: ${command}`;
+                    
+                    // Add response to terminal
+                    addTerminalLine(response, 'text-blue-300');
+                    
+                    // Add new prompt
+                    if (command.toLowerCase() !== 'exit') {
+                        addTerminalLine('admin@target-pc:C:\\Windows\\System32$', 'text-green-300');
+                    }
+                }, 500);
+            }
+            
+            // Event listeners
+            sendButton.addEventListener('click', handleCommand);
+            commandInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    handleCommand();
+                }
+            });
+            
+            // Initial terminal content
+            setTimeout(() => {
+                addTerminalLine('Type "help" for available commands', 'text-yellow-300');
+            }, 1000);
+            
+            // Add some visual effects to glass elements on hover
+            document.querySelectorAll('.glass-button, .glass-card').forEach(el => {
+                el.addEventListener('mouseenter', () => {
+                    el.style.transform = 'translateY(-3px)';
+                    el.style.boxShadow = '0 8px 24px rgba(59, 130, 246, 0.3)';
+                });
+                
+                el.addEventListener('mouseleave', () => {
+                    el.style.transform = '';
+                    el.style.boxShadow = '';
+                });
+            });
+        });
+    </script>
+</body>
+</html>

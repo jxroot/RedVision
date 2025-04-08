@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skydash C2 Console</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+        
+        .sidebar {
+            transition: all 0.3s ease;
+        }
+        
+        .sidebar-mini {
+            width: 80px;
+        }
+        
+        .sidebar-mini .nav-text {
+            display: none;
+        }
+        
+        .sidebar-mini .logo-text {
+            display: none;
+        }
+        
+        .sidebar-mini .nav-item {
+            justify-content: center;
+        }
+        
+        .terminal {
+            background-color: #0f172a;
+            font-family: 'Courier New', monospace;
+            height: 300px;
+            overflow-y: auto;
+        }
+        
+        .terminal-line {
+            color: #e2e8f0;
+            line-height: 1.5;
+        }
+        
+        .terminal-prompt {
+            color: #38bdf8;
+        }
+        
+        .terminal-command {
+            color: #ffffff;
+        }
+        
+        .terminal-output {
+            color: #94a3b8;
+        }
+        
+        .agent-status-online {
+            background-color: #10b981;
+        }
+        
+        .agent-status-offline {
+            background-color: #ef4444;
+        }
+        
+        .agent-status-sleeping {
+            background-color: #f59e0b;
+        }
+        
+        .blink {
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden">
+    <!-- Sidebar -->
+    <div class="sidebar bg-white shadow-lg w-64 flex flex-col h-full">
+        <!-- Logo -->
+        <div class="flex items-center justify-between p-4 border-b">
+            <div class="flex items-center">
+                <div class="w-10 h-10 rounded-md bg-blue-500 flex items-center justify-center">
+                    <i class="fas fa-cloud text-white text-xl"></i>
+                </div>
+                <span class="logo-text ml-3 text-xl font-semibold text-gray-800">Skydash C2</span>
+            </div>
+            <button id="sidebar-toggle" class="text-gray-500 hover:text-gray-700">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+        
+        <!-- Navigation -->
+        <div class="flex-1 overflow-y-auto custom-scrollbar">
+            <div class="p-4">
+                <div class="mb-6">
+                    <h3 class="text-xs uppercase font-semibold text-gray-500 mb-3">Dashboard</h3>
+                    <ul class="space-y-2">
+                        <li>
+                            <a href="#" class="nav-item flex items-center p-2 text-sm font-medium rounded-md text-blue-600 bg-blue-50">
+                                <i class="fas fa-chart-pie text-blue-600 mr-3"></i>
+                                <span class="nav-text">Overview</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="nav-item flex items-center p-2 text-sm font-medium rounded-md text-gray-600 hover:text-blue-600 hover:bg-blue-50">
+                                <i class="fas fa-server text-gray-500 mr-3"></i>
+                                <span class="nav-text">Agents</span>
+                                <span class="ml-auto bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded-full">12</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="nav-item flex items-center p-2 text-sm font-medium rounded-md text-gray-600 hover:text-blue-600 hover:bg-blue-50">
+                                <i class="fas fa-tasks text-gray-500 mr-3"></i>
+                                <span class="nav-text">Tasks</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="nav-item flex items-center p-2 text-sm font-medium rounded-md text-gray-600 hover:text-blue-600 hover:bg-blue-50">
+                                <i class="fas fa-terminal text-gray-500 mr-3"></i>
+                                <span class="nav-text">Terminal</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="mb-6">
+                    <h3 class="text-xs uppercase font-semibold text-gray-500 mb-3">Management</h3>
+                    <ul class="space-y-2">
+                        <li>
+                            <a href="#" class="nav-item flex items-center p-2 text-sm font-medium rounded-md text-gray-600 hover:text-blue-600 hover:bg-blue-50">
+                                <i class="fas fa-cog text-gray-500 mr-3"></i>
+                                <span class="nav-text">Settings</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="nav-item flex items-center p-2 text-sm font-medium rounded-md text-gray-600 hover:text-blue-600 hover:bg-blue-50">
+                                <i class="fas fa-shield-alt text-gray-500 mr-3"></i>
+                                <span class="nav-text">Security</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="nav-item flex items-center p-2 text-sm font-medium rounded-md text-gray-600 hover:text-blue-600 hover:bg-blue-50">
+                                <i class="fas fa-users text-gray-500 mr-3"></i>
+                                <span class="nav-text">Users</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-xs uppercase font-semibold text-gray-500 mb-3">Support</h3>
+                    <ul class="space-y-2">
+                        <li>
+                            <a href="#" class="nav-item flex items-center p-2 text-sm font-medium rounded-md text-gray-600 hover:text-blue-600 hover:bg-blue-50">
+                                <i class="fas fa-question-circle text-gray-500 mr-3"></i>
+                                <span class="nav-text">Help Center</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="nav-item flex items-center p-2 text-sm font-medium rounded-md text-gray-600 hover:text-blue-600 hover:bg-blue-50">
+                                <i class="fas fa-book text-gray-500 mr-3"></i>
+                                <span class="nav-text">Documentation</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- User Profile -->
+        <div class="p-4 border-t">
+            <div class="flex items-center">
+                <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="User" class="w-10 h-10 rounded-full">
+                <div class="ml-3">
+                    <p class="text-sm font-medium text-gray-800">John Doe</p>
+                    <p class="text-xs text-gray-500">Administrator</p>
+                </div>
+                <button class="ml-auto text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-ellipsis-v"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+        <!-- Top Navigation -->
+        <div class="bg-white border-b flex items-center justify-between p-4">
+            <div class="flex items-center">
+                <h1 class="text-xl font-semibold text-gray-800">Agent Control Panel</h1>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="relative">
+                    <input type="text" placeholder="Search..." class="pl-10 pr-4 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <i class="fas fa-search absolute left-3 top-2.5 text-gray-400"></i>
+                </div>
+                <button class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-bell"></i>
+                    <span class="absolute top-3 right-3 w-2 h-2 bg-red-500 rounded-full"></span>
+                </button>
+                <button class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-envelope"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Content -->
+        <div class="flex-1 overflow-y-auto p-6 bg-gray-50 custom-scrollbar">
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">Total Agents</p>
+                            <p class="text-2xl font-semibold text-gray-800">24</p>
+                        </div>
+                        <div class="p-3 rounded-full bg-blue-100 text-blue-600">
+                            <i class="fas fa-server"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <div class="flex items-center text-sm text-green-500">
+                            <i class="fas fa-arrow-up mr-1"></i>
+                            <span>3 new agents</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">Online Agents</p>
+                            <p class="text-2xl font-semibold text-gray-800">18</p>
+                        </div>
+                        <div class="p-3 rounded-full bg-green-100 text-green-600">
+                            <i class="fas fa-wifi"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <div class="flex items-center text-sm text-gray-500">
+                            <span>75% active</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">Active Tasks</p>
+                            <p class="text-2xl font-semibold text-gray-800">42</p>
+                        </div>
+                        <div class="p-3 rounded-full bg-yellow-100 text-yellow-600">
+                            <i class="fas fa-tasks"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <div class="flex items-center text-sm text-gray-500">
+                            <span>12 completed today</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">Alerts</p>
+                            <p class="text-2xl font-semibold text-gray-800">5</p>
+                        </div>
+                        <div class="p-3 rounded-full bg-red-100 text-red-600">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <div class="flex items-center text-sm text-red-500">
+                            <i class="fas fa-arrow-up mr-1"></i>
+                            <span>2 critical</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Agent List and Terminal -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                <!-- Agent List -->
+                <div class="lg:col-span-2 bg-white rounded-lg shadow overflow-hidden">
+                    <div class="p-4 border-b flex items-center justify-between">
+                        <h2 class="text-lg font-semibold text-gray-800">Connected Agents</h2>
+                        <div class="flex space-x-2">
+                            <button class="px-3 py-1 bg-blue-50 text-blue-600 text-sm font-medium rounded-md hover:bg-blue-100">
+                                <i class="fas fa-sync-alt mr-1"></i> Refresh
+                            </button>
+                            <button class="px-3 py-1 bg-gray-50 text-gray-600 text-sm font-medium rounded-md hover:bg-gray-100">
+                                <i class="fas fa-filter mr-1"></i> Filter
+                            </button>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Agent ID</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hostname</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">IP Address</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">OS</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Seen</th>
+                                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#AG-4872</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">DESKTOP-JD84F2</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">192.168.1.45</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Windows 10</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                            Online
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2 min ago</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                        <button class="text-blue-600 hover:text-blue-900 mr-3"><i class="fas fa-terminal"></i></button>
+                                        <button class="text-gray-600 hover:text-gray-900"><i class="fas fa-ellipsis-v"></i></button>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#AG-1298</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">SERVER-01</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">10.0.0.12</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Windows Server 2019</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                            Online
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">5 min ago</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                        <button class="text-blue-600 hover:text-blue-900 mr-3"><i class="fas fa-terminal"></i></button>
+                                        <button class="text-gray-600 hover:text-gray-900"><i class="fas fa-ellipsis-v"></i></button>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#AG-7563</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">LAPTOP-MK23</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">192.168.1.78</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Windows 11</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                            Sleeping
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">15 min ago</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                        <button class="text-blue-600 hover:text-blue-900 mr-3"><i class="fas fa-terminal"></i></button>
+                                        <button class="text-gray-600 hover:text-gray-900"><i class="fas fa-ellipsis-v"></i></button>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#AG-3421</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">DESKTOP-AL9F3</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">10.0.1.34</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Windows 10</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                            Offline
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">1 hour ago</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                        <button class="text-blue-600 hover:text-blue-900 mr-3"><i class="fas fa-terminal"></i></button>
+                                        <button class="text-gray-600 hover:text-gray-900"><i class="fas fa-ellipsis-v"></i></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="px-4 py-3 bg-gray-50 border-t flex items-center justify-between">
+                        <div class="text-sm text-gray-500">
+                            Showing <span class="font-medium">1</span> to <span class="font-medium">4</span> of <span class="font-medium">24</span> agents
+                        </div>
+                        <div class="flex space-x-1">
+                            <button class="px-3 py-1 bg-gray-100 text-gray-600 text-sm font-medium rounded-md hover:bg-gray-200">
+                                Previous
+                            </button>
+                            <button class="px-3 py-1 bg-blue-600 text-white text-sm font-medium rounded-md">
+                                1
+                            </button>
+                            <button class="px-3 py-1 bg-gray-100 text-gray-600 text-sm font-medium rounded-md hover:bg-gray-200">
+                                2
+                            </button>
+                            <button class="px-3 py-1 bg-gray-100 text-gray-600 text-sm font-medium rounded-md hover:bg-gray-200">
+                                3
+                            </button>
+                            <button class="px-3 py-1 bg-gray-100 text-gray-600 text-sm font-medium rounded-md hover:bg-gray-200">
+                                Next
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Terminal -->
+                <div class="bg-white rounded-lg shadow overflow-hidden">
+                    <div class="p-4 border-b flex items-center justify-between">
+                        <h2 class="text-lg font-semibold text-gray-800">Terminal</h2>
+                        <div class="flex space-x-2">
+                            <button class="px-3 py-1 bg-gray-50 text-gray-600 text-sm font-medium rounded-md hover:bg-gray-100">
+                                <i class="fas fa-terminal mr-1"></i> New
+                            </button>
+                            <button class="px-3 py-1 bg-gray-50 text-gray-600 text-sm font-medium rounded-md hover:bg-gray-100">
+                                <i class="fas fa-cog"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="terminal p-4">
+                        <div class="terminal-line">
+                            <span class="terminal-prompt">admin@skydash-c2:~$</span>
+                            <span class="terminal-command"> connect AG-4872</span>
+                        </div>
+                        <div class="terminal-line terminal-output">
+                            [*] Establishing connection to agent AG-4872 (DESKTOP-JD84F2)...
+                        </div>
+                        <div class="terminal-line terminal-output">
+                            [+] Successfully connected to agent AG-4872 (Windows 10 - 192.168.1.45)
+                        </div>
+                        <div class="terminal-line">
+                            <span class="terminal-prompt">admin@AG-4872:~$</span>
+                            <span class="terminal-command"> sysinfo</span>
+                        </div>
+                        <div class="terminal-line terminal-output">
+                            Hostname: DESKTOP-JD84F2<br>
+                            OS: Windows 10 Pro (10.0.19044)<br>
+                            Architecture: x64<br>
+                            Username: jsmith<br>
+                            Process: explorer.exe (PID: 4872)<br>
+                            IP Address: 192.168.1.45<br>
+                            Last Check-in: 2 minutes ago
+                        </div>
+                        <div class="terminal-line">
+                            <span class="terminal-prompt">admin@AG-4872:~$</span>
+                            <span class="terminal-command blink">_</span>
+                        </div>
+                    </div>
+                    <div class="p-4 border-t">
+                        <div class="flex">
+                            <input type="text" class="flex-1 px-3 py-2 border rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter command...">
+                            <button class="px-4 py-2 bg-blue-600 text-white rounded-r-md hover:bg-blue-700">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recent Tasks -->
+            <div class="bg-white rounded-lg shadow overflow-hidden">
+                <div class="p-4 border-b flex items-center justify-between">
+                    <h2 class="text-lg font-semibold text-gray-800">Recent Tasks</h2>
+                    <button class="px-3 py-1 bg-blue-50 text-blue-600 text-sm font-medium rounded-md hover:bg-blue-100">
+                        <i class="fas fa-plus mr-1"></i> New Task
+                    </button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Task ID</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Agent</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Command</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Result</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#T-8742</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">AG-4872</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">sysinfo</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                        Completed
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2 min ago</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <button class="text-blue-600 hover:text-blue-900">View</button>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#T-1298</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">AG-1298</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">screenshot</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                        Completed
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">5 min ago</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <button class="text-blue-600 hover:text-blue-900">View</button>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#T-5632</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">AG-7563</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">keylog_start</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                        Pending
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">15 min ago</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <span class="text-gray-400">Waiting</span>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#T-9871</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">AG-3421</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">download C:\secret.txt</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                        Failed
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">1 hour ago</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <button class="text-blue-600 hover:text-blue-900">View</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Toggle sidebar
+        document.getElementById('sidebar-toggle').addEventListener('click', function() {
+            document.querySelector('.sidebar').classList.toggle('sidebar-mini');
+        });
+        
+        // Simulate terminal typing
+        const terminal = document.querySelector('.terminal');
+        const commands = [
+            'ls -la',
+            'ps',
+            'getuid',
+            'download C:\\users\\jsmith\\documents\\report.docx',
+            'screenshot',
+            'keylog_start'
+        ];
+        
+        let currentCommand = 0;
+        
+        function simulateTyping() {
+            const prompt = document.querySelector('.terminal-prompt');
+            const input = document.querySelector('.terminal-command');
+            
+            if (currentCommand < commands.length) {
+                input.textContent = '';
+                let i = 0;
+                const typing = setInterval(() => {
+                    if (i < commands[currentCommand].length) {
+                        input.textContent += commands[currentCommand][i];
+                        i++;
+                        terminal.scrollTop = terminal.scrollHeight;
+                    } else {
+                        clearInterval(typing);
+                        setTimeout(() => {
+                            input.textContent = '_';
+                            currentCommand++;
+                            if (currentCommand < commands.length) {
+                                setTimeout(simulateTyping, 1000);
+                            }
+                        }, 1000);
+                    }
+                }, 50);
+            } else {
+                currentCommand = 0;
+                setTimeout(simulateTyping, 2000);
+            }
+        }
+        
+        // Start simulation after a delay
+        setTimeout(simulateTyping, 3000);
+    </script>
+</body>
+</html>
