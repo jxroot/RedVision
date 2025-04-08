@@ -12,7 +12,7 @@
 > All HTML Files In  template Folder
 
 <details>
-    <summary>Click to view image 0</summary>
+    <summary>template 0</summary>
     <br>
 <p align="center">
         <img src="res/c0.png" width="700"/>
@@ -21,7 +21,7 @@
 </details>
 
 <details>
-    <summary>Click to view image 1</summary>
+    <summary>template 1</summary>
   <br>
 <p align="center">
         <img src="res/c1.png" width="700"/>
@@ -30,7 +30,7 @@
 </details>
 
 <details>
-    <summary>Click to view image 2</summary>
+    <summary>template 2</summary>
   <br>
 <p align="center">
         <img src="res/c2.png" width="700"/>
@@ -39,7 +39,7 @@
 </details>
 
 <details>
-    <summary>Click to view image 3</summary>
+    <summary>template 3</summary>
   <br>
 <p align="center">
         <img src="res/c3.png" width="700"/>
@@ -48,7 +48,7 @@
 </details>
 
 <details>
-    <summary>Click to view image 4</summary>
+    <summary>template 4</summary>
   <br>
 <p align="center">
         <img src="res/c4.png" width="700"/>
@@ -57,7 +57,7 @@
 </details>
 
 <details>
-    <summary>Click to view image 5</summary>
+    <summary>template 5</summary>
   <br>
 <p align="center">
         <img src="res/c5.png" width="700"/>
@@ -66,7 +66,7 @@
 </details>
 
 <details>
-    <summary>Click to view image 6</summary>
+    <summary>template 6</summary>
   <br>
 <p align="center">
         <img src="res/c6.png" width="700"/>
@@ -75,7 +75,7 @@
 </details>
 
 <details>
-    <summary>Click to view image 7</summary>
+    <summary>template 7</summary>
   <br>
 <p align="center">
         <img src="res/c7.png" width="700"/>
@@ -84,7 +84,7 @@
 </details>
 
 <details>
-    <summary>Click to view image 8</summary>
+    <summary>template 8</summary>
   <br>
 <p align="center">
         <img src="res/c8.png" width="700"/>
@@ -93,7 +93,7 @@
 </details>
 
 <details>
-    <summary>Click to view image 9</summary>
+    <summary>template 9</summary>
   <br>
  <p align="center">
         <img src="res/c9.png" width="700"/>
@@ -102,7 +102,7 @@
 </details>
 
 <details>
-    <summary>Click to view image 10</summary>
+    <summary>template 10</summary>
   <br>
 <p align="center">
         <img src="res/c10.png" width="700"/>
@@ -111,7 +111,7 @@
 </details>
 
 <details>
-    <summary>Click to view image 11</summary>
+    <summary>template 11</summary>
   <br>
 <p align="center">
         <img src="res/c11.png" width="700"/>
@@ -120,7 +120,7 @@
 </details>
 
 <details>
-    <summary>Click to view image 12</summary>
+    <summary>template 12</summary>
   <br>
 <p align="center">
         <img src="res/c12.png" width="700"/>
@@ -129,7 +129,7 @@
 </details>
 
 <details>
-    <summary>Click to view image 13</summary>
+    <summary>template 13</summary>
   <br>
 <p align="center">
         <img src="res/c13.png" width="700"/>
@@ -138,7 +138,7 @@
 </details>
 
 <details>
-    <summary>Click to view image 14</summary>
+    <summary>template 14</summary>
   <br>
     <p align="center">
         <img src="res/c14.png" width="700"/>
@@ -147,7 +147,7 @@
 </details>
 
 <details>
-    <summary>Click to view image 15</summary>
+    <summary>template 15</summary>
   <br>
     <p align="center">
         <img src="res/c15.png" width="700"/>
@@ -156,7 +156,7 @@
 </details>
 
 <details>
-    <summary>Click to view image 16</summary>
+    <summary>template 16</summary>
   <br>
     <p align="center">
         <img src="res/c16.png" width="700"/>
@@ -165,7 +165,7 @@
 </details>
 
 <details>
-    <summary>Click to view image 17</summary>
+    <summary>template 17</summary>
   <br>
     <p align="center">
         <img src="res/c17.png" width="700"/>
@@ -174,7 +174,7 @@
 </details>
 
 <details>
-    <summary>Click to view image 18</summary>
+    <summary>template 18</summary>
   <br>
     <p align="center">
         <img src="res/c18.png" width="700"/>
@@ -183,7 +183,7 @@
 </details>
 
 <details>
-    <summary>Click to view image 19</summary>
+    <summary>template 19</summary>
   <br>
     <p align="center">
         <img src="res/c19.png" width="700"/>
@@ -192,7 +192,7 @@
 </details>
 
 <details>
-    <summary>Click to view image 20</summary>
+    <summary>template 20</summary>
   <br>
     <p align="center">
         <img src="res/c20.png" width="700"/>
@@ -201,7 +201,7 @@
 </details>
 
 <details>
-    <summary>Click to view image 21</summary>
+    <summary>template 21</summary>
   <br>
     <p align="center">
         <img src="res/c21.png" width="700"/>
@@ -210,7 +210,7 @@
 </details>
 
 <details>
-    <summary>Click to view image 22</summary>
+    <summary>template 22</summary>
   <br>
     <p align="center">
         <img src="res/c22.png" width="700"/>
@@ -219,7 +219,7 @@
 </details>
 
 <details>
-    <summary>Click to view image 23</summary>
+    <summary>template 23</summary>
   <br>
     <p align="center">
         <img src="res/c23.png" width="700"/>
@@ -228,7 +228,7 @@
 </details>
 
 <details>
-    <summary>Click to view image 24</summary>
+    <summary>template 24</summary>
   <br>
     <p align="center">
         <img src="res/c24.png" width="700"/>
@@ -237,7 +237,7 @@
 </details>
 
 <details>
-    <summary>Click to view image 25</summary>
+    <summary>template 25</summary>
   <br>
     <p align="center">
         <img src="res/c25.png" width="700"/>
@@ -246,7 +246,7 @@
 </details>
 
 <details>
-    <summary>Click to view image 26</summary>
+    <summary>template 26</summary>
   <br>
     <p align="center">
         <img src="res/c26.png" width="700"/>
