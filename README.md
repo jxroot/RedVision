@@ -1,4 +1,4 @@
-<h3 align="center"><img src="res/c0.png" alt="logo" height="250px"></h3>
+<h3 align="center"><img src="res/icon.png" alt="logo" height="250px"></h3>
 <p align="center">
     <b>RedVision</b><br>
     </p>
