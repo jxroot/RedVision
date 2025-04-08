@@ -15,192 +15,245 @@
 <details>
     <summary>Click to view image 0</summary>
 
-    ![Image 0](res/c0.png)
+    <p align="center">
+        <img src="res/c0.png" width="700"/>
+    </p>
 
 </details>
 
 <details>
     <summary>Click to view image 1</summary>
 
-    ![Image 1](res/c1.png)
+    <p align="center">
+        <img src="res/c1.png" width="700"/>
+    </p>
 
 </details>
 
 <details>
     <summary>Click to view image 2</summary>
 
-    ![Image 2](res/c2.png)
+    <p align="center">
+        <img src="res/c2.png" width="700"/>
+    </p>
 
 </details>
 
 <details>
     <summary>Click to view image 3</summary>
 
-    ![Image 3](res/c3.png)
+    <p align="center">
+        <img src="res/c3.png" width="700"/>
+    </p>
 
 </details>
 
 <details>
     <summary>Click to view image 4</summary>
 
-    ![Image 4](res/c4.png)
+    <p align="center">
+        <img src="res/c4.png" width="700"/>
+    </p>
 
 </details>
 
 <details>
     <summary>Click to view image 5</summary>
 
-    ![Image 5](res/c5.png)
+    <p align="center">
+        <img src="res/c5.png" width="700"/>
+    </p>
 
 </details>
 
 <details>
     <summary>Click to view image 6</summary>
 
-    ![Image 6](res/c6.png)
+    <p align="center">
+        <img src="res/c6.png" width="700"/>
+    </p>
 
 </details>
 
 <details>
     <summary>Click to view image 7</summary>
 
-    ![Image 7](res/c7.png)
+    <p align="center">
+        <img src="res/c7.png" width="700"/>
+    </p>
 
 </details>
 
 <details>
     <summary>Click to view image 8</summary>
 
-    ![Image 8](res/c8.png)
+    <p align="center">
+        <img src="res/c8.png" width="700"/>
+    </p>
 
 </details>
 
 <details>
     <summary>Click to view image 9</summary>
 
-    ![Image 9](res/c9.png)
+    <p align="center">
+        <img src="res/c9.png" width="700"/>
+    </p>
 
 </details>
 
 <details>
     <summary>Click to view image 10</summary>
 
-    ![Image 10](res/c10.png)
+    <p align="center">
+        <img src="res/c10.png" width="700"/>
+    </p>
 
 </details>
 
 <details>
     <summary>Click to view image 11</summary>
 
-    ![Image 11](res/c11.png)
+    <p align="center">
+        <img src="res/c11.png" width="700"/>
+    </p>
 
 </details>
 
 <details>
     <summary>Click to view image 12</summary>
 
-    ![Image 12](res/c12.png)
+    <p align="center">
+        <img src="res/c12.png" width="700"/>
+    </p>
 
 </details>
 
 <details>
     <summary>Click to view image 13</summary>
 
-    ![Image 13](res/c13.png)
+    <p align="center">
+        <img src="res/c13.png" width="700"/>
+    </p>
 
 </details>
 
 <details>
     <summary>Click to view image 14</summary>
 
-    ![Image 14](res/c14.png)
+    <p align="center">
+        <img src="res/c14.png" width="700"/>
+    </p>
 
 </details>
 
 <details>
     <summary>Click to view image 15</summary>
 
-    ![Image 15](res/c15.png)
+    <p align="center">
+        <img src="res/c15.png" width="700"/>
+    </p>
 
 </details>
 
 <details>
     <summary>Click to view image 16</summary>
 
-    ![Image 16](res/c16.png)
+    <p align="center">
+        <img src="res/c16.png" width="700"/>
+    </p>
 
 </details>
 
 <details>
     <summary>Click to view image 17</summary>
 
-    ![Image 17](res/c17.png)
+    <p align="center">
+        <img src="res/c17.png" width="700"/>
+    </p>
 
 </details>
 
 <details>
     <summary>Click to view image 18</summary>
 
-    ![Image 18](res/c18.png)
+    <p align="center">
+        <img src="res/c18.png" width="700"/>
+    </p>
 
 </details>
 
 <details>
     <summary>Click to view image 19</summary>
 
-    ![Image 19](res/c19.png)
+    <p align="center">
+        <img src="res/c19.png" width="700"/>
+    </p>
 
 </details>
 
 <details>
     <summary>Click to view image 20</summary>
 
-    ![Image 20](res/c20.png)
+    <p align="center">
+        <img src="res/c20.png" width="700"/>
+    </p>
 
 </details>
 
 <details>
     <summary>Click to view image 21</summary>
 
-    ![Image 21](res/c21.png)
+    <p align="center">
+        <img src="res/c21.png" width="700"/>
+    </p>
 
 </details>
 
 <details>
     <summary>Click to view image 22</summary>
 
-    ![Image 22](res/c22.png)
+    <p align="center">
+        <img src="res/c22.png" width="700"/>
+    </p>
 
 </details>
 
 <details>
     <summary>Click to view image 23</summary>
 
-    ![Image 23](res/c23.png)
+    <p align="center">
+        <img src="res/c23.png" width="700"/>
+    </p>
 
 </details>
 
 <details>
     <summary>Click to view image 24</summary>
 
-    ![Image 24](res/c24.png)
+    <p align="center">
+        <img src="res/c24.png" width="700"/>
+    </p>
 
 </details>
 
 <details>
     <summary>Click to view image 25</summary>
 
-    ![Image 25](res/c25.png)
+    <p align="center">
+        <img src="res/c25.png" width="700"/>
+    </p>
 
 </details>
 
 <details>
     <summary>Click to view image 26</summary>
 
-    ![Image 26](res/c26.png)
+    <p align="center">
+        <img src="res/c26.png" width="700"/>
+    </p>
 
 </details>
-
 
    
 
